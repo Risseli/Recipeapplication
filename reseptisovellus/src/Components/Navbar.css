@@ -3,7 +3,7 @@
 }
 
 nav {
-  font-size: 36px;
+  font-size: 28px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -13,6 +13,12 @@ nav {
   position: sticky;
   top: 0;
 }
+
+nav .input {
+  border-radius: 0.5rem;
+  height: 1.5rem;
+}
+
 nav .title {
   color: white;
   font-size: 2rem;

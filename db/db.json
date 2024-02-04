@@ -1,0 +1,411 @@
+{
+  "user": [
+    {
+      "userID": 1,
+      "admin": 1,
+      "username": "admin_user",
+      "name": "Admin User",
+      "email": "admin@example.com",
+      "password": "admin_password"
+    },
+    {
+      "userID": 2,
+      "admin": 0,
+      "username": "normal_user",
+      "name": "Normal User",
+      "email": "user@example.com",
+      "password": "user_password"
+    },
+    {
+      "userID": 3,
+      "admin": 0,
+      "username": "viewer_user",
+      "name": "Viewer User",
+      "email": "viewer@example.com",
+      "password": "viewer_password"
+    },
+    {
+      "userID": 4,
+      "admin": 0,
+      "username": "chef_user",
+      "name": "Chef User",
+      "email": "chef@example.com",
+      "password": "chef_password"
+    },
+    {
+      "userID": 5,
+      "admin": 0,
+      "username": "foodie_user",
+      "name": "Foodie User",
+      "email": "foodie@example.com",
+      "password": "foodie_password"
+    },
+    {
+      "userID": 6,
+      "admin": 0,
+      "username": "watcher_user",
+      "name": "Watcher User",
+      "email": "watcher@example.com",
+      "password": "watcher_password"
+    }
+  ],
+  "recipe": [
+    {
+      "recipeID": 1,
+      "name": "Pasta Carbonara",
+      "instructions": "Boil pasta. Mix eggs, cheese, and pancetta. Combine with pasta.",
+      "userID": 4,
+      "visibility": 1
+    },
+    {
+      "recipeID": 2,
+      "name": "Chicken Curry",
+      "instructions": "Cook chicken with curry sauce. Serve with rice.",
+      "userID": 5,
+      "visibility": 1
+    },
+    {
+      "recipeID": 3,
+      "name": "Vegetarian Pizza",
+      "instructions": "Prepare pizza dough. Add tomato sauce, cheese, and vegetables. Bake.",
+      "userID": 4,
+      "visibility": 1
+    },
+    {
+      "recipeID": 4,
+      "name": "Chocolate Cake",
+      "instructions": "Mix flour, sugar, and cocoa powder. Bake in the oven. Add frosting.",
+      "userID": 3,
+      "visibility": 1
+    },
+    {
+      "recipeID": 5,
+      "name": "Salmon Salad",
+      "instructions": "Grill salmon. Toss with mixed greens, tomatoes, and dressing.",
+      "userID": 6,
+      "visibility": 1
+    }
+  ],
+  "review": [
+    {
+      "userID": 2,
+      "recipeID": 1,
+      "rating": 5,
+      "comment": "Delicious!"
+    },
+    {
+      "userID": 3,
+      "recipeID": 2,
+      "rating": 4,
+      "comment": "Great curry flavor."
+    },
+    {
+      "userID": 1,
+      "recipeID": 3,
+      "rating": 5,
+      "comment": "Best vegetarian pizza ever!"
+    },
+    {
+      "userID": 5,
+      "recipeID": 4,
+      "rating": 4,
+      "comment": "Moist and chocolatey."
+    },
+    {
+      "userID": 4,
+      "recipeID": 5,
+      "rating": 3,
+      "comment": "Healthy and tasty salad."
+    }
+  ],
+  "recipe_ingredient": [
+    {
+      "recipeID": 1,
+      "ingredientName": "Spaghetti",
+      "amount": 300,
+      "unit": "g"
+    },
+    {
+      "recipeID": 1,
+      "ingredientName": "Eggs",
+      "amount": 2,
+      "unit": "pcs"
+    },
+    {
+      "recipeID": 1,
+      "ingredientName": "Parmesan Cheese",
+      "amount": 50,
+      "unit": "g"
+    },
+    {
+      "recipeID": 1,
+      "ingredientName": "Pancetta",
+      "amount": 100,
+      "unit": "g"
+    },
+    {
+      "recipeID": 2,
+      "ingredientName": "Chicken",
+      "amount": 500,
+      "unit": "g"
+    },
+    {
+      "recipeID": 2,
+      "ingredientName": "Curry Sauce",
+      "amount": 200,
+      "unit": "ml"
+    },
+    {
+      "recipeID": 3,
+      "ingredientName": "Pizza Dough",
+      "amount": null,
+      "unit": null
+    },
+    {
+      "recipeID": 3,
+      "ingredientName": "Tomato Sauce",
+      "amount": 150,
+      "unit": "g"
+    },
+    {
+      "recipeID": 3,
+      "ingredientName": "Mozzarella Cheese",
+      "amount": 100,
+      "unit": "g"
+    },
+    {
+      "recipeID": 3,
+      "ingredientName": "Mixed Vegetables",
+      "amount": null,
+      "unit": null
+    },
+    {
+      "recipeID": 4,
+      "ingredientName": "Flour",
+      "amount": 200,
+      "unit": "g"
+    },
+    {
+      "recipeID": 4,
+      "ingredientName": "Sugar",
+      "amount": 150,
+      "unit": "g"
+    },
+    {
+      "recipeID": 4,
+      "ingredientName": "Cocoa Powder",
+      "amount": 50,
+      "unit": "g"
+    },
+    {
+      "recipeID": 5,
+      "ingredientName": "Salmon",
+      "amount": 300,
+      "unit": "g"
+    },
+    {
+      "recipeID": 5,
+      "ingredientName": "Mixed Greens",
+      "amount": null,
+      "unit": null
+    },
+    {
+      "recipeID": 5,
+      "ingredientName": "Tomatoes",
+      "amount": 2,
+      "unit": "pcs"
+    },
+    {
+      "recipeID": 5,
+      "ingredientName": "Dressing",
+      "amount": null,
+      "unit": null
+    }
+  ],
+  "favorites": [
+    {
+      "userID": 2,
+      "recipeID": 1
+    },
+    {
+      "userID": 3,
+      "recipeID": 2
+    },
+    {
+      "userID": 1,
+      "recipeID": 3
+    },
+    {
+      "userID": 5,
+      "recipeID": 4
+    },
+    {
+      "userID": 4,
+      "recipeID": 5
+    }
+  ],
+  "recipe_indgredients": [
+    {
+      "recipeID": 1,
+      "ingredientID": 1
+    },
+    {
+      "recipeID": 1,
+      "ingredientID": 2
+    },
+    {
+      "recipeID": 1,
+      "ingredientID": 3
+    },
+    {
+      "recipeID": 1,
+      "ingredientID": 4
+    },
+    {
+      "recipeID": 2,
+      "ingredientID": 5
+    },
+    {
+      "recipeID": 2,
+      "ingredientID": 6
+    },
+    {
+      "recipeID": 3,
+      "ingredientID": 7
+    },
+    {
+      "recipeID": 3,
+      "ingredientID": 8
+    },
+    {
+      "recipeID": 3,
+      "ingredientID": 9
+    },
+    {
+      "recipeID": 3,
+      "ingredientID": 10
+    },
+    {
+      "recipeID": 4,
+      "ingredientID": 11
+    },
+    {
+      "recipeID": 4,
+      "ingredientID": 12
+    },
+    {
+      "recipeID": 4,
+      "ingredientID": 13
+    },
+    {
+      "recipeID": 5,
+      "ingredientID": 14
+    },
+    {
+      "recipeID": 5,
+      "ingredientID": 15
+    },
+    {
+      "recipeID": 5,
+      "ingredientID": 16
+    },
+    {
+      "recipeID": 5,
+      "ingredientID": 17
+    }
+  ],
+"image": [
+  {
+    "imageID": 1,
+    "imagePath": "C:\\temp\\image1.jpg"
+  },
+  {
+    "imageID": 2,
+    "imagePath": "C:\\temp\\image2.jpg"
+  },
+  {
+    "imageID": 3,
+    "imagePath": "C:\\temp\\image3.jpg"
+  },
+  {
+    "imageID": 4,
+    "imagePath": "C:\\temp\\image4.jpg"
+  },
+  {
+    "imageID": 5,
+    "imagePath": "C:\\temp\\image5.jpg"
+  }
+],
+
+  "recipe_images": [
+    {
+      "recipeID": 1,
+      "imageID": 1,
+      "image_imageID":1
+    },
+    {
+      "recipeID": 2,
+      "imageID": 2,
+      "image_imageID":2
+    },
+    {
+      "recipeID": 3,
+      "imageID": 3,
+      "image_imageID":3
+    },
+    {
+      "recipeID": 4,
+      "imageID": 4,
+      "image_imageID":4
+    },
+    {
+      "recipeID": 5,
+      "imageID": 5,
+      "image_imageID":5
+    }
+  ],
+  "keyword": [
+    {
+      "keywordID": 1,
+      "keyword": "Italian"
+    },
+    {
+      "keywordID": 2,
+      "keyword": "Spicy"
+    },
+    {
+      "keywordID": 3,
+      "keyword": "Vegetarian"
+    },
+    {
+      "keywordID": 4,
+      "keyword": "Dessert"
+    },
+    {
+      "keywordID": 5,
+      "keyword": "Healthy"
+    }
+  ],
+  "recipe_keywords": [
+    {
+      "recipeID": 1,
+      "keywordID": 1
+    },
+    {
+      "recipeID": 2,
+      "keywordID": 2
+    },
+    {
+      "recipeID": 3,
+      "keywordID": 3
+    },
+    {
+      "recipeID": 4,
+      "keywordID": 4
+    },
+    {
+      "recipeID": 5,
+      "keywordID": 5
+    }
+  ]
+}
