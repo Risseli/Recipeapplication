@@ -10,7 +10,12 @@ namespace RecipeAppBackend.Helper
         {
             CreateMap<User, UserDto>();
             CreateMap<Recipe, RecipeDto>();
-            CreateMap<Review, ReviewDto>();
+            CreateMap<Review, ReviewDto>().ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.User.Id))
+                                          .ForMember(dest => dest.RecipeId, opt => opt.MapFrom(src => src.Recipe.Id));
+            CreateMap<Keyword, KeywordDto>();
+            CreateMap<Image, ImageDto>().ForMember(dest => dest.ImageData, opt => opt.MapFrom
+                                            (src => Convert.ToBase64String(src.ImageData)));
+            CreateMap<Ingredient, IngredientDto>();
         }
     }
 }

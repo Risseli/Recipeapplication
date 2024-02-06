@@ -14,6 +14,10 @@ builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());    //Ic
 
 //Include different interfaces/classes
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IKeywordRepository, KeywordRepository>();
+builder.Services.AddScoped<IReviewRepository, ReviewRepository>();
+builder.Services.AddScoped<IImageRepository, ImageRepository>();
+builder.Services.AddScoped<IIngredientRepository, IngredientRepository>();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
