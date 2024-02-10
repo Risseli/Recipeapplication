@@ -62,5 +62,40 @@ namespace RecipeAppBackend.Controllers
 
             return Ok(keywords);
         }
+
+
+
+        [HttpPost]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(422)]
+        public IActionResult CreateKeyword([FromBody] KeywordDto createKeyword)
+        {
+            if (createKeyword == null)
+                return BadRequest(ModelState);
+
+            var keyword = _keywordRepository.GetKeywords()
+                .Where(k => k.Word.Trim().ToLower() == createKeyword.Word.Trim().ToLower())
+                .FirstOrDefault();
+
+            if (keyword != null)
+            {
+                ModelState.AddModelError("", "Keyword already exists");
+                return StatusCode(422, ModelState);
+            }
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var keywordMap = _mapper.Map<Keyword>(createKeyword);
+
+            if (!_keywordRepository.CreateKeyword(keywordMap))
+            {
+                ModelState.AddModelError("", "Something went wrong while creating the keyword " + keywordMap.Word);
+                return StatusCode(500, ModelState);
+            }
+
+            return Ok("Succesfully created");
+        }
     }
 }

@@ -21,6 +21,7 @@ namespace RecipeAppBackend.Controllers
 
         [HttpGet]
         [ProducesResponseType(200, Type = typeof(IEnumerable<Recipe>))]
+        [ProducesResponseType(400)]
         public IActionResult GetRecipes()
         {
             var recipes = _mapper.Map<List<RecipeDto>>(_recipeRepository.GetRecipes());
@@ -43,6 +44,8 @@ namespace RecipeAppBackend.Controllers
 
         [HttpGet("{recipeId}")]
         [ProducesResponseType(200, Type = typeof(Recipe))]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
         public IActionResult GetRecipe(int recipeId)
         {
             if (!_recipeRepository.RecipeExists(recipeId))

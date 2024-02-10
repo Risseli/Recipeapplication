@@ -47,5 +47,39 @@ namespace RecipeAppBackend.Controllers
 
             return Ok(ingredient);
         }
+
+
+        [HttpPost]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(422)]
+        public IActionResult CreateIngredient([FromBody] IngredientDto ingredientCreate)
+        {
+            if (ingredientCreate == null)
+                return BadRequest(ModelState);
+
+            var ingredient = _ingredientRepository.GetIngredients()
+                .Where(i => i.Name.Trim().ToLower() == ingredientCreate.Name.Trim().ToLower())
+                .FirstOrDefault();
+
+            if (ingredient != null)
+            {
+                ModelState.AddModelError("", "Ingredient already exists");
+                return StatusCode(422, ModelState);
+            }
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var ingredientMap = _mapper.Map<Ingredient>(ingredientCreate);
+
+            if (!_ingredientRepository.CreateIngredient(ingredientMap))
+            {
+                ModelState.AddModelError("", "Something went wrong while creating the ingredient" + ingredientMap.Name);
+                return StatusCode(500, ModelState);
+            }
+
+            return Ok("Succesfully created");
+        }
     }
 }

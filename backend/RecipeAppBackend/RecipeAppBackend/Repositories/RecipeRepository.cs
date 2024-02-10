@@ -56,7 +56,7 @@ namespace RecipeAppBackend.Repositories
 
         public ICollection<Review> GetReviewsOfRecipe(int id)
         {
-            return _context.Reviews.Where(r => r.Recipe.Id == id).ToList();
+            return _context.Reviews.Where(r => r.Recipe.Id == id).Include(r => r.User).ToList();
         }
 
         public bool RecipeExists(int id)

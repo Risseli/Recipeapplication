@@ -8,5 +8,7 @@ namespace RecipeAppBackend.Interfaces
         ICollection<Image> GetImages();
         Image GetImage(int id);
         bool ImageExists(int id);
+        bool CreateImage(Image image);
+        bool Save();
     }
 }

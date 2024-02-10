@@ -13,6 +13,12 @@ namespace RecipeAppBackend.Repositories
             _context = context;
         }
 
+        public bool CreateImage(Image image)
+        {
+            _context.Images.Add(image);
+            return Save();
+        }
+
         public Image GetImage(int id)
         {
             return _context.Images.FirstOrDefault(i => i.Id == id);
@@ -26,6 +32,12 @@ namespace RecipeAppBackend.Repositories
         public bool ImageExists(int id)
         {
             return _context.Images.Any(i => i.Id == id);
+        }
+
+        public bool Save()
+        {
+            var saved = _context.SaveChanges();
+            return saved > 0 ? true : false;
         }
     }
 }

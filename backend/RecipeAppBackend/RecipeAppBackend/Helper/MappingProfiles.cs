@@ -17,7 +17,17 @@ namespace RecipeAppBackend.Helper
             CreateMap<Keyword, KeywordDto>();
             CreateMap<Image, ImageDto>().ForMember(dest => dest.ImageData, opt => opt.MapFrom
                                             (src => Convert.ToBase64String(src.ImageData)));
-            
+
+
+
+
+            CreateMap<Ingredient, IngredientDto>().ReverseMap();
+            CreateMap<User, UserDto>().ReverseMap();
+            CreateMap<Recipe, RecipeDto>().ReverseMap();
+            CreateMap<Review, ReviewDto>().ReverseMap();
+            CreateMap<Keyword, KeywordDto>().ReverseMap();
+            CreateMap<ImageDto, Image>().ForMember(dest => dest.ImageData, opt => opt.MapFrom
+                                            (src => Convert.FromBase64String(src.ImageData)));
         }
     }
 }

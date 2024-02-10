@@ -7,5 +7,7 @@ namespace RecipeAppBackend.Interfaces
         ICollection<Ingredient> GetIngredients();
         Ingredient GetIngredient(int id);
         bool IngredientExists(int id);
+        bool CreateIngredient(Ingredient ingredient);
+        bool Save();
     }
 }

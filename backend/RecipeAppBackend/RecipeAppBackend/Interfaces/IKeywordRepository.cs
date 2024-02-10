@@ -8,5 +8,7 @@ namespace RecipeAppBackend.Interfaces
         Keyword GetKeyword(int id);
         ICollection<Keyword> GetKeywordsOfRecipe(int recipeId);
         bool KeywordExists(int id);
+        bool CreateKeyword(Keyword keyword);
+        bool Save();
     }
 }

@@ -13,6 +13,12 @@ namespace RecipeAppBackend.Repositories
             _context = context;
         }
 
+        public bool CreateIngredient(Ingredient ingredient)
+        {
+            _context.Add(ingredient);
+            return Save();
+        }
+
         public Ingredient GetIngredient(int id)
         {
             return _context.Ingredients.FirstOrDefault(i => i.Id == id);
@@ -26,6 +32,12 @@ namespace RecipeAppBackend.Repositories
         public bool IngredientExists(int id)
         {
             return _context.Ingredients.Any(i => i.Id == id);
+        }
+
+        public bool Save()
+        {
+            var saved = _context.SaveChanges();
+            return saved > 0 ? true : false;
         }
     }
 }

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using RecipeAppBackend.Dto;
 using RecipeAppBackend.Interfaces;
 using RecipeAppBackend.Models;
+using RecipeAppBackend.Repositories;
 
 namespace RecipeAppBackend.Controllers
 {
@@ -50,5 +51,41 @@ namespace RecipeAppBackend.Controllers
 
             return Ok(image);
         }
+
+
+
+        [HttpPost]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(422)]
+        public IActionResult CreateImage([FromBody] ImageDto createImage)
+        {
+            if (createImage == null)
+                return BadRequest(ModelState);
+
+            //This isn't needed, since the automapper mapping profile takes care of it. Or something else
+            //byte[] imageData = Convert.FromBase64String(createImage.ImageData);
+
+            //if (imageData == null)
+            //{
+            //    ModelState.AddModelError("", "There was an issue converting image data");
+            //    return BadRequest(ModelState);
+            //}
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var imageMap = _mapper.Map<Image>(createImage);
+            //imageMap.ImageData = imageData;
+
+            if (!_imageRepository.CreateImage(imageMap))
+            {
+                ModelState.AddModelError("", "Something went wrong while creating the image.");
+                return StatusCode(500, ModelState);
+            }
+
+            return Ok(imageMap);
+        }
+
     }
 }

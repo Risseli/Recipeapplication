@@ -13,6 +13,12 @@ namespace RecipeAppBackend.Repositories
             _context = context;
         }
 
+        public bool CreateKeyword(Keyword keyword)
+        {
+            _context.Keywords.Add(keyword);
+            return Save();
+        }
+
         public Keyword GetKeyword(int id)
         {
             return _context.Keywords.FirstOrDefault(k => k.Id == id);
@@ -31,6 +37,12 @@ namespace RecipeAppBackend.Repositories
         public bool KeywordExists(int id)
         {
             return _context.Keywords.Any(k => k.Id == id);
+        }
+
+        public bool Save()
+        {
+            var saved = _context.SaveChanges();
+            return saved > 0 ? true : false;
         }
     }
 }

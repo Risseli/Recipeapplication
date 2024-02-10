@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using RecipeAppBackend.Dto;
 using RecipeAppBackend.Interfaces;
 using RecipeAppBackend.Models;
+using RecipeAppBackend.Repositories;
 using System.Collections.Generic;
 
 namespace RecipeAppBackend.Controllers
@@ -13,11 +14,13 @@ namespace RecipeAppBackend.Controllers
     public class UserController : Controller
     {
         private readonly IUserRepository _userRepository;
+        private readonly IRecipeRepository _recipeRepository;
         private readonly IMapper _mapper;
 
-        public UserController(IUserRepository userRepository, IMapper mapper)
+        public UserController(IUserRepository userRepository, IRecipeRepository recipeRepository, IMapper mapper)
         {
             _userRepository = userRepository;
+            _recipeRepository = recipeRepository;
             _mapper = mapper;
         }
 
@@ -67,6 +70,16 @@ namespace RecipeAppBackend.Controllers
                 return BadRequest(ModelState);
             }
 
+            foreach (var recipe in recipes)
+            {
+                recipe.Ingredients = _mapper.Map<List<IngredientDto>>(_recipeRepository.GetIngredientsOfRecipe(recipe.Id));
+                recipe.Keywords = _mapper.Map<List<KeywordDto>>(_recipeRepository.GetKeywordsOfRecipe(recipe.Id));
+                recipe.Reviews = _mapper.Map<List<ReviewDto>>(_recipeRepository.GetReviewsOfRecipe(recipe.Id));
+                recipe.Images = _mapper.Map<List<ImageDto>>(_recipeRepository.GetImagesOfRecipe(recipe.Id));
+                recipe.FavoriteCount = _recipeRepository.GetFavoriteCount(recipe.Id);
+                recipe.Rating = _recipeRepository.GetRating(recipe.Id);
+            }
+
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
@@ -88,6 +101,16 @@ namespace RecipeAppBackend.Controllers
             {
                 ModelState.AddModelError("", "User has no recipes.");
                 return BadRequest(ModelState);
+            }
+
+            foreach (var recipe in recipes)
+            {
+                recipe.Ingredients = _mapper.Map<List<IngredientDto>>(_recipeRepository.GetIngredientsOfRecipe(recipe.Id));
+                recipe.Keywords = _mapper.Map<List<KeywordDto>>(_recipeRepository.GetKeywordsOfRecipe(recipe.Id));
+                recipe.Reviews = _mapper.Map<List<ReviewDto>>(_recipeRepository.GetReviewsOfRecipe(recipe.Id));
+                recipe.Images = _mapper.Map<List<ImageDto>>(_recipeRepository.GetImagesOfRecipe(recipe.Id));
+                recipe.FavoriteCount = _recipeRepository.GetFavoriteCount(recipe.Id);
+                recipe.Rating = _recipeRepository.GetRating(recipe.Id);
             }
 
             if (!ModelState.IsValid)
