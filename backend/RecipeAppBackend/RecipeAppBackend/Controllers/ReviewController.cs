@@ -12,14 +12,19 @@ namespace RecipeAppBackend.Controllers
     public class ReviewController : Controller
     {
         private readonly IReviewRepository _reviewRepository;
+        private readonly IRecipeRepository _recipeRepository;
         private readonly IMapper _mapper;
-        private readonly IUserRepository userRepository;
+        private readonly IUserRepository _userRepository;
 
-        public ReviewController(IReviewRepository reviewRepository, IMapper mapper, IUserRepository userRepository)
+        public ReviewController(IReviewRepository reviewRepository, 
+            IUserRepository userRepository,
+            IRecipeRepository recipeRepository,
+            IMapper mapper)
         {
             _reviewRepository = reviewRepository;
+            _recipeRepository = recipeRepository;
             _mapper = mapper;
-            this.userRepository = userRepository;
+            _userRepository = userRepository;
         }
 
         [HttpGet]
@@ -55,6 +60,55 @@ namespace RecipeAppBackend.Controllers
                 return BadRequest(ModelState);
 
             return Ok(review);
+        }
+
+
+        [HttpPost]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(422)]
+        public IActionResult CreateReview([FromBody] ReviewDto createReview)
+        {
+            if (createReview == null)
+                return BadRequest(ModelState);
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+
+            //retrieving the user
+            var userId = createReview.UserId;
+            var user = _userRepository.GetUser(userId); 
+
+            if (user == null)   //Checking that the user existed
+            {
+                ModelState.AddModelError("","There is no user with the Id: " + userId);
+                return StatusCode(422, ModelState);
+            }
+
+
+            //retrieving the recipe
+            var recipeId = createReview.RecipeId;
+            var recipe = _recipeRepository.GetRecipe(recipeId); 
+
+            if (recipe == null)   //Checking that the recipe existed
+            {
+                ModelState.AddModelError("", "There is no recipe with the Id: " + recipeId);
+                return StatusCode(422, ModelState);
+            }
+
+            var reviewMap = _mapper.Map<Review>(createReview);
+
+            reviewMap.User = user;
+            reviewMap.Recipe = recipe;
+
+            if (!_reviewRepository.CreateReview(reviewMap))
+            {
+                ModelState.AddModelError("", "Something went wrong while creating the review.");
+                return StatusCode(500, ModelState);
+            }
+
+            return Ok("Succesfully created");
         }
     }
 }
