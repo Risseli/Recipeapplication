@@ -8,7 +8,7 @@ export const Navbar = () => {
   return (
     <nav>
       <Link to="/" className="title">
-        RECEPY APP
+        RECIPE APP
       </Link>
       <div
         className="menu"
@@ -23,7 +23,11 @@ export const Navbar = () => {
       </div>
       <ul className={menuOpen ? "open" : ""}>
         <li>
-          <input className="input" type="text" placeholder="Search with ingredient.." />
+          <input
+            className="input"
+            type="text"
+            placeholder="Search with ingredient.."
+          />
         </li>
         <li>
           <Link to="/about">About</Link>
