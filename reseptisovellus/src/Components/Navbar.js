@@ -35,7 +35,7 @@ export const Navbar = () => {
           <Link to="/login">Login</Link>
         </li>
         <li>
-          <Link to="/contact">Contact</Link>
+          <Link to="/profile">Profile</Link>
         </li>
       </ul>
     </nav>
