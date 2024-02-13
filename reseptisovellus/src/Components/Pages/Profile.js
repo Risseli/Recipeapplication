@@ -19,7 +19,7 @@ const Profile = () => {
         console.log(data); // Tarkistetaan saadaanko data
 
         if (data.length > 0) {
-          setUser(data[0]); // Otetaan ensimmäinen käyttäjä, koska tiedät, että tulos on yksi käyttäjä
+          setUser(data[0]); // Otetaan ensimmäinen käyttäjä, koska tulos on yksi käyttäjä
           loadRecipes("ownRecipes"); // Lataa reseptit oletuksena "ownRecipes" -vaihtoehdon mukaan
         } else {
           navigate("/login");
@@ -80,6 +80,7 @@ const Profile = () => {
   const loadRecipes = async (option) => {
     try {
       let recipesData = [];
+
   
       if (option === "ownRecipes") {
         // Hae käyttäjän omat reseptit
@@ -87,15 +88,15 @@ const Profile = () => {
         recipesData = await response.json();
       } else if (option === "favorites") {
         // Hae käyttäjän suosikkireseptit
-        const response = await fetch(`http://localhost:3004/favorites?userID=${user.userID}`);
-        const favoritesData = await response.json();
+        //const response = await fetch(`http://localhost:3004/favorites?userID=${user.userID}`);
+        //const favoritesData = await response.json();
   
-        // Hae suosikkireseptien tiedot "recipe" taulusta, ei palauta nimeä??
-for (const favorite of favoritesData) {
-  const response = await fetch(`http://localhost:3004/recipe/${favorite.recipeID}`);
-  const recipeData = await response.json();
-  recipesData.push(recipeData);
-}
+        // Hae suosikkireseptien tiedot "recipe" taulusta, ei palauta nimeä?? nyt kovakoodattu hakemaan reseptillä 5 niin nimi toimii...
+//for (const favorite of favoritesData) {
+  const response = await fetch(`http://localhost:3004/recipe?recipeID=5`);
+  recipesData = await response.json();
+  //recipesData.push(recipeData);
+  //    }
       }
   
       setRecipes(recipesData);
