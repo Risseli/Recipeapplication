@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import './Profile.css';
 
 const Profile = () => {
   const [user, setUser] = useState(null);
@@ -112,10 +113,10 @@ const Profile = () => {
   }
 
   return (
-    <div>
+    <div className="container">
       <h1>Profile</h1>
       {!editMode && (
-        <div>
+        <div className="profile-section">
           <p>
             <strong>Username:</strong> {user.username}
           </p>
@@ -128,11 +129,11 @@ const Profile = () => {
           <p>
             <strong>Password:</strong> {user.password}
           </p>
-          <button onClick={handleEditClick}>Edit</button>
+          <button className="edit-button"onClick={handleEditClick}>Edit</button>
         </div>
       )}
       {editMode && (
-        <div>
+        <div className="profile-section">
           <p>
             <strong>Username:</strong> {editedUser.username}
           </p>
@@ -147,7 +148,7 @@ const Profile = () => {
             />
           </p>
           <p>
-            <strong>Email:</strong>{" "}
+            <strong>E-mail:</strong>{" "}
             <input
               type="email"
               value={editedUser.email}
@@ -166,20 +167,20 @@ const Profile = () => {
               }
             />
           </p>
-          <button onClick={handleSaveClick}>Save</button>
-          <button onClick={handleCancelClick}>Cancel</button>
+          <button className="save-button"onClick={handleSaveClick}>Save</button>
+          <button className="cancel-button"onClick={handleCancelClick}>Cancel</button>
         </div>
       )}
-      <div>
+      <div className="view-select">
         <label>
-          <strong>View:</strong>
+          <strong>View:  </strong>
           <select value={selectedOption} onChange={handleOptionChange}>
             <option value="ownRecipes">Own Recipes</option>
             <option value="favorites">Favorites</option>
           </select>
         </label>
       </div>
-      <div>
+      <div className="recipe-list">
         <h2>Recipes:</h2>
         <ul>
           {recipes.map((recipe) => (
