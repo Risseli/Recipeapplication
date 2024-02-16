@@ -84,7 +84,7 @@ namespace RecipeAppBackend.Controllers
                 return StatusCode(500, ModelState);
             }
 
-            return Ok("Succesfully created");
+            return Ok(imageMap);
         }
 
     }
