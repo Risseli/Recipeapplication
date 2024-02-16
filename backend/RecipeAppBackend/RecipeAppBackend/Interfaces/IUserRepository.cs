@@ -10,5 +10,9 @@ namespace RecipeAppBackend.Interfaces
         ICollection<Recipe> GetUsersFavorites(int id);
         ICollection<Review> GetUsersReviews(int id);
         bool UserExists(int id);
+        bool CreateUser(User user);
+        bool AddFavorite(Favorite favorite);
+        bool FavoriteExists(int userId, int recipeId);
+        bool Save();
     }
 }

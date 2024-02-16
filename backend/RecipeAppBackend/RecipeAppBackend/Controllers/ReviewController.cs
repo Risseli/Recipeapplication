@@ -75,6 +75,9 @@ namespace RecipeAppBackend.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
+            //Limit rating to 1-5
+            if (createReview.Rating <= 1) createReview.Rating = 1;
+            if (createReview.Rating >= 5) createReview.Rating = 5;
 
             //retrieving the user
             var userId = createReview.UserId;

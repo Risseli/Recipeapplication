@@ -64,11 +64,11 @@ namespace RecipeAppBackend.Controllers
 
             var recipes = _mapper.Map<List<RecipeDto>>(_userRepository.GetUsersFavorites(userId));
 
-            if (recipes.Count == 0)
-            {
-                ModelState.AddModelError("", "User has no favorites.");
-                return BadRequest(ModelState);
-            }
+            //if (recipes.Count == 0)
+            //{
+            //    ModelState.AddModelError("", "User has no favorites.");
+            //    return BadRequest(ModelState);
+            //}
 
             foreach (var recipe in recipes)
             {
@@ -97,11 +97,11 @@ namespace RecipeAppBackend.Controllers
 
             var recipes = _mapper.Map<List<RecipeDto>>(_userRepository.GetUsersRecipes(userId));
 
-            if (recipes.Count == 0)
-            {
-                ModelState.AddModelError("", "User has no recipes.");
-                return BadRequest(ModelState);
-            }
+            //if (recipes.Count == 0)
+            //{
+            //    ModelState.AddModelError("", "User has no recipes.");
+            //    return BadRequest(ModelState);
+            //}
 
             foreach (var recipe in recipes)
             {
@@ -130,16 +130,105 @@ namespace RecipeAppBackend.Controllers
 
             var reviews = _mapper.Map<List<ReviewDto>>(_userRepository.GetUsersReviews(userId));
 
-            if (reviews.Count == 0)
-            {
-                ModelState.AddModelError("", "User has no reviews.");
-                return BadRequest(ModelState);
-            }
+            //if (reviews.Count == 0)
+            //{
+            //    ModelState.AddModelError("", "User has no reviews.");
+            //    return BadRequest(ModelState);
+            //}
 
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
             return Ok(reviews);
+        }
+
+
+        [HttpPost]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(422)]
+        public IActionResult CreateUser([FromBody] CreateUserDto createUser)
+        {
+            if (createUser == null)
+                return BadRequest(ModelState);
+
+            var user = _userRepository.GetUsers()
+                .Where(u => u.Email == createUser.Email).FirstOrDefault();
+
+            if (user != null)
+            {
+                ModelState.AddModelError("", "The email" + createUser.Email + " is already in use");
+                return StatusCode(422, ModelState);
+            }
+
+            user = _userRepository.GetUsers()
+                .Where(u => u.Username == createUser.Username).FirstOrDefault();
+
+            if (user != null)
+            {
+                ModelState.AddModelError("", "The username" + createUser.Username + " is already in use");
+                return StatusCode(422, ModelState);
+            }
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var userMap = _mapper.Map<User>(createUser);
+
+            if (!_userRepository.CreateUser(userMap))
+            {
+                ModelState.AddModelError("", "Something went wrong while creating the user");
+                return StatusCode(500, ModelState);
+            }
+
+            return Ok("Succesfully created");
+        }
+
+        [HttpPost("{userId}/Favorites")]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(422)]
+        [ProducesResponseType(404)]
+        public IActionResult AddFavorite(int userId, [FromQuery] int recipeId)
+        {
+            var user = _userRepository.GetUser(userId);
+            var recipe = _recipeRepository.GetRecipe(recipeId);
+
+            if (user == null)
+            {
+                ModelState.AddModelError("", "There is no user with the id: " + userId);
+                return StatusCode(404, ModelState);
+            }
+            if (recipe == null)
+            {
+                ModelState.AddModelError("", "There is no recipe with the id: " + recipeId);
+                return StatusCode(404, ModelState);
+            }
+
+            if (_userRepository.FavoriteExists(userId, recipeId) != null)
+            {
+                ModelState.AddModelError("", "The recipe is already a favorite of the user");
+                return StatusCode(422, ModelState);
+            }
+
+            Favorite favorite = new Favorite
+            {
+                UserId = userId,
+                RecipeId = recipeId,
+                Recipe = recipe,
+                User = user
+            };
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            if (!_userRepository.AddFavorite(favorite))
+            {
+                ModelState.AddModelError("", "Something went wrong while adding the favorite");
+                return StatusCode(500, ModelState);
+            }
+
+            return Ok("Succesfully created");
         }
     }
 }

@@ -63,7 +63,7 @@ namespace RecipeAppBackend.Controllers
             if (createImage == null)
                 return BadRequest(ModelState);
 
-            //This isn't needed, since the automapper mapping profile takes care of it. Or something else
+            //This isn't needed, since the automapper mapping profile takes care of it. Or something else does
             //byte[] imageData = Convert.FromBase64String(createImage.ImageData);
 
             //if (imageData == null)

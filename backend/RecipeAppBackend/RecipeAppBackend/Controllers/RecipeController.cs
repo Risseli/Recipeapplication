@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using RecipeAppBackend.Dto;
 using RecipeAppBackend.Interfaces;
@@ -11,11 +12,24 @@ namespace RecipeAppBackend.Controllers
     public class RecipeController : Controller
     {
         private readonly IRecipeRepository _recipeRepository;
+        private readonly IUserRepository _userRepository;
+        private readonly IImageRepository _imageRepository;
+        private readonly IIngredientRepository _ingredientRepository;
+        private readonly IKeywordRepository _keywordRepository;
         private readonly IMapper _mapper;
 
-        public RecipeController(IRecipeRepository recipeRepository, IMapper mapper)
+        public RecipeController(IRecipeRepository recipeRepository
+            , IUserRepository userRepository
+            , IImageRepository imageRepository
+            , IIngredientRepository ingredientRepository
+            , IKeywordRepository keywordRepository
+            , IMapper mapper)
         {
             _recipeRepository = recipeRepository;
+            _userRepository = userRepository;
+            _imageRepository = imageRepository;
+            _ingredientRepository = ingredientRepository;
+            _keywordRepository = keywordRepository;
             _mapper = mapper;
         }
 
@@ -64,6 +78,72 @@ namespace RecipeAppBackend.Controllers
                 return BadRequest(ModelState);
 
             return Ok(recipe);
+        }
+
+        [HttpPost]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(422)]
+        [ProducesResponseType(404)]
+        public IActionResult CreateRecipe([FromBody] RecipeDto createRecipe)
+        {
+            if (createRecipe == null)
+                return BadRequest(ModelState);
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            //Getting and checking user
+            var user = _userRepository.GetUser(createRecipe.UserId);
+            if (user == null)
+            {
+                ModelState.AddModelError("","There is no user with the id: " +  createRecipe.UserId);
+                return StatusCode(404, ModelState);
+            }
+
+            var recipeMap = _mapper.Map<Recipe>(createRecipe); //map the recipe
+            recipeMap.User = user;
+
+            //Handle ingredients
+            var ingredients = _mapper.Map<List<Ingredient>>(createRecipe.Ingredients);
+            List<RecipeIngredient> recipeIngredients = new List<RecipeIngredient>();
+
+            foreach(Ingredient ing in ingredients)
+            {
+                if (_ingredientRepository.GetIngredients()
+                    .Where(i => i.Name.Trim().ToLower() == ing.Name.Trim().ToLower())
+                    .FirstOrDefault() == null) //doenst exist, make it
+                {
+
+                    //yhyy siinä muuttuu ne määrät ei näin voi tehdä!!!!!
+                    //yhyy siinä muuttuu ne määrät ei näin voi tehdä!!!!!
+                    //yhyy siinä muuttuu ne määrät ei näin voi tehdä!!!!!
+                    //yhyy siinä muuttuu ne määrät ei näin voi tehdä!!!!!
+                    //yhyy siinä muuttuu ne määrät ei näin voi tehdä!!!!!
+
+
+
+
+
+                    if (!_ingredientRepository.CreateIngredient(ing))
+                    {
+                        ModelState.AddModelError("", "Something went wrong while creating ingredient: " + ing);
+                        return StatusCode(500, ModelState);
+                    }
+                }
+
+                recipeIngredients.Add(new RecipeIngredient
+                {
+                    Recipe = recipeMap,
+                    Ingredient = ing
+                });
+            }
+
+            //Handle keywords
+            var keywords = _mapper.Map<List<Keyword>>(createRecipe.Keywords);
+            List<RecipeKeyword> recipeKeywords = new List<RecipeKeyword>();
+
+            return Ok("ei ole vielä valmis");
         }
     }
 }

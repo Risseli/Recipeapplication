@@ -13,6 +13,12 @@ namespace RecipeAppBackend.Repositories
             _context = dataContext;
         }
 
+        public bool CreateRecipe(Recipe recipe)
+        {
+            _context.Recipes.Add(recipe);
+            return Save();
+        }
+
         public int GetFavoriteCount(int id)
         {
             var count = _context.Reviews.Where(r => r.Recipe.Id == id).ToList();
@@ -62,6 +68,12 @@ namespace RecipeAppBackend.Repositories
         public bool RecipeExists(int id)
         {
             return _context.Recipes.Any(r => r.Id == id);
+        }
+
+        public bool Save()
+        {
+            var saved = _context.SaveChanges();
+            return saved > 0 ? true : false;
         }
     }
 }
