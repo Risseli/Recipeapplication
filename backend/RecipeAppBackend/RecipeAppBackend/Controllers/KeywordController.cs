@@ -88,6 +88,7 @@ namespace RecipeAppBackend.Controllers
                 return BadRequest(ModelState);
 
             var keywordMap = _mapper.Map<Keyword>(createKeyword);
+            keywordMap.Word = keywordMap.Word.Trim().ToLower();
 
             if (!_keywordRepository.CreateKeyword(keywordMap))
             {

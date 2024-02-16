@@ -93,7 +93,7 @@ namespace RecipeAppBackend.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            //Getting and checking user
+            //Handle user
             var user = _userRepository.GetUser(createRecipe.UserId);
             if (user == null)
             {
@@ -101,49 +101,82 @@ namespace RecipeAppBackend.Controllers
                 return StatusCode(404, ModelState);
             }
 
+            //Map the recipe
             var recipeMap = _mapper.Map<Recipe>(createRecipe); //map the recipe
             recipeMap.User = user;
 
-            //Handle ingredients
-            var ingredients = _mapper.Map<List<Ingredient>>(createRecipe.Ingredients);
-            List<RecipeIngredient> recipeIngredients = new List<RecipeIngredient>();
-
-            foreach(Ingredient ing in ingredients)
-            {
-                if (_ingredientRepository.GetIngredients()
-                    .Where(i => i.Name.Trim().ToLower() == ing.Name.Trim().ToLower())
-                    .FirstOrDefault() == null) //doenst exist, make it
-                {
-
-                    //yhyy siinä muuttuu ne määrät ei näin voi tehdä!!!!!
-                    //yhyy siinä muuttuu ne määrät ei näin voi tehdä!!!!!
-                    //yhyy siinä muuttuu ne määrät ei näin voi tehdä!!!!!
-                    //yhyy siinä muuttuu ne määrät ei näin voi tehdä!!!!!
-                    //yhyy siinä muuttuu ne määrät ei näin voi tehdä!!!!!
-
-
-
-
-
-                    if (!_ingredientRepository.CreateIngredient(ing))
-                    {
-                        ModelState.AddModelError("", "Something went wrong while creating ingredient: " + ing);
-                        return StatusCode(500, ModelState);
-                    }
-                }
-
-                recipeIngredients.Add(new RecipeIngredient
-                {
-                    Recipe = recipeMap,
-                    Ingredient = ing
-                });
-            }
 
             //Handle keywords
             var keywords = _mapper.Map<List<Keyword>>(createRecipe.Keywords);
             List<RecipeKeyword> recipeKeywords = new List<RecipeKeyword>();
 
-            return Ok("ei ole vielä valmis");
+            foreach (Keyword key in keywords)
+            {
+                var oldKeyword = _keywordRepository.GetKeywords()
+                .Where(k => k.Word.Trim().ToLower() == key.Word.Trim().ToLower())
+                .FirstOrDefault(); //search for same keyword
+
+                if (oldKeyword == null) //if it doesnt exists, make it and add that one
+                {
+                    if (!_keywordRepository.CreateKeyword(key))
+                    {
+                        ModelState.AddModelError("", "Something went wrong while creating keyword: " + key.Word);
+                        return StatusCode(500, ModelState);
+                    }
+
+                    recipeKeywords.Add(new RecipeKeyword
+                    {
+                        Recipe = recipeMap,
+                        Keyword = key
+                    });
+                }
+                else
+                {       //if it exists, just add a connection to that one
+                    recipeKeywords.Add(new RecipeKeyword
+                    {
+                        Recipe = recipeMap,
+                        Keyword = oldKeyword
+                    });
+                }
+                
+            }
+
+
+            if (!_recipeRepository.CreateRecipe(recipeMap, recipeKeywords))
+            {
+                ModelState.AddModelError("", "Something went wrong while creating the recipe");
+                return StatusCode(500, ModelState);
+            }
+
+
+            //Handle ingredients
+            var ingredients = _mapper.Map<List<Ingredient>>(createRecipe.Ingredients);
+
+            foreach(Ingredient ing in ingredients)
+            {
+                ing.Recipe = recipeMap;
+
+                if (!_ingredientRepository.CreateIngredient(ing))
+                {
+                    ModelState.AddModelError("", "Something went wrong while creating ingredient: " + ing);
+                    return StatusCode(500, ModelState);
+                }
+            }
+
+            //Handle images
+            var images = _mapper.Map<List<Image>>(createRecipe.Images);
+
+            for (int i = 0; i < images.Count; i++)
+            {
+                images[i].Recipe = recipeMap;
+
+                if (!_imageRepository.CreateImage(images[i]))
+                {
+                    ModelState.AddModelError("", "Something went wrong while creating image number: " + i);
+                }
+            }
+
+            return Ok("Succesfully created");
         }
     }
 }

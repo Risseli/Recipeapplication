@@ -14,7 +14,7 @@ namespace RecipeAppBackend.Interfaces
         int GetFavoriteCount(int id);
 
         bool RecipeExists(int id);
-        bool CreateRecipe(Recipe recipe);
+        bool CreateRecipe(Recipe recipe, List<RecipeKeyword> recipeKeywords);
         bool Save(); 
     }
 }

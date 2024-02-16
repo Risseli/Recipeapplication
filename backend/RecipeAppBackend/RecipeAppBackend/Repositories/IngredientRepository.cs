@@ -1,4 +1,5 @@
-﻿using RecipeAppBackend.Data;
+﻿using Microsoft.EntityFrameworkCore;
+using RecipeAppBackend.Data;
 using RecipeAppBackend.Interfaces;
 using RecipeAppBackend.Models;
 
@@ -21,12 +22,12 @@ namespace RecipeAppBackend.Repositories
 
         public Ingredient GetIngredient(int id)
         {
-            return _context.Ingredients.FirstOrDefault(i => i.Id == id);
+            return _context.Ingredients.Include(i => i.Recipe).FirstOrDefault(i => i.Id == id);
         }
 
         public ICollection<Ingredient> GetIngredients()
         {
-            return _context.Ingredients.OrderBy(i => i.Id).ToList();
+            return _context.Ingredients.Include(i => i.Recipe).OrderBy(i => i.Id).ToList();
         }
 
         public bool IngredientExists(int id)

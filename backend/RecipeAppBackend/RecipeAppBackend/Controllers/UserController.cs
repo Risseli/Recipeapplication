@@ -205,7 +205,7 @@ namespace RecipeAppBackend.Controllers
                 return StatusCode(404, ModelState);
             }
 
-            if (_userRepository.FavoriteExists(userId, recipeId) != null)
+            if (_userRepository.FavoriteExists(userId, recipeId))
             {
                 ModelState.AddModelError("", "The recipe is already a favorite of the user");
                 return StatusCode(422, ModelState);

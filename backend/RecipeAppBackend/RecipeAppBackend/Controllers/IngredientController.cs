@@ -12,11 +12,15 @@ namespace RecipeAppBackend.Controllers
     {
         private readonly IIngredientRepository _ingredientRepository;
         private readonly IMapper _mapper;
+        private readonly IRecipeRepository _recipeRepository;
 
-        public IngredientController(IIngredientRepository ingredientRepository, IMapper mapper)
+        public IngredientController(IIngredientRepository ingredientRepository
+            , IMapper mapper
+            , IRecipeRepository recipeRepository)
         {
             _ingredientRepository = ingredientRepository;
             _mapper = mapper;
+            _recipeRepository = recipeRepository;
         }
 
         [HttpGet]
@@ -58,20 +62,21 @@ namespace RecipeAppBackend.Controllers
             if (ingredientCreate == null)
                 return BadRequest(ModelState);
 
-            var ingredient = _ingredientRepository.GetIngredients()
-                .Where(i => i.Name.Trim().ToLower() == ingredientCreate.Name.Trim().ToLower())
-                .FirstOrDefault();
-
-            if (ingredient != null)
-            {
-                ModelState.AddModelError("", "Ingredient already exists");
-                return StatusCode(422, ModelState);
-            }
 
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
+            int recipeId = ingredientCreate.RecipeId;
+            var recipe = _recipeRepository.GetRecipe(recipeId);
+
+            if (recipe == null)
+            {
+                ModelState.AddModelError("", "There is no recipe with the id: " + recipeId);
+                return StatusCode(422, ModelState);
+            }
+
             var ingredientMap = _mapper.Map<Ingredient>(ingredientCreate);
+            ingredientMap.Recipe = recipe;
 
             if (!_ingredientRepository.CreateIngredient(ingredientMap))
             {

@@ -13,8 +13,9 @@ namespace RecipeAppBackend.Repositories
             _context = dataContext;
         }
 
-        public bool CreateRecipe(Recipe recipe)
+        public bool CreateRecipe(Recipe recipe, List<RecipeKeyword> recipeKeywords)
         {
+            _context.RecipeKeywords.AddRange(recipeKeywords);
             _context.Recipes.Add(recipe);
             return Save();
         }
@@ -27,12 +28,12 @@ namespace RecipeAppBackend.Repositories
 
         public ICollection<Image> GetImagesOfRecipe(int id)
         {
-            return _context.RecipeImages.Where(ri => ri.Recipe.Id == id).Select(ri => ri.Image).ToList();
+            return _context.Images.Where(i => i.Recipe.Id == id).Include(i => i.Recipe).ToList();
         }
 
         public ICollection<Ingredient> GetIngredientsOfRecipe(int id)
         {
-            return _context.RecipeIngredients.Where(ri => ri.RecipeId == id).Select(ri => ri.Ingredient).ToList();
+            return _context.Ingredients.Where(i => i.Recipe.Id == id).Include(i => i.Recipe).ToList();
         }
 
         public ICollection<Keyword> GetKeywordsOfRecipe(int id)

@@ -13,7 +13,7 @@ namespace RecipeAppBackend.Dto
         public decimal Rating { get; set; }
         public ICollection<IngredientDto> Ingredients { get; set; }
         public ICollection<KeywordDto> Keywords { get; set; }
-        public ICollection<ReviewDto> Reviews { get; set; }
+        public ICollection<ReviewDto>? Reviews { get; set; }
         public ICollection<ImageDto> Images { get; set; }
         
 

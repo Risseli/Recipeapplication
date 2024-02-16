@@ -13,13 +13,18 @@ namespace RecipeAppBackend.Controllers
     {
         private readonly IReviewRepository _reviewRepository;
         private readonly IMapper _mapper;
-        private readonly IUserRepository userRepository;
+        private readonly IUserRepository _userRepository;
+        private readonly IRecipeRepository _recipeRepository;
 
-        public ReviewController(IReviewRepository reviewRepository, IMapper mapper, IUserRepository userRepository)
+        public ReviewController(IReviewRepository reviewRepository
+            , IMapper mapper
+            , IUserRepository userRepository
+            , IRecipeRepository recipeRepository)
         {
             _reviewRepository = reviewRepository;
             _mapper = mapper;
-            this.userRepository = userRepository;
+            _userRepository = userRepository;
+            _recipeRepository = recipeRepository;
         }
 
         [HttpGet]

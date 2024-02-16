@@ -1,4 +1,5 @@
-﻿using RecipeAppBackend.Data;
+﻿using Microsoft.EntityFrameworkCore;
+using RecipeAppBackend.Data;
 using RecipeAppBackend.Interfaces;
 using RecipeAppBackend.Models;
 
@@ -21,12 +22,12 @@ namespace RecipeAppBackend.Repositories
 
         public Image GetImage(int id)
         {
-            return _context.Images.FirstOrDefault(i => i.Id == id);
+            return _context.Images.Include(i => i.Recipe).FirstOrDefault(i => i.Id == id);
         }
 
         public ICollection<Image> GetImages()
         {
-            return _context.Images.OrderBy(i => i.Id).ToList();
+            return _context.Images.OrderBy(i => i.Id).Include(i => i.Recipe).ToList();
         }
 
         public bool ImageExists(int id)

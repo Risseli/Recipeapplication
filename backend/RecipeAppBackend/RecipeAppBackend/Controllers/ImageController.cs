@@ -13,11 +13,15 @@ namespace RecipeAppBackend.Controllers
     {
         private readonly IImageRepository _imageRepository;
         private readonly IMapper _mapper;
+        private readonly IRecipeRepository _recipeRepository;
 
-        public ImageController(IImageRepository imageRepository, IMapper mapper)
+        public ImageController(IImageRepository imageRepository
+            , IMapper mapper
+            , IRecipeRepository recipeRepository)
         {
             _imageRepository = imageRepository;
             _mapper = mapper;
+            _recipeRepository = recipeRepository;
         }
 
         [HttpGet]
@@ -75,8 +79,18 @@ namespace RecipeAppBackend.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
+            int recipeId = createImage.RecipeId;
+            var recipe = _recipeRepository.GetRecipe(recipeId);
+
+            if (recipe == null)
+            {
+                ModelState.AddModelError("", "There is no recipe with the Id: " + recipeId);
+                return StatusCode(422, ModelState);
+            }
+
             var imageMap = _mapper.Map<Image>(createImage);
             //imageMap.ImageData = imageData;
+            imageMap.Recipe = recipe;
 
             if (!_imageRepository.CreateImage(imageMap))
             {
@@ -84,7 +98,7 @@ namespace RecipeAppBackend.Controllers
                 return StatusCode(500, ModelState);
             }
 
-            return Ok(imageMap);
+            return Ok("Successfully created");
         }
 
     }
