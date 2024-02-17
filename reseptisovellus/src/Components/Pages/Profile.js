@@ -13,15 +13,12 @@ const Profile = () => {
   useEffect(() => {
     const checkUserStatus = async () => {
       try {
-        // Simuloitu kirjautumistietojen hakeminen JSON-tiedostosta. Haetaanko tietokannasta vai tarkistetaanko vaan onko user vai ei??
-        const response = await fetch("http://localhost:3004/user?userID=4");
+        const response = await fetch("https://recipeappapi.azurewebsites.net/api/user/5"); // testataan käyttäjällä id:4
         const data = await response.json();
-
-        console.log(data); // Tarkistetaan saadaanko data
-
-        if (data.length > 0) {
-          setUser(data[0]); // Otetaan ensimmäinen käyttäjä, koska tulos on yksi käyttäjä
-          loadRecipes("ownRecipes"); // Lataa reseptit oletuksena "ownRecipes" -vaihtoehdon mukaan
+  
+        if (data) {
+          setUser(data);
+          loadRecipes("ownRecipes", data.id);
         } else {
           navigate("/login");
         }
@@ -29,24 +26,65 @@ const Profile = () => {
         console.error("Error checking user status:", error);
       }
     };
-
+  
     checkUserStatus();
   }, [navigate]);
 
   const handleEditClick = () => {
     setEditMode(true);
     setEditedUser({
-      username: user.username,
       name: user.name,
       email: user.email,
-      password: user.password, // tarvitaanko??
+      admin: user.admin,
     });
+  };
+
+
+  const handleOptionChange = (event) => {
+    setSelectedOption(event.target.value);
+    loadRecipes(event.target.value);
+  };
+
+
+  const loadRecipes = async (option, id) => {
+    try {
+      let recipesData = [];
+  
+      if (option === "ownRecipes") {
+        const response = await fetch(`https://recipeappapi.azurewebsites.net/api/recipe`);
+      recipesData = await response.json();
+
+
+      const userRecipes = recipesData.filter(recipe => recipe.userId === id);
+      setRecipes(userRecipes);
+
+      } else if (option === "favorites") {
+        // Käytä paikallista json-serveriä hakemaan favorites-tiedot
+        // const response = await fetch(`http://localhost:3004/favorites?userId=${userId}`);
+        // const favoritesData = await response.json();
+  
+        // Hae suosikkireseptien tiedot "recipe" taulusta
+        // for (const favorite of favoritesData) {
+          // const recipeResponse = await fetch(`http://localhost:3004/recipe?recipeID=${favorite.recipeId}`);
+          // const recipeData = await recipeResponse.json();
+          // recipesData.push(recipeData);
+
+          const response = await fetch(`http://localhost:3004/recipe?recipeID=5`);
+          recipesData = await response.json();
+          setRecipes(recipesData);
+
+        //}
+      }
+  
+
+    } catch (error) {
+      console.error("Error loading recipes:", error);
+    }
   };
 
   const handleSaveClick = async () => {
     try {
-      // Lähetä päivitetyt tiedot palvelimelle
-      const response = await fetch(`http://localhost:3004/user/${user.userID}`, {
+      const response = await fetch(`https://recipeappapi.azurewebsites.net/api/user/${user.id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -55,7 +93,6 @@ const Profile = () => {
       });
 
       if (response.ok) {
-        // Päivitä käyttäjätila paikallisesti
         setUser(editedUser);
         setEditMode(false);
       } else {
@@ -66,130 +103,77 @@ const Profile = () => {
     }
   };
 
-  const handleCancelClick = () => {
-    setEditMode(false);
-  };
-
-
-  const handleOptionChange = (event) => {
-    setSelectedOption(event.target.value);
-    loadRecipes(event.target.value); // Lataa reseptit valinnan mukaan
-  };
-
-
-
-  const loadRecipes = async (option) => {
-    try {
-      let recipesData = [];
-
-  
-      if (option === "ownRecipes") {
-        // Hae käyttäjän omat reseptit
-        const response = await fetch(`http://localhost:3004/recipe?userID=${user.userID}`);
-        recipesData = await response.json();
-      } else if (option === "favorites") {
-        // Hae käyttäjän suosikkireseptit
-        //const response = await fetch(`http://localhost:3004/favorites?userID=${user.userID}`);
-        //const favoritesData = await response.json();
-  
-        // Hae suosikkireseptien tiedot "recipe" taulusta, ei palauta nimeä?? nyt kovakoodattu hakemaan reseptillä 5 niin nimi toimii...
-//for (const favorite of favoritesData) {
-  const response = await fetch(`http://localhost:3004/recipe?recipeID=5`);
-  recipesData = await response.json();
-  //recipesData.push(recipeData);
-  //    }
-      }
-  
-      setRecipes(recipesData);
-    } catch (error) {
-      console.error("Error loading recipes:", error);
-    }
-  };
-
-
-  if (!user) {
-    navigate("/login");
-    return null;
-  }
-
   return (
     <div className="container">
       <h1>Profile</h1>
-      {!editMode && (
-        <div className="profile-section">
-          <p>
-            <strong>Username:</strong> {user.username}
-          </p>
-          <p>
-            <strong>Name:</strong> {user.name}
-          </p>
-          <p>
-            <strong>E-mail:</strong> {user.email}
-          </p>
-          <p>
-            <strong>Password:</strong> {user.password}
-          </p>
-          <button className="edit-button"onClick={handleEditClick}>Edit</button>
-        </div>
+      {user ? (
+        <>
+          {!editMode && (
+            <div className="profile-section">
+              <p>
+                <strong>Name:</strong> {user.name}
+              </p>
+              <p>
+                <strong>Email:</strong> {user.email}
+              </p>
+              <p>
+                <strong>Admin:</strong> {user.admin ? "Yes" : "No"}
+              </p>
+              <button className="edit-button" onClick={handleEditClick}>Edit</button>
+            </div>
+          )}
+          {editMode && (
+            <div className="profile-section">
+<p>
+  <strong>Name:</strong>{" "}
+  <input
+    type="text"
+    value={editedUser.name}
+    onChange={(e) => setEditedUser({ ...editedUser, name: e.target.value })}
+  />
+</p>
+              <p>
+                <strong>Email:</strong>{" "}
+                <input
+                  type="email"
+                  value={editedUser.email}
+                  onChange={(e) => setEditedUser({ ...editedUser, email: e.target.value })}
+                />
+              </p>
+              <p>
+                <strong>Admin:</strong> {editedUser.admin ? "Yes" : "No"}
+              </p>
+              {/* Admin information is not editable, so no input field */}
+              <button className="save-button" onClick={handleSaveClick}>Save</button>
+              <button className="cancel-button" onClick={() => setEditMode(false)}>Cancel</button>
+            </div>
+          )}
+          <div className="view-select">
+            <label>
+              <strong>View: </strong>
+              <select value={selectedOption} onChange={handleOptionChange}>
+                <option value="ownRecipes">Own Recipes</option>
+                <option value="favorites">Favorites</option>
+              </select>
+            </label>
+          </div>
+          <div className="recipe-list">
+            <h2>Recipes:</h2>
+            <ul>
+  {recipes.map((recipe) => (
+    <li key={recipe.id}>{recipe.name}</li>
+  ))}
+</ul>
+          </div>
+        </>
+      ) : (
+        // Render a loading state or redirect to login if the user is not available
+        <p>Loading...</p>
       )}
-      {editMode && (
-        <div className="profile-section">
-          <p>
-            <strong>Username:</strong> {editedUser.username}
-          </p>
-          <p>
-            <strong>Name:</strong>{" "}
-            <input
-              type="text"
-              value={editedUser.name}
-              onChange={(e) =>
-                setEditedUser({ ...editedUser, name: e.target.value })
-              }
-            />
-          </p>
-          <p>
-            <strong>E-mail:</strong>{" "}
-            <input
-              type="email"
-              value={editedUser.email}
-              onChange={(e) =>
-                setEditedUser({ ...editedUser, email: e.target.value })
-              }
-            />
-          </p>
-          <p>
-            <strong>Password:</strong>{" "}
-            <input
-              type="password"
-              value={editedUser.password}
-              onChange={(e) =>
-                setEditedUser({ ...editedUser, password: e.target.value })
-              }
-            />
-          </p>
-          <button className="save-button"onClick={handleSaveClick}>Save</button>
-          <button className="cancel-button"onClick={handleCancelClick}>Cancel</button>
-        </div>
-      )}
-      <div className="view-select">
-        <label>
-          <strong>View:  </strong>
-          <select value={selectedOption} onChange={handleOptionChange}>
-            <option value="ownRecipes">Own Recipes</option>
-            <option value="favorites">Favorites</option>
-          </select>
-        </label>
-      </div>
-      <div className="recipe-list">
-        <h2>Recipes:</h2>
-        <ul>
-          {recipes.map((recipe) => (
-            <li key={recipe.recipeID}>{recipe.name}</li>
-          ))}
-        </ul>
-      </div>
     </div>
   );
-};
+
+      };
+
 
 export { Profile };
