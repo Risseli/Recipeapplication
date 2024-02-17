@@ -101,5 +101,54 @@ namespace RecipeAppBackend.Controllers
             return Ok("Successfully created");
         }
 
+
+
+        [HttpPut("{imageId}")]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(422)]
+        public IActionResult UpdateImage(int imageId, [FromBody] ImageDto updateImage)
+        {
+            if (updateImage == null)
+                return BadRequest(ModelState);
+
+            if (updateImage.Id != 0 && updateImage.Id != imageId)
+                return BadRequest(ModelState);
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var oldImage = _imageRepository.GetImage(imageId);
+            if (oldImage == null)
+                return NotFound();
+
+            //Set the new recipe id
+            if (updateImage.RecipeId != 0)
+            {
+                var recipe = _recipeRepository.GetRecipe(updateImage.RecipeId);
+
+                if (recipe == null)
+                {
+                    ModelState.AddModelError("", "There is no recipe with the id: " + updateImage.RecipeId);
+                    return StatusCode(422, ModelState);
+                }
+
+                oldImage.Recipe = recipe;
+            }
+
+            //Set the new imagedata
+            var updateImageMap = _mapper.Map<Image>(updateImage);
+
+            oldImage.ImageData = updateImageMap.ImageData.Length > 0 ? updateImageMap.ImageData : oldImage.ImageData;
+
+            if (!_imageRepository.UpdateImage(oldImage))
+            {
+                ModelState.AddModelError("", "Something went wrong while updating image: " + oldImage.Id);
+                return StatusCode(500, ModelState);
+            }
+
+            return NoContent();
+        }
     }
 }

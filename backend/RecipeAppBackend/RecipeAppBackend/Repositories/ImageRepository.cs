@@ -40,5 +40,11 @@ namespace RecipeAppBackend.Repositories
             var saved = _context.SaveChanges();
             return saved > 0 ? true : false;
         }
+
+        public bool UpdateImage(Image image)
+        {
+            _context.Update(image);
+            return Save();
+        }
     }
 }

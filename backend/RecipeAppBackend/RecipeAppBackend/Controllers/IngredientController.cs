@@ -80,11 +80,63 @@ namespace RecipeAppBackend.Controllers
 
             if (!_ingredientRepository.CreateIngredient(ingredientMap))
             {
-                ModelState.AddModelError("", "Something went wrong while creating the ingredient" + ingredientMap.Name);
+                ModelState.AddModelError("", "Something went wrong while creating the ingredient: " + ingredientMap.Id);
                 return StatusCode(500, ModelState);
             }
 
             return Ok("Succesfully created");
+        }
+
+
+        [HttpPut("{ingId}")]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(422)]
+        public IActionResult UpdateIngredient(int ingId, [FromBody] IngredientDto updateIngredient)
+        {
+            if (updateIngredient == null)
+                return BadRequest(ModelState);
+
+            
+            if (updateIngredient.Id != 0 && ingId != updateIngredient.Id)
+                return BadRequest(ModelState);
+
+            var oldIngredient = _ingredientRepository.GetIngredient(ingId);
+
+            if (oldIngredient == null)
+                return NotFound();
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+
+            oldIngredient.Name = updateIngredient.Name != null ? updateIngredient.Name : oldIngredient.Name;
+            oldIngredient.Amount = updateIngredient.Amount > 0 ? updateIngredient.Amount : oldIngredient.Amount;
+            oldIngredient.Unit = updateIngredient.Unit != null ? updateIngredient.Unit : oldIngredient.Unit;
+
+            if (updateIngredient.RecipeId != 0)
+            {
+                var recipe = _recipeRepository.GetRecipe(updateIngredient.RecipeId);
+
+                if (recipe == null) //if no recipe exists
+                {
+                    ModelState.AddModelError("", "There is no recipe with the id: " + updateIngredient.RecipeId);
+                    return StatusCode(422, ModelState);
+                }
+
+                oldIngredient.Recipe = recipe;
+            }
+
+
+            if (!_ingredientRepository.UpdateIngredient(oldIngredient))
+            {
+                ModelState.AddModelError("", "Something went wrong while updating ingredient: " + oldIngredient.Id);
+                return StatusCode(500, ModelState);
+            }
+
+
+            return NoContent();
         }
     }
 }
