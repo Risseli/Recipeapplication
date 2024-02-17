@@ -124,9 +124,14 @@ const Profile = () => {
           )}
           {editMode && (
             <div className="profile-section">
-              <p>
-                <strong>Name:</strong> {editedUser.name}
-              </p>
+<p>
+  <strong>Name:</strong>{" "}
+  <input
+    type="text"
+    value={editedUser.name}
+    onChange={(e) => setEditedUser({ ...editedUser, name: e.target.value })}
+  />
+</p>
               <p>
                 <strong>Email:</strong>{" "}
                 <input
