@@ -13,6 +13,12 @@ namespace RecipeAppBackend.Repositories
             _context = dataContext;
         }
 
+        public bool AddKeyword(RecipeKeyword recipeKeyword)
+        {
+            _context.RecipeKeywords.Add(recipeKeyword);
+            return Save();
+        }
+
         public bool CreateRecipe(Recipe recipe, List<RecipeKeyword> recipeKeywords)
         {
             _context.RecipeKeywords.AddRange(recipeKeywords);
@@ -63,7 +69,12 @@ namespace RecipeAppBackend.Repositories
 
         public ICollection<Review> GetReviewsOfRecipe(int id)
         {
-            return _context.Reviews.Where(r => r.Recipe.Id == id).Include(r => r.User).ToList();
+            return _context.Reviews.Where(r => r.Recipe.Id == id).Include(r => r.User).Include(r => r.Recipe).ToList();
+        }
+
+        public bool KeywordExists(int recipeId, int keywordId)
+        {
+            return _context.RecipeKeywords.Any(k => k.RecipeId == recipeId && k.KeywordId == keywordId);
         }
 
         public bool RecipeExists(int id)
@@ -75,6 +86,12 @@ namespace RecipeAppBackend.Repositories
         {
             var saved = _context.SaveChanges();
             return saved > 0 ? true : false;
+        }
+
+        public bool UpdateRecipe(Recipe recipe)
+        {
+            _context.Update(recipe);
+            return Save();
         }
     }
 }
