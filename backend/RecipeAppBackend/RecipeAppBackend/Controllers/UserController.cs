@@ -230,5 +230,71 @@ namespace RecipeAppBackend.Controllers
 
             return Ok("Succesfully created");
         }
+
+
+        [HttpPut("{userId}")]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(422)]
+        public IActionResult UpdateUser(int userId, [FromBody] CreateUserDto updateUser)
+        {
+            if (updateUser == null) 
+                return BadRequest(ModelState);
+
+            if (updateUser.Id != 0 && updateUser.Id != userId)
+                return BadRequest(ModelState);
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var oldUser = _userRepository.GetUser(userId);
+            if (oldUser == null)
+                return NotFound();
+
+            oldUser.Admin = updateUser.Admin != null ? (bool)updateUser.Admin : oldUser.Admin;
+            oldUser.Password = updateUser.Password != null ? updateUser.Password : oldUser.Password;
+            oldUser.Name = updateUser.Name != null ? updateUser.Name : oldUser.Name;
+
+
+            //Username
+            if (updateUser.Username != null)
+            {
+                var user = _userRepository.GetUsers()
+                            .Where(u => u.Username == updateUser.Username).FirstOrDefault();
+
+                if (user != null)
+                {
+                    ModelState.AddModelError("", "The username " + user.Username + " is already in use");
+                    return StatusCode(422, ModelState);
+                }
+
+                oldUser.Username = updateUser.Username;
+            }
+           
+
+            //Email
+            if (updateUser.Email != null)
+            {
+                var user = _userRepository.GetUsers()
+                    .Where(u => u.Email == updateUser.Email).FirstOrDefault();
+
+                if (user != null )
+                {
+                    ModelState.AddModelError("", "The email " + user.Email + " is already in use");
+                    return StatusCode(422, ModelState);
+                }
+
+                oldUser.Email = updateUser.Email;
+            }
+            
+            if (!_userRepository.UpdateUser(oldUser))
+            {
+                ModelState.AddModelError("", "Something went wrong while updating user: " + userId);
+                return StatusCode(500, ModelState);
+            }
+
+            return Ok("Successfully updated");
+        }
     }
 }

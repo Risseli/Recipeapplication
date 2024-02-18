@@ -136,7 +136,7 @@ namespace RecipeAppBackend.Controllers
             }
 
 
-            return NoContent();
+            return Ok("Succesfully updated");
         }
     }
 }

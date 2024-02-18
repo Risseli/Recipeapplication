@@ -11,6 +11,7 @@ namespace RecipeAppBackend.Interfaces
         ICollection<Review> GetUsersReviews(int id);
         bool UserExists(int id);
         bool CreateUser(User user);
+        bool UpdateUser(User user);
         bool AddFavorite(Favorite favorite);
         bool FavoriteExists(int userId, int recipeId);
         bool Save();

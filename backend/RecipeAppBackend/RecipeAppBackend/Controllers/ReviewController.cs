@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using RecipeAppBackend.Dto;
 using RecipeAppBackend.Interfaces;
 using RecipeAppBackend.Models;
@@ -112,6 +113,81 @@ namespace RecipeAppBackend.Controllers
             }
 
             return Ok("Succesfully created");
+        }
+
+
+        [HttpPut("{reviewId}")]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(422)]
+        public IActionResult UpdateReview(int reviewId, [FromBody]ReviewDto updateReview)
+        {
+            if (updateReview == null)
+                return BadRequest(ModelState);
+
+            if (updateReview.Id != 0 && updateReview.Id != reviewId)
+                return BadRequest(ModelState);
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var oldReview = _reviewRepository.GetReview(reviewId);
+
+            if (oldReview == null)
+                return NotFound();
+
+            //Rating
+            if (updateReview.Rating != 0)
+            {
+                int rating = updateReview.Rating;
+                if (rating <= 1) rating = 1;
+                else if (rating >= 5) rating = 5;
+
+                oldReview.Rating = rating;
+            }
+
+            //Comment
+            oldReview.Comment = updateReview.Comment != null ? updateReview.Comment : oldReview.Comment;
+
+            //User
+            if (updateReview.UserId != 0)
+            {
+                var user = _userRepository.GetUser(updateReview.UserId);
+
+                if (user == null)
+                {
+                    ModelState.AddModelError("", "There is no user with the id: " + updateReview.UserId);
+                    return StatusCode(422, ModelState);
+                } 
+                    
+                oldReview.User = user;
+            }
+           
+            
+            //Recipe
+            if (updateReview.RecipeId != 0)
+            {
+                var recipe = _recipeRepository.GetRecipe(updateReview.RecipeId);
+
+                if (recipe == null)
+                {
+                    ModelState.AddModelError("", "There is no recipe with the id: " + updateReview.RecipeId);
+                    return StatusCode(422, ModelState);
+                }
+
+                oldReview.Recipe = recipe;
+            }
+            
+
+            //Update
+            if (!_reviewRepository.UpdateReview(oldReview))
+            {
+                ModelState.AddModelError("", "Something went wrong while updating review: " + reviewId);
+                return StatusCode(500, ModelState);
+            }
+
+            return Ok("Successfully updated");
         }
     }
 }
