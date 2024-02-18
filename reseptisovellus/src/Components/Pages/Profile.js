@@ -33,6 +33,7 @@ const Profile = () => {
   const handleEditClick = () => {
     setEditMode(true);
     setEditedUser({
+      id: user.id,
       name: user.name,
       email: user.email,
       admin: user.admin,
@@ -84,15 +85,20 @@ const Profile = () => {
 
   const handleSaveClick = async () => {
     try {
-      const response = await fetch(`https://recipeappapi.azurewebsites.net/api/user/${user.id}`, {
+      console.log("Saving user data...", editedUser);
+  
+      const response = await fetch(`https://recipeappapi.azurewebsites.net/api/user/${editedUser.id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(editedUser),
       });
-
+  
+      console.log("Response:", response);
+  
       if (response.ok) {
+        console.log("User data saved successfully.");
         setUser(editedUser);
         setEditMode(false);
       } else {
