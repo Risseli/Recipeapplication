@@ -22,6 +22,7 @@
   
   .edit-button,
   .save-button,
+  .delete-button,
   .cancel-button {
     background-color: #172554;
     color: #fff;
@@ -34,6 +35,7 @@
   
   .save-button:hover,
   .cancel-button:hover,
+  .delete-button:hover,
   .edit-button:hover {
     background-color: #1d4ed8; 
   }

@@ -133,6 +133,48 @@ const Profile = () => {
   };
   
 
+
+  const handleDeleteClick = async () => { // ei toimi vielä delete backendin kanssa, mutta tässä logiikka
+    if (user.admin) {
+      // Jos käyttäjä on admin, tee tarvittavat toimenpiteet
+      // esimerkiksi hae kaikki profiilit ja renderöi delete-napit niiden kohdalle
+      try {
+        const response = await fetch("https://recipeappapi.azurewebsites.net/api/users"); // Vaihda oikeaan endpointiin
+  
+        if (response.ok) {
+          const allUsers = await response.json();
+  
+          // Tässä voit käyttää esimerkiksi modalia tai muuta komponenttia
+          // näyttämään kaikki profiilit ja niiden delete-napit adminille
+          console.log("List of all users:", allUsers);
+        } else {
+          console.error("Error fetching all users:", response);
+        }
+      } catch (error) {
+        console.error("Error fetching all users:", error);
+      }
+    } else {
+      // Jos käyttäjä ei ole admin, tee normaali poisto
+      if (window.confirm("Are you sure you want to delete your profile?")) {
+        try {
+          const response = await fetch(`https://recipeappapi.azurewebsites.net/api/user/${user.id}`, {
+            method: "DELETE",
+          });
+  
+          if (response.ok) {
+            console.log("User deleted successfully.");
+            navigate("/"); // Palaa etusivulle
+          } else {
+            console.error("Error deleting user:", response);
+          }
+        } catch (error) {
+          console.error("Error deleting user:", error);
+        }
+      }
+    }
+  };
+
+
   
 
   return (
@@ -152,6 +194,7 @@ const Profile = () => {
                 <strong>Admin:</strong> {user.admin ? "Yes" : "No"}
               </p>
               <button className="edit-button" onClick={handleEditClick}>Edit</button>
+              <button className="delete-button" onClick={handleDeleteClick}>Delete</button>
             </div>
           )}
           {editMode && (
