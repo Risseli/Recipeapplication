@@ -1,19 +1,26 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import './Profile.css';
+import ProfileRecipeGrid from "../../Components/ProfileRecipeGrid";
 
 const Profile = () => {
   const [user, setUser] = useState(null);
   const [editMode, setEditMode] = useState(false);
   const [editedUser, setEditedUser] = useState({});
   const [selectedOption, setSelectedOption] = useState("ownRecipes");
-  const [recipes, setRecipes] = useState([]);
   const navigate = useNavigate();
+  const [recipes, setRecipes] = useState([]); 
+
+
+
+
+
+
 
   useEffect(() => {
     const checkUserStatus = async () => {
       try {
-        const response = await fetch("https://recipeappapi.azurewebsites.net/api/user/5"); // testataan käyttäjällä id:4
+        const response = await fetch("https://recipeappapi.azurewebsites.net/api/user/5"); // testataan käyttäjällä id:5
         const data = await response.json();
   
         if (data) {
@@ -77,7 +84,10 @@ const Profile = () => {
       console.error("Error loading recipes:", error);
     }
   };
-  
+
+
+
+
   
   const handleEditClick = () => {
     console.log("User state:", user); // Lisää tämä rivi
@@ -180,15 +190,7 @@ const Profile = () => {
             </label>
           </div>
           <div className="recipe-list">
-          {Array.isArray(recipes) ? (
-  <ul>
-    {recipes.map((recipe) => (
-      <li key={`${recipe.userId}-${recipe.id}`}>{recipe.name}</li>
-    ))}
-  </ul>
-) : (
-  <p>No recipes available</p>
-)}
+<ProfileRecipeGrid recipes={recipes} />
           </div>
         </>
       ) : (
