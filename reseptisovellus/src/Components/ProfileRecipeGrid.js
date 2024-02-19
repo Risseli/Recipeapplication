@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import "./ProfileRecipeGrid.css";
 
 const ProfileRecipeGrid = ({ recipes }) => {
@@ -6,28 +7,30 @@ const ProfileRecipeGrid = ({ recipes }) => {
     <div className="profile-recipe-grid">
       {recipes.map((recipe) => (
         <div key={recipe.id} className="profile-recipe-item">
-          {recipe.images && recipe.images.map((image, index) => (
-            <img
-              key={index}
-              src={`data:image/jpeg;base64,${image.imageData}`}
-              alt={`Image for ${recipe.name}`}
-              className="profile-recipe-image"
-            />
-          ))}
-          <div className="profile-recipe-details">
-            <h3 className="profile-recipe-name">{recipe.name}</h3>
-            <p className="profile-recipe-instructions">{recipe.instructions}</p>
-            <div className="profile-reviews">
-              {recipe.reviews && recipe.reviews.map((review) => (
-                <div key={review.id} className="profile-recipe-rating">
-                  <p>
-                    Rating: {"⭐".repeat(review.rating)} <br />
-                    Review: {review.comment}
-                  </p>
-                </div>
-              ))}
+          <Link to={`/recipe/${recipe.id}`} className="recipe-link">
+            {recipe.images && recipe.images.map((image, index) => (
+              <img
+                key={index}
+                src={`data:image/jpeg;base64,${image.imageData}`}
+                alt={`Image for ${recipe.name}`}
+                className="profile-recipe-image"
+              />
+            ))}
+            <div className="profile-recipe-details">
+              <h3 className="profile-recipe-name">{recipe.name}</h3>
+              <p className="profile-recipe-instructions">{recipe.instructions}</p>
+              <div className="profile-reviews">
+                {recipe.reviews && recipe.reviews.map((review) => (
+                  <div key={review.id} className="profile-recipe-rating">
+                    <p>
+                      Rating: {"⭐".repeat(review.rating)} <br />
+                      Review: {review.comment}
+                    </p>
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
+          </Link>
         </div>
       ))}
     </div>
@@ -35,6 +38,3 @@ const ProfileRecipeGrid = ({ recipes }) => {
 };
 
 export default ProfileRecipeGrid;
-
-
-
