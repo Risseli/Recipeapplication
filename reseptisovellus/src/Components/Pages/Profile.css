@@ -1,0 +1,74 @@
+
+.container {
+    max-width: 1200px;
+    font-size: 1.5em;
+    margin: 0 auto;
+    padding: 20px;
+    border-radius: 10px; 
+  }
+  
+  .profile-section {
+    background-color: #fbfaf9;
+    border: 1px solid #ddd;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 10px; 
+    width: 40%;
+  }
+  
+  .profile-section p {
+    margin: 10px 0;
+  }
+  
+  .edit-button,
+  .save-button,
+  .cancel-button {
+    background-color: #172554;
+    color: #fff;
+    border: none;
+    padding: 10px 15px;
+    margin-right: 10px;
+    cursor: pointer;
+    border-radius: 5px; 
+  }
+  
+  .save-button:hover,
+  .cancel-button:hover,
+  .edit-button:hover {
+    background-color: #1d4ed8; 
+  }
+  
+  .view-select {
+    margin-top: 20px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center; 
+  }
+  
+  .view-select label {
+    margin-right: 10px;
+  }
+
+  .view-select select {
+    padding: 8px;
+    border: 1px solid darkgrey;
+    border-radius: 5px;
+  }
+  
+  .recipe-list {
+    font-size: 70%;
+    list-style-type: none;
+    background-color: #fbfaf9;
+    border: 1px solid #ddd;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 10px; 
+  }
+  
+  .recipe-list li {
+    margin-bottom: 10px;
+    transition: background-color 0.3s ease; 
+  }
+  
+
+  

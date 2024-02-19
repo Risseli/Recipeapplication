@@ -8,6 +8,8 @@ namespace RecipeAppBackend.Models
         public string Name { get; set; }
         public float Amount { get; set; }
         public string Unit { get; set; }
-        public ICollection<RecipeIngredient> RecipeIngredients { get; set; }
+        public Recipe Recipe { get; set; }
+
+        //public ICollection<RecipeIngredient> RecipeIngredients { get; set; }
     }
 }

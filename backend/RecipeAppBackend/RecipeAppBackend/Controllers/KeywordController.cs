@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Components.RenderTree;
 using Microsoft.AspNetCore.Mvc;
 using RecipeAppBackend.Dto;
 using RecipeAppBackend.Interfaces;
@@ -88,6 +89,7 @@ namespace RecipeAppBackend.Controllers
                 return BadRequest(ModelState);
 
             var keywordMap = _mapper.Map<Keyword>(createKeyword);
+            keywordMap.Word = keywordMap.Word.Trim().ToLower();
 
             if (!_keywordRepository.CreateKeyword(keywordMap))
             {
@@ -96,6 +98,39 @@ namespace RecipeAppBackend.Controllers
             }
 
             return Ok("Succesfully created");
+        }
+
+
+        [HttpPut("{keywordId}")]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(422)]
+        public IActionResult UpdateKeyword(int keywordId, [FromBody] KeywordDto updateKeyword)
+        {
+            if (updateKeyword == null) 
+                return BadRequest(ModelState);
+
+            if (updateKeyword.Id != 0 && keywordId != updateKeyword.Id)
+                return BadRequest(ModelState);
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var oldKeyword = _keywordRepository.GetKeyword(keywordId);
+
+            if (oldKeyword == null)
+                return NotFound();
+
+            oldKeyword.Word = updateKeyword.Word != null ? updateKeyword.Word.Trim().ToLower() : oldKeyword.Word;
+
+            if (!_keywordRepository.UpdateKeyword(oldKeyword))
+            {
+                ModelState.AddModelError("", "Something went wrong while updating keyword: " + keywordId);
+                return StatusCode(500, ModelState);
+            }
+
+            return Ok("Succesfully updated");
         }
     }
 }

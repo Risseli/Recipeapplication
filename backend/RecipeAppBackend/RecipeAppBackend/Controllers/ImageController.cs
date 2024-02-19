@@ -13,11 +13,15 @@ namespace RecipeAppBackend.Controllers
     {
         private readonly IImageRepository _imageRepository;
         private readonly IMapper _mapper;
+        private readonly IRecipeRepository _recipeRepository;
 
-        public ImageController(IImageRepository imageRepository, IMapper mapper)
+        public ImageController(IImageRepository imageRepository
+            , IMapper mapper
+            , IRecipeRepository recipeRepository)
         {
             _imageRepository = imageRepository;
             _mapper = mapper;
+            _recipeRepository = recipeRepository;
         }
 
         [HttpGet]
@@ -63,7 +67,7 @@ namespace RecipeAppBackend.Controllers
             if (createImage == null)
                 return BadRequest(ModelState);
 
-            //This isn't needed, since the automapper mapping profile takes care of it. Or something else
+            //This isn't needed, since the automapper mapping profile takes care of it. Or something else does
             //byte[] imageData = Convert.FromBase64String(createImage.ImageData);
 
             //if (imageData == null)
@@ -75,8 +79,18 @@ namespace RecipeAppBackend.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
+            int recipeId = createImage.RecipeId;
+            var recipe = _recipeRepository.GetRecipe(recipeId);
+
+            if (recipe == null)
+            {
+                ModelState.AddModelError("", "There is no recipe with the Id: " + recipeId);
+                return StatusCode(422, ModelState);
+            }
+
             var imageMap = _mapper.Map<Image>(createImage);
             //imageMap.ImageData = imageData;
+            imageMap.Recipe = recipe;
 
             if (!_imageRepository.CreateImage(imageMap))
             {
@@ -84,8 +98,57 @@ namespace RecipeAppBackend.Controllers
                 return StatusCode(500, ModelState);
             }
 
-            return Ok("Succesfully created");
+            return Ok("Successfully created");
         }
 
+
+
+        [HttpPut("{imageId}")]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(422)]
+        public IActionResult UpdateImage(int imageId, [FromBody] ImageDto updateImage)
+        {
+            if (updateImage == null)
+                return BadRequest(ModelState);
+
+            if (updateImage.Id != 0 && updateImage.Id != imageId)
+                return BadRequest(ModelState);
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var oldImage = _imageRepository.GetImage(imageId);
+            if (oldImage == null)
+                return NotFound();
+
+            //Set the new recipe id
+            if (updateImage.RecipeId != 0)
+            {
+                var recipe = _recipeRepository.GetRecipe(updateImage.RecipeId);
+
+                if (recipe == null)
+                {
+                    ModelState.AddModelError("", "There is no recipe with the id: " + updateImage.RecipeId);
+                    return StatusCode(422, ModelState);
+                }
+
+                oldImage.Recipe = recipe;
+            }
+
+            //Set the new imagedata
+            var updateImageMap = _mapper.Map<Image>(updateImage);
+
+            oldImage.ImageData = updateImageMap.ImageData.Length > 0 ? updateImageMap.ImageData : oldImage.ImageData;
+
+            if (!_imageRepository.UpdateImage(oldImage))
+            {
+                ModelState.AddModelError("", "Something went wrong while updating image: " + oldImage.Id);
+                return StatusCode(500, ModelState);
+            }
+
+            return Ok("Succesfully updated");
+        }
     }
 }

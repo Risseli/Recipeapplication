@@ -33,22 +33,102 @@ namespace RecipeAppBackend
                     new Image()
                     {
                         ImageData = imageData1,
+                        Recipe = new Recipe
+                        {
+                            Id = 1,
+                            Name = "test",
+                            Instructions = "",
+                            Visibility = true,
+                            User = new User
+                            {
+                                Id = 1,
+                                Name = "test",
+                                Admin = true,
+                                Username = "test",
+                                Password = "test",
+                                Email = "test"
+                            }
+                        }
                     },
                     new Image()
                     {
-                        ImageData = imageData2
+                        ImageData = imageData2,
+                        Recipe = new Recipe
+                        {
+                            Id = 2,
+                            Name = "test",
+                            Instructions = "",
+                            Visibility = true,
+                            User = new User
+                            {
+                                Id = 2,
+                                Name = "test",
+                                Admin = true,
+                                Username = "test",
+                                Password = "test",
+                                Email = "test"
+                            }
+                        }
                     },
                     new Image()
                     {
-                        ImageData = imageData3
+                        ImageData = imageData3,
+                        Recipe = new Recipe
+                        {
+                            Id = 3,
+                            Name = "test",
+                            Instructions = "",
+                            Visibility = true,
+                            User = new User
+                            {
+                                Id = 3,
+                                Name = "test",
+                                Admin = true,
+                                Username = "test",
+                                Password = "test",
+                                Email = "test"
+                            }
+                        }
                     },
                     new Image()
                     {
-                        ImageData = imageData4
+                        ImageData = imageData4,
+                        Recipe = new Recipe
+                        {
+                            Id = 4,
+                            Name = "test",
+                            Instructions = "",
+                            Visibility = true,
+                            User = new User
+                            {
+                                Id = 4,
+                                Name = "test",
+                                Admin = true,
+                                Username = "test",
+                                Password = "test",
+                                Email = "test"
+                            }
+                        }
                     },
                     new Image()
                     {
-                        ImageData = imageData5
+                        ImageData = imageData5,
+                        Recipe = new Recipe
+                        {
+                            Id = 5,
+                            Name = "test",
+                            Instructions = "",
+                            Visibility = true,
+                            User = new User
+                            {
+                                Id = 5,
+                                Name = "test",
+                                Admin = true,
+                                Username = "test",
+                                Password = "test",
+                                Email = "test"
+                            }
+                        }
                     }
                 };
                 dataContext.Images.AddRange(images);

@@ -44,5 +44,11 @@ namespace RecipeAppBackend.Repositories
             var saved = _context.SaveChanges();
             return saved > 0 ? true : false;
         }
+
+        public bool UpdateKeyword(Keyword keyword)
+        {
+            _context.Update(keyword);
+            return Save();
+        }
     }
 }

@@ -8,6 +8,7 @@ namespace RecipeAppBackend.Interfaces
         Ingredient GetIngredient(int id);
         bool IngredientExists(int id);
         bool CreateIngredient(Ingredient ingredient);
+        bool UpdateIngredient(Ingredient ingredient);
         bool Save();
     }
 }

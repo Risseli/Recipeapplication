@@ -12,11 +12,15 @@ namespace RecipeAppBackend.Controllers
     {
         private readonly IIngredientRepository _ingredientRepository;
         private readonly IMapper _mapper;
+        private readonly IRecipeRepository _recipeRepository;
 
-        public IngredientController(IIngredientRepository ingredientRepository, IMapper mapper)
+        public IngredientController(IIngredientRepository ingredientRepository
+            , IMapper mapper
+            , IRecipeRepository recipeRepository)
         {
             _ingredientRepository = ingredientRepository;
             _mapper = mapper;
+            _recipeRepository = recipeRepository;
         }
 
         [HttpGet]
@@ -58,28 +62,81 @@ namespace RecipeAppBackend.Controllers
             if (ingredientCreate == null)
                 return BadRequest(ModelState);
 
-            var ingredient = _ingredientRepository.GetIngredients()
-                .Where(i => i.Name.Trim().ToLower() == ingredientCreate.Name.Trim().ToLower())
-                .FirstOrDefault();
-
-            if (ingredient != null)
-            {
-                ModelState.AddModelError("", "Ingredient already exists");
-                return StatusCode(422, ModelState);
-            }
 
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
+            int recipeId = ingredientCreate.RecipeId;
+            var recipe = _recipeRepository.GetRecipe(recipeId);
+
+            if (recipe == null)
+            {
+                ModelState.AddModelError("", "There is no recipe with the id: " + recipeId);
+                return StatusCode(422, ModelState);
+            }
+
             var ingredientMap = _mapper.Map<Ingredient>(ingredientCreate);
+            ingredientMap.Recipe = recipe;
 
             if (!_ingredientRepository.CreateIngredient(ingredientMap))
             {
-                ModelState.AddModelError("", "Something went wrong while creating the ingredient" + ingredientMap.Name);
+                ModelState.AddModelError("", "Something went wrong while creating the ingredient: " + ingredientMap.Id);
                 return StatusCode(500, ModelState);
             }
 
             return Ok("Succesfully created");
+        }
+
+
+        [HttpPut("{ingId}")]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(422)]
+        public IActionResult UpdateIngredient(int ingId, [FromBody] IngredientDto updateIngredient)
+        {
+            if (updateIngredient == null)
+                return BadRequest(ModelState);
+
+            
+            if (updateIngredient.Id != 0 && ingId != updateIngredient.Id)
+                return BadRequest(ModelState);
+
+            var oldIngredient = _ingredientRepository.GetIngredient(ingId);
+
+            if (oldIngredient == null)
+                return NotFound();
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+
+            oldIngredient.Name = updateIngredient.Name != null ? updateIngredient.Name : oldIngredient.Name;
+            oldIngredient.Amount = updateIngredient.Amount > 0 ? updateIngredient.Amount : oldIngredient.Amount;
+            oldIngredient.Unit = updateIngredient.Unit != null ? updateIngredient.Unit : oldIngredient.Unit;
+
+            if (updateIngredient.RecipeId != 0)
+            {
+                var recipe = _recipeRepository.GetRecipe(updateIngredient.RecipeId);
+
+                if (recipe == null) //if no recipe exists
+                {
+                    ModelState.AddModelError("", "There is no recipe with the id: " + updateIngredient.RecipeId);
+                    return StatusCode(422, ModelState);
+                }
+
+                oldIngredient.Recipe = recipe;
+            }
+
+
+            if (!_ingredientRepository.UpdateIngredient(oldIngredient))
+            {
+                ModelState.AddModelError("", "Something went wrong while updating ingredient: " + oldIngredient.Id);
+                return StatusCode(500, ModelState);
+            }
+
+
+            return Ok("Succesfully updated");
         }
     }
 }

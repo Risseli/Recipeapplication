@@ -12,7 +12,9 @@ namespace RecipeAppBackend.Models
         public ICollection<Review> Reviews { get; set; }
         public ICollection<Favorite> Favorites { get; set; }
         public ICollection<RecipeKeyword> RecipeKeywords { get; set; }
-        public ICollection<RecipeIngredient> RecipeIngredients { get; set; }
-        public ICollection<RecipeImage> RecipeImages { get; set; }
+
+        //public ICollection<RecipeIngredient> RecipeIngredients { get; set; }
+
+        //public ICollection<RecipeImage> RecipeImages { get; set; }
     }
 }

@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using RecipeAppBackend.Dto;
 using RecipeAppBackend.Interfaces;
 using RecipeAppBackend.Models;
@@ -11,11 +13,24 @@ namespace RecipeAppBackend.Controllers
     public class RecipeController : Controller
     {
         private readonly IRecipeRepository _recipeRepository;
+        private readonly IUserRepository _userRepository;
+        private readonly IImageRepository _imageRepository;
+        private readonly IIngredientRepository _ingredientRepository;
+        private readonly IKeywordRepository _keywordRepository;
         private readonly IMapper _mapper;
 
-        public RecipeController(IRecipeRepository recipeRepository, IMapper mapper)
+        public RecipeController(IRecipeRepository recipeRepository
+            , IUserRepository userRepository
+            , IImageRepository imageRepository
+            , IIngredientRepository ingredientRepository
+            , IKeywordRepository keywordRepository
+            , IMapper mapper)
         {
             _recipeRepository = recipeRepository;
+            _userRepository = userRepository;
+            _imageRepository = imageRepository;
+            _ingredientRepository = ingredientRepository;
+            _keywordRepository = keywordRepository;
             _mapper = mapper;
         }
 
@@ -64,6 +79,290 @@ namespace RecipeAppBackend.Controllers
                 return BadRequest(ModelState);
 
             return Ok(recipe);
+        }
+
+        [HttpGet("{recipeId}/Ingredients")]
+        [ProducesResponseType(200, Type = typeof(IEnumerable<Ingredient>))]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        public IActionResult GetIngredientsOfRecipe(int recipeId)
+        {
+            if (!_recipeRepository.RecipeExists(recipeId))
+                return NotFound();
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var ingredients = _mapper.Map<List<IngredientDto>>(_recipeRepository.GetIngredientsOfRecipe(recipeId));
+
+            return Ok(ingredients);
+        }
+
+        [HttpGet("{recipeId}/Images")]
+        [ProducesResponseType(200, Type = typeof(IEnumerable<Image>))]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        public IActionResult GetImagesOfRecipe(int recipeId)
+        {
+            if (!_recipeRepository.RecipeExists(recipeId))
+                return NotFound();
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var images = _mapper.Map<List<ImageDto>>(_recipeRepository.GetImagesOfRecipe(recipeId));
+
+            return Ok(images);
+        }
+
+        [HttpGet("{recipeId}/Keywords")]
+        [ProducesResponseType(200, Type = typeof(IEnumerable<Keyword>))]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        public IActionResult GetKeywordsOfRecipe(int recipeId)
+        {
+            if (!_recipeRepository.RecipeExists(recipeId))
+                return NotFound();
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var keywords = _mapper.Map<List<KeywordDto>>(_recipeRepository.GetKeywordsOfRecipe(recipeId));
+
+            return Ok(keywords);
+        }
+
+        [HttpGet("{recipeId}/Reviews")]
+        [ProducesResponseType(200, Type = typeof(IEnumerable<Review>))]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        public IActionResult GetReviewsOfRecipe(int recipeId)
+        {
+            if (!_recipeRepository.RecipeExists(recipeId))
+                return NotFound();
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var reviews = _mapper.Map<List<ReviewDto>>(_recipeRepository.GetReviewsOfRecipe(recipeId));
+
+            return Ok(reviews);
+        }
+
+
+        [HttpPost]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(422)]
+        [ProducesResponseType(404)]
+        public IActionResult CreateRecipe([FromBody] RecipeDto createRecipe)
+        {
+            if (createRecipe == null)
+                return BadRequest(ModelState);
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            //Handle user
+            var user = _userRepository.GetUser(createRecipe.UserId);
+            if (user == null)
+            {
+                ModelState.AddModelError("","There is no user with the id: " +  createRecipe.UserId);
+                return StatusCode(404, ModelState);
+            }
+
+            //Map the recipe
+            var recipeMap = _mapper.Map<Recipe>(createRecipe); //map the recipe
+            recipeMap.User = user;
+
+
+            //Handle keywords
+            var keywords = _mapper.Map<List<Keyword>>(createRecipe.Keywords);
+            List<RecipeKeyword> recipeKeywords = new List<RecipeKeyword>();
+
+            foreach (Keyword key in keywords)
+            {
+                var oldKeyword = _keywordRepository.GetKeywords()
+                .Where(k => k.Word.Trim().ToLower() == key.Word.Trim().ToLower())
+                .FirstOrDefault(); //search for same keyword
+
+                if (oldKeyword == null) //if it doesnt exists, make it and add that one
+                {
+                    if (!_keywordRepository.CreateKeyword(key))
+                    {
+                        ModelState.AddModelError("", "Something went wrong while creating keyword: " + key.Word);
+                        return StatusCode(500, ModelState);
+                    }
+
+                    recipeKeywords.Add(new RecipeKeyword
+                    {
+                        Recipe = recipeMap,
+                        Keyword = key
+                    });
+                }
+                else
+                {       //if it exists, just add a connection to that one
+                    recipeKeywords.Add(new RecipeKeyword
+                    {
+                        Recipe = recipeMap,
+                        Keyword = oldKeyword
+                    });
+                }
+                
+            }
+
+            //Create the recipe
+            if (!_recipeRepository.CreateRecipe(recipeMap, recipeKeywords))
+            {
+                ModelState.AddModelError("", "Something went wrong while creating the recipe");
+                return StatusCode(500, ModelState);
+            }
+
+
+            //Handle ingredients
+            var ingredients = _mapper.Map<List<Ingredient>>(createRecipe.Ingredients);
+
+            foreach(Ingredient ing in ingredients)
+            {
+                ing.Recipe = recipeMap;
+
+                if (!_ingredientRepository.CreateIngredient(ing))
+                {
+                    ModelState.AddModelError("", "Something went wrong while creating ingredient: " + ing);
+                    return StatusCode(500, ModelState);
+                }
+            }
+
+            //Handle images
+            var images = _mapper.Map<List<Image>>(createRecipe.Images);
+
+            for (int i = 0; i < images.Count; i++)
+            {
+                images[i].Recipe = recipeMap;
+
+                if (!_imageRepository.CreateImage(images[i]))
+                {
+                    ModelState.AddModelError("", "Something went wrong while creating image number: " + i);
+                }
+            }
+
+            return Ok("Succesfully created");
+        }
+
+        [HttpPost("{recipeId}/Keywords")]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(422)]
+        [ProducesResponseType(404)]
+        public IActionResult AddKeyword(int recipeId, [FromQuery] string newKeyword)
+        {
+            if (newKeyword.Length == 0)
+                return BadRequest(ModelState);
+
+            var recipe = _recipeRepository.GetRecipe(recipeId);
+
+            if (recipe == null)
+                return NotFound();
+
+            RecipeKeyword recipeKeyword;
+
+            //search for same keyword
+            var oldKeyword = _keywordRepository.GetKeywords()
+                .Where(k => k.Word.Trim().ToLower() == newKeyword.Trim().ToLower())
+                .FirstOrDefault(); 
+
+            if (oldKeyword == null) //if it doesnt exists, make it and add that one
+            {
+                Keyword key = new Keyword
+                {
+                    Word = newKeyword.Trim().ToLower()
+                };
+
+                if (!_keywordRepository.CreateKeyword(key))
+                {
+                    ModelState.AddModelError("", "Something went wrong while creating keyword: " + key.Word);
+                    return StatusCode(500, ModelState);
+                }
+
+                //Make the connection
+                recipeKeyword = new RecipeKeyword
+                {
+                    Recipe = recipe,
+                    Keyword = key
+                };
+            }
+            else
+            {       //if it exists, just add a connection to that one
+
+                //Checking for an existing connection
+                if (_recipeRepository.KeywordExists(recipe.Id, oldKeyword.Id))
+                {
+                    ModelState.AddModelError("","The recipe already has the keyword '" +  oldKeyword.Word + "'");
+                    return StatusCode(422, ModelState);
+                }
+
+                recipeKeyword = new RecipeKeyword
+                {
+                    Recipe = recipe,
+                    Keyword = oldKeyword
+                };
+            }
+
+            if (!_recipeRepository.AddKeyword(recipeKeyword))
+            {
+                ModelState.AddModelError("", "Something went wrong while creating the connection");
+                return StatusCode(500, ModelState);
+            }
+
+            return Ok("Succesfully created");
+        }
+
+
+
+        [HttpPut("{recipeId}")]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(422)]
+        public IActionResult UpdateRecipe(int recipeId, [FromBody]RecipeDto updateRecipe)
+        {
+            if (updateRecipe == null)
+                return BadRequest(ModelState);
+
+            if (updateRecipe.Id != 0 && updateRecipe.Id != recipeId)
+                return BadRequest(ModelState);
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var oldRecipe = _recipeRepository.GetRecipe(recipeId);
+            if (oldRecipe == null)
+                return NotFound();
+
+            oldRecipe.Name = updateRecipe.Name != null ? updateRecipe.Name : oldRecipe.Name;
+            oldRecipe.Instructions = updateRecipe.Instructions != null ? updateRecipe.Instructions : oldRecipe.Instructions;
+            oldRecipe.Visibility = updateRecipe.Visibility != null ? (bool)updateRecipe.Visibility : oldRecipe.Visibility;
+
+            if (updateRecipe.UserId != 0)
+            {
+                var user = _userRepository.GetUser(updateRecipe.UserId);
+
+                if (user == null)
+                {
+                    ModelState.AddModelError("","There is no user with the id: " + updateRecipe.UserId);
+                    return StatusCode(422, ModelState);
+                }
+
+                oldRecipe.User = user;
+            }
+
+            if (!_recipeRepository.UpdateRecipe(oldRecipe))
+            {
+                ModelState.AddModelError("", "Something went wrong while updating recipe: " + recipeId);
+                return StatusCode(500, ModelState);
+            }
+
+            return Ok("Successfully updated");
         }
     }
 }

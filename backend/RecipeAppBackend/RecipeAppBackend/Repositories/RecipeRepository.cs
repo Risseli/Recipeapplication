@@ -13,6 +13,19 @@ namespace RecipeAppBackend.Repositories
             _context = dataContext;
         }
 
+        public bool AddKeyword(RecipeKeyword recipeKeyword)
+        {
+            _context.RecipeKeywords.Add(recipeKeyword);
+            return Save();
+        }
+
+        public bool CreateRecipe(Recipe recipe, List<RecipeKeyword> recipeKeywords)
+        {
+            _context.RecipeKeywords.AddRange(recipeKeywords);
+            _context.Recipes.Add(recipe);
+            return Save();
+        }
+
         public int GetFavoriteCount(int id)
         {
             var count = _context.Reviews.Where(r => r.Recipe.Id == id).ToList();
@@ -21,12 +34,12 @@ namespace RecipeAppBackend.Repositories
 
         public ICollection<Image> GetImagesOfRecipe(int id)
         {
-            return _context.RecipeImages.Where(ri => ri.Recipe.Id == id).Select(ri => ri.Image).ToList();
+            return _context.Images.Where(i => i.Recipe.Id == id).Include(i => i.Recipe).ToList();
         }
 
         public ICollection<Ingredient> GetIngredientsOfRecipe(int id)
         {
-            return _context.RecipeIngredients.Where(ri => ri.RecipeId == id).Select(ri => ri.Ingredient).ToList();
+            return _context.Ingredients.Where(i => i.Recipe.Id == id).Include(i => i.Recipe).ToList();
         }
 
         public ICollection<Keyword> GetKeywordsOfRecipe(int id)
@@ -56,12 +69,29 @@ namespace RecipeAppBackend.Repositories
 
         public ICollection<Review> GetReviewsOfRecipe(int id)
         {
-            return _context.Reviews.Where(r => r.Recipe.Id == id).Include(r => r.User).ToList();
+            return _context.Reviews.Where(r => r.Recipe.Id == id).Include(r => r.User).Include(r => r.Recipe).ToList();
+        }
+
+        public bool KeywordExists(int recipeId, int keywordId)
+        {
+            return _context.RecipeKeywords.Any(k => k.RecipeId == recipeId && k.KeywordId == keywordId);
         }
 
         public bool RecipeExists(int id)
         {
             return _context.Recipes.Any(r => r.Id == id);
+        }
+
+        public bool Save()
+        {
+            var saved = _context.SaveChanges();
+            return saved > 0 ? true : false;
+        }
+
+        public bool UpdateRecipe(Recipe recipe)
+        {
+            _context.Update(recipe);
+            return Save();
         }
     }
 }

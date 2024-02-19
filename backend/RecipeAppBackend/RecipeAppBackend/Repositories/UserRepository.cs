@@ -14,6 +14,23 @@ namespace RecipeAppBackend.Repositories
             _context = context;
         }
 
+        public bool AddFavorite(Favorite favorite)
+        {
+            _context.Favorites.Add(favorite);
+            return Save();
+        }
+
+        public bool CreateUser(User user)
+        {
+            _context.Users.Add(user);
+            return Save();
+        }
+
+        public bool FavoriteExists(int userId, int recipeId)
+        {
+            return _context.Favorites.Any(f => f.UserId == userId && f.RecipeId == recipeId);
+        }
+
         public User GetUser(int id)
         {
             return _context.Users.Where(u => u.Id == id).FirstOrDefault();
@@ -37,6 +54,18 @@ namespace RecipeAppBackend.Repositories
         public ICollection<Review> GetUsersReviews(int id)
         {
             return _context.Reviews.Include(r => r.User).Include(r => r.Recipe).Where(r => r.User.Id == id).ToList();
+        }
+
+        public bool Save()
+        {
+            var saved = _context.SaveChanges();
+            return saved > 0 ? true : false;
+        }
+
+        public bool UpdateUser(User user)
+        {
+            _context.Update(user);
+            return Save();
         }
 
         public bool UserExists(int id)
