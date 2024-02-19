@@ -1,47 +1,53 @@
-/* styles.css */
-
-
 .recipe-grid {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-evenly;
-    margin: 0 auto;
-    max-width: 1200px; /* Adjust the max width as per your design */
-  }
-  
-  .recipe-item {
-    background-color: #f0f0f0;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    padding: 20px;
-    margin: 10px;
-    width: calc(33.33% - 20px); /* Adjust width based on the number of cards per row */
-  }
-  
-  .recipe-image {
-    width: 100%; /* Ensure the image fills the container */
-    border-radius: 8px;
-  }
-  
-  .recipe-details {
-    padding-top: 10px;
-  }
-  
-  .recipe-name {
-    font-size: 18px;
-    margin-bottom: 5px;
-  }
-  
-  .recipe-instructions {
-    margin-bottom: 10px;
-  }
-  
-  .recipe-rating {
-    background-color: #fbfaf9;
-    color: #333;
-    padding: 5px 10px;
-    border-radius: 5px;
-    font-weight: bold;
-    display: inline-block;
-  }
-  
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-evenly;
+  margin: 0 auto;
+  max-width: 100%; /* Säädä maksimileveys suunnittelusi mukaan */
+  align-items: center;
+}
+
+.recipe-grid-item {
+  flex-grow: 1; /* Jaa tila tasaisesti korttien kesken */
+  background-color: #fdfdfd;
+  border-radius: 8px;
+  padding: 20px;
+  margin: 10px;
+  width: calc(
+    (100% / 3) - 20px
+  ); /* Säädä leveys sen mukaan, kuinka monta korttia haluat näkyvän rivillä */
+  border: none;
+}
+
+.recipe-grid-image {
+  width: 100%; /* Varmista, että kuva täyttää koko kontainerin */
+  border-radius: 8px;
+  box-sizing: border-box;
+}
+.recipe-grid-image img {
+  width: 100%;
+  border-radius: 8px;
+}
+
+.recipe-grid-details {
+  padding-top: 10px;
+}
+
+.recipe-grid-name {
+  font-size: 18px;
+  margin-bottom: 5px;
+}
+
+.recipe-grid-instructions {
+  margin-bottom: 10px;
+}
+
+.recipe-grid-rating {
+  background-color: #f4f4f4;
+  color: #333;
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-weight: bold;
+  display: inline-block;
+  width: fit-content;
+}

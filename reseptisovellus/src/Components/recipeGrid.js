@@ -1,36 +1,50 @@
-import React from "react";
+import { React, useState } from "react";
 import "./RecipeGrid.css";
+import { Link } from "react-router-dom";
 
-// props recipes, reviews, images
-const RecipeGrid = ({ recipes, reviews, images }) => {
+const RecipeGrid = ({ recipes }) => {
+  const [loading, setLoading] = useState(true); // loading state for images
+  //const [images, setImages] = useState([]); // real images from recepy images
   return (
     <div className="recipe-grid">
-      {recipes.map((recipe, index) => (
-        <div key={recipe.id} className="recipe-item">
-          <img
-            src={images[index]} // testing image with this, images should be in public folder
-            alt={recipe.name}
-            className="recipe-image"
-            /* src={
-              images.find((image) => image.imageID === recipe.ID).imagePath
-            } */
-          />
-          <div className="recipe-details">
-            <h3 className="recipe-name">{recipe.name}</h3>
-            <p className="recipe-instructions">{recipe.instructions}</p>
-            <div className="reviews">
-              {reviews
-                .filter((review) => review.recipeID == recipe.recipeID)
-                .map((review) => (
-                  <div key={review.id} className="recipe-rating">
-                    <p>
-                      Rating: {"⭐".repeat(review.rating)} <br />
-                      Review: {review.comment}
-                    </p>
-                  </div>
-                ))}
+      {recipes.map((recipe) => (
+        <div key={recipe.id} className="recipe-grid-item">
+          {/* create every recipe as a link */}
+          <Link to={`/recipe/${recipe.id}`} className="recipe-grid-link">
+            <div className="recipe-grid-image">
+              {recipe.images.length > 0 && ( // Tarkista, onko kuvia
+                <img
+                  src={`data:image/jpeg;base64,${recipe.images[0].imageData}`} // Näytä vain ensimmäinen kuva
+                  alt={`Image for ${recipe.name}`}
+                />
+              )}
             </div>
-          </div>
+            <div className="recipe-grid-details">
+              <h3 className="recipe-grid-name">{recipe.name}</h3>
+              {/* <p className="recipe-instructions">{recipe.instructions}</p> */}
+              <div>
+                <ul>
+                  {recipe.reviews.length > 0 ? (
+                    <li className="recipe-grid-rating">
+                      <p>
+                        Average Rating: {"⭐".repeat(Math.round(recipe.rating))}{" "}
+                        <br />
+                      </p>
+                    </li>
+                  ) : (
+                    <li className="recipe-grid-rating">
+                      <p>No ratings yet</p>
+                    </li>
+                  )}
+                  {/*  {recipe.reviews.map((review, index) => (
+                    <li key={index} className="recipe-rating">
+                      <p>Review: {review.comment}</p>
+                    </li>
+                  ))} */}
+                </ul>
+              </div>
+            </div>
+          </Link>
         </div>
       ))}
     </div>
