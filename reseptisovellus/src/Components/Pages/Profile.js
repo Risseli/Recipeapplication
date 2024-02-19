@@ -30,20 +30,12 @@ const Profile = () => {
     checkUserStatus();
   }, [navigate]);
 
-  const handleEditClick = () => {
-    setEditMode(true);
-    setEditedUser({
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      admin: user.admin,
-    });
-  };
+
 
 
   const handleOptionChange = (event) => {
     setSelectedOption(event.target.value);
-    loadRecipes(event.target.value);
+    loadRecipes(event.target.value, user.id);
   };
 
 
@@ -51,48 +43,69 @@ const Profile = () => {
     try {
       let recipesData = [];
   
-      if (option === "ownRecipes") {
-        const response = await fetch(`https://recipeappapi.azurewebsites.net/api/recipe`);
-      recipesData = await response.json();
-
-
-      const userRecipes = recipesData.filter(recipe => recipe.userId === id);
-      setRecipes(userRecipes);
-
-      } else if (option === "favorites") {
-        // Käytä paikallista json-serveriä hakemaan favorites-tiedot
-        // const response = await fetch(`http://localhost:3004/favorites?userId=${userId}`);
-        // const favoritesData = await response.json();
+      // Set a loading state while fetching recipes
+      setRecipes([]);
   
-        // Hae suosikkireseptien tiedot "recipe" taulusta
-        // for (const favorite of favoritesData) {
-          // const recipeResponse = await fetch(`http://localhost:3004/recipe?recipeID=${favorite.recipeId}`);
-          // const recipeData = await recipeResponse.json();
-          // recipesData.push(recipeData);
-
-          const response = await fetch(`http://localhost:3004/recipe?recipeID=5`);
-          recipesData = await response.json();
-          setRecipes(recipesData);
-
-        //}
+      if (!id) {
+        console.error("User ID is undefined.");
+        return; // Exit the function if ID is undefined
       }
   
-
+      let apiUrl;
+      if (option === "ownRecipes") {
+        // Fetch user's own recipes
+        apiUrl = `https://recipeappapi.azurewebsites.net/api/User/${id}/Recipes`;
+      } else if (option === "favorites") {
+        // Fetch user's favorite recipes
+        apiUrl = `https://recipeappapi.azurewebsites.net/api/User/${id}/Favorites`;
+      }
+  
+      const response = await fetch(apiUrl);
+      const responseData = await response.json();
+  
+      if (response.ok) {
+        recipesData = responseData;
+        console.log(`${option} Data:`, recipesData);
+      } else {
+        console.error(`Error fetching ${option} recipes:`, responseData);
+      }
+  
+      setRecipes(recipesData);
+      console.log("Recipes State:", recipes);
+  
     } catch (error) {
       console.error("Error loading recipes:", error);
     }
   };
+  
+  
+  const handleEditClick = () => {
+    console.log("User state:", user); // Lisää tämä rivi
+    setEditMode(true);
+    setEditedUser({
+      id: user.id, // Tarkista, että user.id on määritelty oikein
+      name: user.name,
+      email: user.email,
+      admin: user.admin,
+    });
+  };
+
+
+
 
   const handleSaveClick = async () => {
     try {
-      console.log("Saving user data...", editedUser);
+      // Poista userId pyynnön rungosta, koska se on jo polussa
+      const { userId, ...userWithoutId } = editedUser;
+  
+      console.log("Saving user data...", userWithoutId);
   
       const response = await fetch(`https://recipeappapi.azurewebsites.net/api/user/${editedUser.id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(editedUser),
+        body: JSON.stringify(userWithoutId), // Käytä userWithoutId:tä pyynnön rungossa
       });
   
       console.log("Response:", response);
@@ -102,12 +115,15 @@ const Profile = () => {
         setUser(editedUser);
         setEditMode(false);
       } else {
-        console.error("Error updating user data");
+        console.error("Error updating user data", response);
       }
     } catch (error) {
       console.error("Error saving user data:", error);
     }
   };
+  
+
+  
 
   return (
     <div className="container">
@@ -164,12 +180,15 @@ const Profile = () => {
             </label>
           </div>
           <div className="recipe-list">
-            <h2>Recipes:</h2>
-            <ul>
-  {recipes.map((recipe) => (
-    <li key={recipe.id}>{recipe.name}</li>
-  ))}
-</ul>
+          {Array.isArray(recipes) ? (
+  <ul>
+    {recipes.map((recipe) => (
+      <li key={`${recipe.userId}-${recipe.id}`}>{recipe.name}</li>
+    ))}
+  </ul>
+) : (
+  <p>No recipes available</p>
+)}
           </div>
         </>
       ) : (
