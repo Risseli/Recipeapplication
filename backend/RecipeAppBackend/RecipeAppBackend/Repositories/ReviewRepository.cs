@@ -20,6 +20,12 @@ namespace RecipeAppBackend.Repositories
             return Save();
         }
 
+        public bool DeleteReview(Review review)
+        {
+            _context.Remove(review);
+            return Save();
+        }
+
         public Review GetReview(int id)
         {
             return _context.Reviews.Include(r => r.User).Include(r => r.Recipe).FirstOrDefault(r => r.Id == id);

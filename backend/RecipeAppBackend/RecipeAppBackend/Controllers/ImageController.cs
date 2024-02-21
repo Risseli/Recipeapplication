@@ -150,5 +150,30 @@ namespace RecipeAppBackend.Controllers
 
             return Ok("Succesfully updated");
         }
+
+
+
+        [HttpDelete("{imageId}")]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(404)]
+        public IActionResult DeleteImage(int imageId)
+        {
+            if (!_imageRepository.ImageExists(imageId))
+                return NotFound();
+
+            var deleteImage = _imageRepository.GetImage(imageId);
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            if (!_imageRepository.DeleteImage(deleteImage))
+            {
+                ModelState.AddModelError("","Something went wrong while deleting image: " + imageId);
+                return StatusCode(500, ModelState);
+            }
+
+            return Ok("Succesfully deleted");
+        }
     }
 }

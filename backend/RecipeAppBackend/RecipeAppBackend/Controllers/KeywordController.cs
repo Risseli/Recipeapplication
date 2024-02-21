@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using RecipeAppBackend.Dto;
 using RecipeAppBackend.Interfaces;
 using RecipeAppBackend.Models;
+using RecipeAppBackend.Repositories;
 using System.Collections.Generic;
 
 namespace RecipeAppBackend.Controllers
@@ -131,6 +132,31 @@ namespace RecipeAppBackend.Controllers
             }
 
             return Ok("Succesfully updated");
+        }
+
+
+
+        [HttpDelete("{keywordId}")]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(404)]
+        public IActionResult DeleteKeyword(int keywordId)
+        {
+            if (!_keywordRepository.KeywordExists(keywordId))
+                return NotFound();
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var deleteKeyword = _keywordRepository.GetKeyword(keywordId);
+
+            if (!_keywordRepository.DeleteKeyword(deleteKeyword))
+            {
+                ModelState.AddModelError("", "Something went wrong while deleting keyword: " + keywordId);
+                return StatusCode(500, ModelState);
+            }
+
+            return Ok("Succesfully deleted");
         }
     }
 }
