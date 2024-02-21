@@ -1,22 +1,14 @@
 .recipe-grid {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-evenly;
-  margin: 0 auto;
-  max-width: 100%; /* Säädä maksimileveys suunnittelusi mukaan */
-  align-items: center;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); /* Säädä leveyttä tarpeen mukaan */
+  grid-gap: 20px;
+  
 }
 
 .recipe-grid-item {
-  flex-grow: 1; /* Jaa tila tasaisesti korttien kesken */
-  background-color: #fdfdfd;
+  background-color: #f0f0f0;
   border-radius: 8px;
   padding: 20px;
-  margin: 10px;
-  width: calc(
-    (100% / 3) - 20px
-  ); /* Säädä leveys sen mukaan, kuinka monta korttia haluat näkyvän rivillä */
-  border: none;
 }
 
 .recipe-grid-image {
@@ -26,6 +18,7 @@
 }
 .recipe-grid-image img {
   width: 100%;
+  height: auto;
   border-radius: 8px;
 }
 
@@ -43,7 +36,7 @@
 }
 
 .recipe-grid-rating {
-  background-color: #f4f4f4;
+  background-color: #fbfaf9;
   color: #333;
   padding: 5px 10px;
   border-radius: 5px;

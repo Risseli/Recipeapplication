@@ -36,11 +36,6 @@ const RecipeGrid = ({ recipes }) => {
                       <p>No ratings yet</p>
                     </li>
                   )}
-                  {/*  {recipe.reviews.map((review, index) => (
-                    <li key={index} className="recipe-rating">
-                      <p>Review: {review.comment}</p>
-                    </li>
-                  ))} */}
                 </ul>
               </div>
             </div>

@@ -38,7 +38,8 @@ const RecipeDetails = () => {
 
   // set recipe as favourite
   const setFavourite = async () => {
-    //something to set with put method the recipe as favourite
+    // set this recipe to users favourite
+
     return;
   };
 
@@ -91,12 +92,13 @@ const RecipeDetails = () => {
           <div className="recipe-detail-image">
             {recipe.images && <RecipeSlider images={recipe.images} />}
           </div>
+          {recipe.keywords.map((keyword, index) => (
+            <p key={index}>Keywords: {keyword.word}</p>
+          ))}
+
           <div className="recipe-detail-actions">
-            <a className="recipe-detail-links" href="#" onClick={likeRecipe}>
-              Like
-            </a>
             <a className="recipe-detail-links" href="#" onClick={setFavourite}>
-              Set Favourite
+              Set Favourite {recipe.favoriteCount}
             </a>
             <a className="recipe-detail-links" href="#" onClick={shareRecipe}>
               Share
@@ -105,7 +107,7 @@ const RecipeDetails = () => {
               className="recipe-detail-links"
               href="#"
               onClick={printRecipe}
-              disabled={printing} // Estää toiston aikana uuden tulostuksen
+              disabled={printing} // prevent multiple clicks
             >
               Print
             </a>
@@ -126,13 +128,15 @@ const RecipeDetails = () => {
             <p>{recipe.instructions}</p>
           </div>
           <div className="recipe-detail-reviews">
-            <br />
             <h3>Reviews</h3>
             {/* map through reviews */}
             {recipe.reviews.map((review, index) => (
-              <p key={index}>
-                {reviewUser(review)}: {review.comment}
-              </p>
+              <div key={index} className="recipe-detail-item">
+                <p>
+                  <strong>{reviewUser(review)}:</strong> "{review.comment}"
+                </p>
+                <p>Rating: {review.rating} / 5</p>
+              </div>
             ))}
           </div>
           {/* create bar for like, setFavourite, share, print and share recipe*/}
@@ -162,7 +166,7 @@ const RecipeSlider = ({ images }) => {
   return (
     <div className="recipe-slider-container">
       <button className="slider-button-left" onClick={prevImage}>
-        Previous
+        &#10094;
       </button>
       <div className="recipe-slider-image">
         <img
@@ -171,7 +175,7 @@ const RecipeSlider = ({ images }) => {
         />
       </div>
       <button className="slider-button-right" onClick={nextImage}>
-        Next
+        &#10095;
       </button>
     </div>
   );

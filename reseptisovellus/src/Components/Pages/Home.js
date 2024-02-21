@@ -1,22 +1,9 @@
 import React, { useEffect, useState } from "react";
-import RecipeGrid from "../../Components/recipeGrid"; // import works like this
+import RecipeGrid from "../../Components/recipeGrid";
 
 export const Home = () => {
   const [recipes, setRecipes] = useState([]);
-  const [reviews, setReviews] = useState([]);
-  const [testimages, setTestImages] = useState([]);
   const [loading, setLoading] = useState(true); // loading state for images
-
-  // test set until we have images working properly, images in projects public folder
-  useEffect(() => {
-    setTestImages([
-      "image1.jpg",
-      "image2.jpg",
-      "image3.jpg",
-      "image4.jpg",
-      "image5.jpg",
-    ]);
-  }, []);
 
   // fetch data from database, all queries can be done in one fetch. This is done when site loads or is refreshed
   useEffect(() => {
@@ -36,6 +23,12 @@ export const Home = () => {
     fetchData();
   }, []);
 
+  // Arrange recipes by rating
+  const sortedRecipes = recipes.sort((a, b) => b.rating - a.rating);
+
+  // Take 5 best recipes
+  const topFiveRecipes = sortedRecipes.slice(0, 5);
+
   return (
     <div style={{ textAlign: "center" }}>
       <h1>Welcome to the recipe app</h1>
@@ -43,14 +36,11 @@ export const Home = () => {
         Here you can browse through our recipes and find something to cook for
         dinner tonight!
       </p>
-
-      {console.log("Home", reviews)}
-
-      {/* Render your recipes here */}
-      { loading ? <p style={{fontSize : "48px"}}>Loading recepies..</p> :
-      <RecipeGrid recipes={recipes} />
-      };
-  
+      {loading ? (
+        <p style={{ fontSize: "48px" }}>Loading recipes..</p>
+      ) : (
+        <RecipeGrid recipes={topFiveRecipes} />
+      )}
     </div>
   );
 };
