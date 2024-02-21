@@ -1,19 +1,26 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import './Profile.css';
+import ProfileRecipeGrid from "../../Components/ProfileRecipeGrid";
 
 const Profile = () => {
   const [user, setUser] = useState(null);
   const [editMode, setEditMode] = useState(false);
   const [editedUser, setEditedUser] = useState({});
   const [selectedOption, setSelectedOption] = useState("ownRecipes");
-  const [recipes, setRecipes] = useState([]);
   const navigate = useNavigate();
+  const [recipes, setRecipes] = useState([]); 
+
+
+
+
+
+
 
   useEffect(() => {
     const checkUserStatus = async () => {
       try {
-        const response = await fetch("https://recipeappapi.azurewebsites.net/api/user/5"); // testataan käyttäjällä id:4
+        const response = await fetch("https://recipeappapi.azurewebsites.net/api/user/5"); // testataan käyttäjällä id:5
         const data = await response.json();
   
         if (data) {
@@ -30,19 +37,12 @@ const Profile = () => {
     checkUserStatus();
   }, [navigate]);
 
-  const handleEditClick = () => {
-    setEditMode(true);
-    setEditedUser({
-      name: user.name,
-      email: user.email,
-      admin: user.admin,
-    });
-  };
+
 
 
   const handleOptionChange = (event) => {
     setSelectedOption(event.target.value);
-    loadRecipes(event.target.value);
+    loadRecipes(event.target.value, user.id);
   };
 
 
@@ -50,58 +50,132 @@ const Profile = () => {
     try {
       let recipesData = [];
   
-      if (option === "ownRecipes") {
-        const response = await fetch(`https://recipeappapi.azurewebsites.net/api/recipe`);
-      recipesData = await response.json();
-
-
-      const userRecipes = recipesData.filter(recipe => recipe.userId === id);
-      setRecipes(userRecipes);
-
-      } else if (option === "favorites") {
-        // Käytä paikallista json-serveriä hakemaan favorites-tiedot
-        // const response = await fetch(`http://localhost:3004/favorites?userId=${userId}`);
-        // const favoritesData = await response.json();
+      // Set a loading state while fetching recipes
+      setRecipes([]);
   
-        // Hae suosikkireseptien tiedot "recipe" taulusta
-        // for (const favorite of favoritesData) {
-          // const recipeResponse = await fetch(`http://localhost:3004/recipe?recipeID=${favorite.recipeId}`);
-          // const recipeData = await recipeResponse.json();
-          // recipesData.push(recipeData);
-
-          const response = await fetch(`http://localhost:3004/recipe?recipeID=5`);
-          recipesData = await response.json();
-          setRecipes(recipesData);
-
-        //}
+      if (!id) {
+        console.error("User ID is undefined.");
+        return; // Exit the function if ID is undefined
       }
   
-
+      let apiUrl;
+      if (option === "ownRecipes") {
+        // Fetch user's own recipes
+        apiUrl = `https://recipeappapi.azurewebsites.net/api/User/${id}/Recipes`;
+      } else if (option === "favorites") {
+        // Fetch user's favorite recipes
+        apiUrl = `https://recipeappapi.azurewebsites.net/api/User/${id}/Favorites`;
+      }
+  
+      const response = await fetch(apiUrl);
+      const responseData = await response.json();
+  
+      if (response.ok) {
+        recipesData = responseData;
+        console.log(`${option} Data:`, recipesData);
+      } else {
+        console.error(`Error fetching ${option} recipes:`, responseData);
+      }
+  
+      setRecipes(recipesData);
+      console.log("Recipes State:", recipes);
+  
     } catch (error) {
       console.error("Error loading recipes:", error);
     }
   };
 
+
+
+
+  
+  const handleEditClick = () => {
+    console.log("User state:", user); // Lisää tämä rivi
+    setEditMode(true);
+    setEditedUser({
+      id: user.id, // Tarkista, että user.id on määritelty oikein
+      name: user.name,
+      email: user.email,
+      admin: user.admin,
+    });
+  };
+
+
+
+
   const handleSaveClick = async () => {
     try {
-      const response = await fetch(`https://recipeappapi.azurewebsites.net/api/user/${user.id}`, {
+      // Poista userId pyynnön rungosta, koska se on jo polussa
+      const { userId, ...userWithoutId } = editedUser;
+  
+      console.log("Saving user data...", userWithoutId);
+  
+      const response = await fetch(`https://recipeappapi.azurewebsites.net/api/user/${editedUser.id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(editedUser),
+        body: JSON.stringify(userWithoutId), // Käytä userWithoutId:tä pyynnön rungossa
       });
-
+  
+      console.log("Response:", response);
+  
       if (response.ok) {
+        console.log("User data saved successfully.");
         setUser(editedUser);
         setEditMode(false);
       } else {
-        console.error("Error updating user data");
+        console.error("Error updating user data", response);
       }
     } catch (error) {
       console.error("Error saving user data:", error);
     }
   };
+  
+
+
+  const handleDeleteClick = async () => { // ei toimi vielä delete backendin kanssa, mutta tässä logiikka
+    if (user.admin) {
+      // Jos käyttäjä on admin, tee tarvittavat toimenpiteet
+      // esimerkiksi hae kaikki profiilit ja renderöi delete-napit niiden kohdalle
+      try {
+        const response = await fetch("https://recipeappapi.azurewebsites.net/api/users"); // Vaihda oikeaan endpointiin
+  
+        if (response.ok) {
+          const allUsers = await response.json();
+  
+          // Tässä voit käyttää esimerkiksi modalia tai muuta komponenttia
+          // näyttämään kaikki profiilit ja niiden delete-napit adminille
+          console.log("List of all users:", allUsers);
+        } else {
+          console.error("Error fetching all users:", response);
+        }
+      } catch (error) {
+        console.error("Error fetching all users:", error);
+      }
+    } else {
+      // Jos käyttäjä ei ole admin, tee normaali poisto
+      if (window.confirm("Are you sure you want to delete your profile?")) {
+        try {
+          const response = await fetch(`https://recipeappapi.azurewebsites.net/api/user/${user.id}`, {
+            method: "DELETE",
+          });
+  
+          if (response.ok) {
+            console.log("User deleted successfully.");
+            navigate("/"); // Palaa etusivulle
+          } else {
+            console.error("Error deleting user:", response);
+          }
+        } catch (error) {
+          console.error("Error deleting user:", error);
+        }
+      }
+    }
+  };
+
+
+  
 
   return (
     <div className="container">
@@ -120,6 +194,7 @@ const Profile = () => {
                 <strong>Admin:</strong> {user.admin ? "Yes" : "No"}
               </p>
               <button className="edit-button" onClick={handleEditClick}>Edit</button>
+              <button className="delete-button" onClick={handleDeleteClick}>Delete</button>
             </div>
           )}
           {editMode && (
@@ -158,12 +233,7 @@ const Profile = () => {
             </label>
           </div>
           <div className="recipe-list">
-            <h2>Recipes:</h2>
-            <ul>
-  {recipes.map((recipe) => (
-    <li key={recipe.id}>{recipe.name}</li>
-  ))}
-</ul>
+<ProfileRecipeGrid recipes={recipes} />
           </div>
         </>
       ) : (
