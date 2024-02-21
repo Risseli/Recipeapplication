@@ -1,6 +1,9 @@
 import React, { useState } from "react";
+import { useHistory } from "react-router-dom";
 
-export const Login = () => {
+const Login = () => {
+  const history = useHistory();
+
   const [loginData, setLoginData] = useState({
     username: "",
     password: "",
@@ -8,29 +11,51 @@ export const Login = () => {
 
   const [registerData, setRegisterData] = useState({
     email: "",
-    registerUsername: "",
-    registerPassword: "",
-    nickname: "",
+    username: "",
+    password: "",
+    name: "",
   });
 
-  const loginUser = async () => {
+  const [emailError, setEmailError] = useState("");
+  const [isLoggedIn, setLoggedIn] = useState(false);
+
+  const checkEmailAvailability = async () => {
     try {
-      const response = await fetch("gaming", {
+      const response = await fetch("hhttps://recipeappapi.azurewebsites.net/api/check-email", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          action: "login",
-          username: loginData.username,
-          password: loginData.password,
+          email: registerData.email,
         }),
       });
 
-      const data = await response.json();
-      console.log(data);
+      const result = await response.json();
 
-      // Handle successful login - e.g., redirect to another page
+      setEmailError(result.available ? "" : "Email is already in use");
+    } catch (error) {
+      console.error("Error checking email availability:", error);
+    }
+  };
+
+  const loginUser = async () => {
+    try {
+      const response = await fetch("https://recipeappapi.azurewebsites.net/api/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(loginData),
+      });
+
+      const result = await response.json();
+
+      console.log("Login successful:", result);
+
+      setLoggedIn(true);
+
+      history.push("/");
     } catch (error) {
       console.error("Error during login:", error);
     }
@@ -38,86 +63,105 @@ export const Login = () => {
 
   const registerUser = async () => {
     try {
-      const response = await fetch("gaming", {
+      await checkEmailAvailability();
+
+      if (emailError) {
+        return;
+      }
+
+      const response = await fetch("https://recipeappapi.azurewebsites.net/api/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          action: "register",
-          email: registerData.email,
-          username: registerData.registerUsername,
-          password: registerData.registerPassword,
-          nickname: registerData.nickname,
-        }),
+        body: JSON.stringify(registerData),
       });
 
-      const data = await response.json();
-      console.log(data);
+      const result = await response.json();
 
-      // Handle successful registration - e.g., show a success message
+      console.log("Registration successful:", result);
     } catch (error) {
       console.error("Error during registration:", error);
     }
   };
 
+  const logoutUser = () => {
+    setLoggedIn(false);
+
+    history.push("/");
+  };
+
   return (
     <div>
-      <h1>Login</h1>
-      <form>
-        <label>Username:</label>
-        <input
-          type="text"
-          value={loginData.username}
-          onChange={(e) => setLoginData({ ...loginData, username: e.target.value })}
-        />
-        <br />
-        <label>Password:</label>
-        <input
-          type="password"
-          value={loginData.password}
-          onChange={(e) => setLoginData({ ...loginData, password: e.target.value })}
-        />
-        <br />
-        <button type="button" onClick={loginUser}>
-          Login
-        </button>
-      </form>
+      {isLoggedIn ? (
+        <>
+          <p>Welcome! You are logged in.</p>
+          <button type="button" onClick={logoutUser}>
+            Logout
+          </button>
+        </>
+      ) : (
+        <>
+          <h1>Login</h1>
+          <form>
+            <input
+              type="text"
+              placeholder="Username"
+              value={loginData.username}
+              onChange={(e) => setLoginData({ ...loginData, username: e.target.value })}
+            />
+            <input
+              type="password"
+              placeholder="Password"
+              value={loginData.password}
+              onChange={(e) => setLoginData({ ...loginData, password: e.target.value })}
+            />
+            <br />
+            <button type="button" onClick={loginUser}>
+              Login
+            </button>
+          </form>
 
-      <h1>Register</h1>
-      <form>
-        <label>Email:</label>
-        <input
-          type="text"
-          value={registerData.email}
-          onChange={(e) => setRegisterData({ ...registerData, email: e.target.value })}
-        />
-        <br />
-        <label>Username:</label>
-        <input
-          type="text"
-          value={registerData.registerUsername}
-          onChange={(e) => setRegisterData({ ...registerData, registerUsername: e.target.value })}
-        />
-        <br />
-        <label>Password:</label>
-        <input
-          type="password"
-          value={registerData.registerPassword}
-          onChange={(e) => setRegisterData({ ...registerData, registerPassword: e.target.value })}
-        />
-        <br />
-        <label>Nickname:</label>
-        <input
-          type="text"
-          value={registerData.nickname}
-          onChange={(e) => setRegisterData({ ...registerData, nickname: e.target.value })}
-        />
-        <br />
-        <button type="button" onClick={registerUser}>
-          Register
-        </button>
-      </form>
+          <h1>Register</h1>
+          <form>
+            <input
+              type="email"
+              placeholder="Email"
+              value={registerData.email}
+              onChange={(e) => {
+                setRegisterData({ ...registerData, email: e.target.value });
+                setEmailError("");
+              }}
+              onBlur={checkEmailAvailability}
+            />
+            {emailError && <p style={{ color: "red" }}>{emailError}</p>}
+            <input
+              type="text"
+              placeholder="Username"
+              value={registerData.username}
+              onChange={(e) => setRegisterData({ ...registerData, username: e.target.value })}
+            />
+            <input
+              type="password"
+              placeholder="Password"
+              value={registerData.password}
+              onChange={(e) => setRegisterData({ ...registerData, password: e.target.value })}
+            />
+            <input
+              type="text"
+              placeholder="Name"
+              value={registerData.name}
+              onChange={(e) => setRegisterData({ ...registerData, name: e.target.value })}
+            />
+            <br />
+            <button type="button" onClick={registerUser}>
+              Register
+            </button>
+          </form>
+        </>
+      )}
     </div>
   );
 };
+
+export { Login };
