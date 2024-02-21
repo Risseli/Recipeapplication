@@ -2,6 +2,7 @@
 using RecipeAppBackend.Data;
 using RecipeAppBackend.Interfaces;
 using RecipeAppBackend.Models;
+using static Microsoft.Extensions.Logging.EventSource.LoggingEventSource;
 
 namespace RecipeAppBackend.Repositories
 {
@@ -23,6 +24,25 @@ namespace RecipeAppBackend.Repositories
         {
             _context.RecipeKeywords.AddRange(recipeKeywords);
             _context.Recipes.Add(recipe);
+            return Save();
+        }
+
+        public bool DeleteRecipe(Recipe recipe)
+        {
+            var ingredients = GetIngredientsOfRecipe(recipe.Id);
+            var images = GetImagesOfRecipe(recipe.Id);
+            var reviews = GetReviewsOfRecipe(recipe.Id);
+            var recipeKeywords = GetRecipeKeywordsOfRecipe(recipe.Id);
+            var favorites = _context.Favorites.Where(f => f.RecipeId == recipe.Id);
+
+            _context.RemoveRange(ingredients);
+            _context.RemoveRange(images);
+            _context.RemoveRange(reviews);
+            _context.RemoveRange(recipeKeywords);
+            _context.RemoveRange(favorites);
+
+            _context.Remove(recipe);
+
             return Save();
         }
 
@@ -62,6 +82,11 @@ namespace RecipeAppBackend.Repositories
             return _context.Recipes.Include(r => r.User).FirstOrDefault(r => r.Id == id);
         }
 
+        public ICollection<RecipeKeyword> GetRecipeKeywordsOfRecipe(int recipeId)
+        {
+            return _context.RecipeKeywords.Where(rk => rk.RecipeId == recipeId).Include(rk => rk.Keyword).ToList();
+        }
+
         public ICollection<Recipe> GetRecipes()
         {
             return _context.Recipes.Include(r => r.User).OrderBy(r => r.Id).ToList();
@@ -80,6 +105,12 @@ namespace RecipeAppBackend.Repositories
         public bool RecipeExists(int id)
         {
             return _context.Recipes.Any(r => r.Id == id);
+        }
+
+        public bool RemoveKeyword(RecipeKeyword recipeKeyword)
+        {
+            _context.Remove(recipeKeyword);
+            return Save();
         }
 
         public bool Save()

@@ -20,6 +20,12 @@ namespace RecipeAppBackend.Repositories
             return Save();
         }
 
+        public bool DeleteImage(Image image)
+        {
+            _context.Remove(image);
+            return Save();
+        }
+
         public Image GetImage(int id)
         {
             return _context.Images.Include(i => i.Recipe).FirstOrDefault(i => i.Id == id);

@@ -19,6 +19,14 @@ namespace RecipeAppBackend.Repositories
             return Save();
         }
 
+        public bool DeleteKeyword(Keyword keyword)
+        {
+            var recipeKeywords = GetRecipeKeywords(keyword.Id);
+            _context.RemoveRange(recipeKeywords);
+            _context.Remove(keyword);
+            return Save();
+        }
+
         public Keyword GetKeyword(int id)
         {
             return _context.Keywords.FirstOrDefault(k => k.Id == id);
@@ -32,6 +40,11 @@ namespace RecipeAppBackend.Repositories
         public ICollection<Keyword> GetKeywordsOfRecipe(int recipeId)
         {
             return _context.RecipeKeywords.Where(rk => rk.RecipeId == recipeId).Select(rk => rk.Keyword).ToList();  
+        }
+
+        public ICollection<RecipeKeyword> GetRecipeKeywords(int keywordId)
+        {
+            return _context.RecipeKeywords.Where(rk => rk.KeywordId == keywordId).ToList();
         }
 
         public bool KeywordExists(int id)

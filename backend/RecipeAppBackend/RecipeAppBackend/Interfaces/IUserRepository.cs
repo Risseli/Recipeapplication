@@ -12,7 +12,9 @@ namespace RecipeAppBackend.Interfaces
         bool UserExists(int id);
         bool CreateUser(User user);
         bool UpdateUser(User user);
+        bool DeleteUser(User user);
         bool AddFavorite(Favorite favorite);
+        bool RemoveFavorite(Favorite favorite);
         bool FavoriteExists(int userId, int recipeId);
         bool Save();
     }

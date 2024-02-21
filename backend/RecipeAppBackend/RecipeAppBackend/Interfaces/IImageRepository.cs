@@ -10,6 +10,7 @@ namespace RecipeAppBackend.Interfaces
         bool ImageExists(int id);
         bool CreateImage(Image image);
         bool UpdateImage(Image image);
+        bool DeleteImage(Image image);
         bool Save();
     }
 }

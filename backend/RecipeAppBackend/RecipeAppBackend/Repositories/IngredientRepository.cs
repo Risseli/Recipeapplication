@@ -20,6 +20,12 @@ namespace RecipeAppBackend.Repositories
             return Save();
         }
 
+        public bool DeleteIngredient(Ingredient ingredinet)
+        {
+            _context.Remove(ingredinet);
+            return Save();
+        }
+
         public Ingredient GetIngredient(int id)
         {
             return _context.Ingredients.Include(i => i.Recipe).FirstOrDefault(i => i.Id == id);

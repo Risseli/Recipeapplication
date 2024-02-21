@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using RecipeAppBackend.Dto;
 using RecipeAppBackend.Interfaces;
 using RecipeAppBackend.Models;
+using System.Diagnostics;
 
 namespace RecipeAppBackend.Controllers
 {
@@ -137,6 +138,30 @@ namespace RecipeAppBackend.Controllers
 
 
             return Ok("Succesfully updated");
+        }
+
+
+        [HttpDelete("{ingId}")]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(404)]
+        public IActionResult DeleteIngredient(int ingId)
+        {
+            if (!_ingredientRepository.IngredientExists(ingId))
+                return NotFound();
+
+            var deleteIng = _ingredientRepository.GetIngredient(ingId);
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            if (!_ingredientRepository.DeleteIngredient(deleteIng))
+            {
+                ModelState.AddModelError("", "Something went wrong while deleting ingredient: " + ingId);
+                return StatusCode(500,ModelState);
+            }
+
+            return Ok("Successfully deleted");
         }
     }
 }
