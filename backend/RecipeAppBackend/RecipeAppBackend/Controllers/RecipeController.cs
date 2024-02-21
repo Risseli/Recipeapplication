@@ -254,9 +254,9 @@ namespace RecipeAppBackend.Controllers
         [ProducesResponseType(400)]
         [ProducesResponseType(422)]
         [ProducesResponseType(404)]
-        public IActionResult AddKeyword(int recipeId, [FromQuery] string newKeyword)
+        public IActionResult AddKeyword(int recipeId, [FromQuery] string keyword)
         {
-            if (newKeyword.Length == 0)
+            if (keyword.Length == 0)
                 return BadRequest(ModelState);
 
             var recipe = _recipeRepository.GetRecipe(recipeId);
@@ -268,14 +268,14 @@ namespace RecipeAppBackend.Controllers
 
             //search for same keyword
             var oldKeyword = _keywordRepository.GetKeywords()
-                .Where(k => k.Word.Trim().ToLower() == newKeyword.Trim().ToLower())
+                .Where(k => k.Word.Trim().ToLower() == keyword.Trim().ToLower())
                 .FirstOrDefault(); 
 
             if (oldKeyword == null) //if it doesnt exists, make it and add that one
             {
                 Keyword key = new Keyword
                 {
-                    Word = newKeyword.Trim().ToLower()
+                    Word = keyword.Trim().ToLower()
                 };
 
                 if (!_keywordRepository.CreateKeyword(key))
@@ -393,17 +393,20 @@ namespace RecipeAppBackend.Controllers
         [ProducesResponseType(200)]
         [ProducesResponseType(404)]
         [ProducesResponseType(422)]
-        public IActionResult RemoveKeyword(int recipeId, [FromQuery] string removeKeyword)
+        public IActionResult RemoveKeyword(int recipeId, [FromQuery] string keyword)
         {
             if (!_recipeRepository.RecipeExists(recipeId))
                 return NotFound();
 
+            if (keyword.Length == 0)
+                return BadRequest(ModelState);
+
             var removeRecipeKeyword = _recipeRepository.GetRecipeKeywordsOfRecipe(recipeId)
-                .Where(rk => rk.Keyword.Word.Trim().ToLower() == removeKeyword.Trim().ToLower()).FirstOrDefault();
+                .Where(rk => rk.Keyword.Word.Trim().ToLower() == keyword.Trim().ToLower()).FirstOrDefault();
 
             if (removeRecipeKeyword == null)
             {
-                ModelState.AddModelError("","The recipe " +  recipeId + " doesn't have the keyword '" + removeKeyword + "'");
+                ModelState.AddModelError("","The recipe " +  recipeId + " doesn't have the keyword '" + keyword + "'");
                 return StatusCode(422, ModelState);
             }
 
@@ -412,7 +415,7 @@ namespace RecipeAppBackend.Controllers
 
             if (!_recipeRepository.RemoveKeyword(removeRecipeKeyword))
             {
-                ModelState.AddModelError("", "Something went wrong while removing keyword '" + removeKeyword + "'");
+                ModelState.AddModelError("", "Something went wrong while removing keyword '" + keyword + "'");
                 return StatusCode(500, ModelState);
             }
 
