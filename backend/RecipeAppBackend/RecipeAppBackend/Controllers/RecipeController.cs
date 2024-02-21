@@ -364,5 +364,59 @@ namespace RecipeAppBackend.Controllers
 
             return Ok("Successfully updated");
         }
+
+        [HttpDelete("{recipeId}")]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(404)]
+        public IActionResult DeleteRecipe(int recipeId)
+        {
+            if (!_recipeRepository.RecipeExists(recipeId))
+                return NotFound();
+
+            var deleteRecipe = _recipeRepository.GetRecipe(recipeId);
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            if (!_recipeRepository.DeleteRecipe(deleteRecipe))
+            {
+                ModelState.AddModelError("", "Something went wrong while deleting recipe: " + recipeId);
+                return StatusCode(500, ModelState);
+            }
+
+            return Ok("Succesfully deleted");
+        }
+
+        [HttpDelete("{recipeId}/Keywords")]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(422)]
+        public IActionResult RemoveKeyword(int recipeId, [FromQuery] string removeKeyword)
+        {
+            if (!_recipeRepository.RecipeExists(recipeId))
+                return NotFound();
+
+            var removeRecipeKeyword = _recipeRepository.GetRecipeKeywordsOfRecipe(recipeId)
+                .Where(rk => rk.Keyword.Word.Trim().ToLower() == removeKeyword.Trim().ToLower()).FirstOrDefault();
+
+            if (removeRecipeKeyword == null)
+            {
+                ModelState.AddModelError("","The recipe " +  recipeId + " doesn't have the keyword '" + removeKeyword + "'");
+                return StatusCode(422, ModelState);
+            }
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            if (!_recipeRepository.RemoveKeyword(removeRecipeKeyword))
+            {
+                ModelState.AddModelError("", "Something went wrong while removing keyword '" + removeKeyword + "'");
+                return StatusCode(500, ModelState);
+            }
+
+            return Ok("Succesfully removed");
+        }
     }
 }

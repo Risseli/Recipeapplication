@@ -211,6 +211,9 @@ namespace RecipeAppBackend.Controllers
                 return StatusCode(422, ModelState);
             }
 
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
             Favorite favorite = new Favorite
             {
                 UserId = userId,
@@ -218,9 +221,6 @@ namespace RecipeAppBackend.Controllers
                 Recipe = recipe,
                 User = user
             };
-
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
 
             if (!_userRepository.AddFavorite(favorite))
             {
@@ -295,6 +295,91 @@ namespace RecipeAppBackend.Controllers
             }
 
             return Ok("Successfully updated");
+        }
+
+
+        [HttpDelete("{userId}")]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(404)]
+        public IActionResult DeleteUser(int userId)
+        {
+            if (!_userRepository.UserExists(userId))
+                return NotFound();
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            //Delete recipes
+            var recipes = _userRepository.GetUsersRecipes(userId);
+
+            foreach (var recipe in recipes)
+            {
+                if (!_recipeRepository.DeleteRecipe(recipe))
+                {
+                    ModelState.AddModelError("", "Something went wrong while deleting recipe: " + recipe.Id);
+                    return StatusCode(500, ModelState);
+                }
+            }
+
+            var deleteUser = _userRepository.GetUser(userId);
+
+            if (!_userRepository.DeleteUser(deleteUser))
+            {
+                ModelState.AddModelError("", "Something went wrong while deleting user: " +  userId);
+                return StatusCode(500, ModelState);
+            }
+
+
+            return Ok("Succesfully deleted");
+        }
+
+
+        [HttpDelete("{userId}/Favorites")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(422)]
+        [ProducesResponseType(404)]
+        public IActionResult RemoveFavorite(int userId, [FromQuery] int recipeId)
+        {
+            var user = _userRepository.GetUser(userId);
+            var recipe = _recipeRepository.GetRecipe(recipeId);
+
+            if (user == null)
+            {
+                ModelState.AddModelError("", "There is no user with the id: " + userId);
+                return StatusCode(404, ModelState);
+            }
+            if (recipe == null)
+            {
+                ModelState.AddModelError("", "There is no recipe with the id: " + recipeId);
+                return StatusCode(404, ModelState);
+            }
+
+            if (!_userRepository.FavoriteExists(userId, recipeId))
+            {
+                ModelState.AddModelError("", "The recipe is not a favorite of the user");
+                return StatusCode(422, ModelState);
+            }
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            Favorite favorite = new Favorite
+            {
+                UserId = userId,
+                RecipeId = recipeId,
+                Recipe = recipe,
+                User = user
+            };
+
+            if (!_userRepository.RemoveFavorite(favorite))
+            {
+                ModelState.AddModelError("", "Something went wrong while removing the favorite");
+                return StatusCode(500, ModelState);
+            }
+
+            return Ok("Succesfully removed");
         }
     }
 }
