@@ -21,7 +21,7 @@ const Login = () => {
 
   const checkEmailAvailability = async () => {
     try {
-      const response = await fetch("hhttps://recipeappapi.azurewebsites.net/api/check-email", {
+      const response = await fetch("https://recipeappapi.azurewebsites.net/api/check-email", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -88,7 +88,7 @@ const Login = () => {
   const logoutUser = () => {
     setLoggedIn(false);
 
-    //history.push("/");
+   // history.push("/");
   };
 
   return (

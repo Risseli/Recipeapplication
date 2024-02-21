@@ -119,13 +119,14 @@ const Profile = () => {
       });
   
       console.log("Response:", response);
+      const data = await response.json();
   
       if (response.ok) {
         console.log("User data saved successfully.");
         setUser(editedUser);
         setEditMode(false);
       } else {
-        console.error("Error updating user data", response);
+        console.error("Error updating user data", data['']['errors'][0]['errorMessage']);
       }
     } catch (error) {
       console.error("Error saving user data:", error);
