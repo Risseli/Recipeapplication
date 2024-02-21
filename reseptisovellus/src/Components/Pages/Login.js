@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import { useHistory } from "react-router-dom";
+//import { useHistory } from "react-router-dom";
 
 const Login = () => {
-  const history = useHistory();
+  //const history = useHistory();
 
   const [loginData, setLoginData] = useState({
     username: "",
@@ -21,7 +21,7 @@ const Login = () => {
 
   const checkEmailAvailability = async () => {
     try {
-      const response = await fetch("hhttps://recipeappapi.azurewebsites.net/api/check-email", {
+      const response = await fetch("https://recipeappapi.azurewebsites.net/api/check-email", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -55,7 +55,7 @@ const Login = () => {
 
       setLoggedIn(true);
 
-      history.push("/");
+      //history.push("/");
     } catch (error) {
       console.error("Error during login:", error);
     }
@@ -88,7 +88,7 @@ const Login = () => {
   const logoutUser = () => {
     setLoggedIn(false);
 
-    history.push("/");
+   // history.push("/");
   };
 
   return (
