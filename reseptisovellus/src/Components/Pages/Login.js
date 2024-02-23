@@ -1,13 +1,19 @@
 import React, { useState } from "react";
-//import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../Authentication";
+
 
 const Login = () => {
-  //const history = useHistory();
+ 
+
 
   const [loginData, setLoginData] = useState({
     username: "",
     password: "",
   });
+  const {login} = useAuth();
+  const navigate = useNavigate();
+ 
 
   const [registerData, setRegisterData] = useState({
     email: "",
@@ -16,32 +22,12 @@ const Login = () => {
     name: "",
   });
 
-  const [emailError, setEmailError] = useState("");
   const [isLoggedIn, setLoggedIn] = useState(false);
 
-  const checkEmailAvailability = async () => {
-    try {
-      const response = await fetch("https://recipeappapi.azurewebsites.net/api/check-email", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email: registerData.email,
-        }),
-      });
-
-      const result = await response.json();
-
-      setEmailError(result.available ? "" : "Email is already in use");
-    } catch (error) {
-      console.error("Error checking email availability:", error);
-    }
-  };
 
   const loginUser = async () => {
     try {
-      const response = await fetch("https://recipeappapi.azurewebsites.net/api/login", {
+      const response = await fetch("https://recipeappapi.azurewebsites.net/api/user", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -53,23 +39,17 @@ const Login = () => {
 
       console.log("Login successful:", result);
 
-      setLoggedIn(true);
+      login(result);
 
-      //history.push("/");
+      navigate("/");
     } catch (error) {
       console.error("Error during login:", error);
     }
   };
 
   const registerUser = async () => {
-    try {
-      await checkEmailAvailability();
 
-      if (emailError) {
-        return;
-      }
-
-      const response = await fetch("https://recipeappapi.azurewebsites.net/api/register", {
+      const response = await fetch("https://recipeappapi.azurewebsites.net/api/user", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -80,15 +60,12 @@ const Login = () => {
       const result = await response.json();
 
       console.log("Registration successful:", result);
-    } catch (error) {
-      console.error("Error during registration:", error);
-    }
+
   };
 
   const logoutUser = () => {
     setLoggedIn(false);
 
-   // history.push("/");
   };
 
   return (
@@ -130,11 +107,8 @@ const Login = () => {
               value={registerData.email}
               onChange={(e) => {
                 setRegisterData({ ...registerData, email: e.target.value });
-                setEmailError("");
               }}
-              onBlur={checkEmailAvailability}
             />
-            {emailError && <p style={{ color: "red" }}>{emailError}</p>}
             <input
               type="text"
               placeholder="Username"
