@@ -7,32 +7,41 @@ const ProfileRecipeGrid = ({ recipes }) => {
     <div className="profile-recipe-grid">
       {recipes.map((recipe) => (
         <div key={recipe.id} className="profile-recipe-item">
-          {recipe.images && recipe.images.length > 0 && (
-            <Link to={`/recipe/${recipe.id}`} className="recipe-link">
+          <Link to={`/recipe/${recipe.id}`} className="recipe-link">
+            {recipe.images && recipe.images.length > 0 && (
               <img
                 src={`data:image/jpeg;base64,${recipe.images[0].imageData}`}
                 alt={`Image for ${recipe.name}`}
                 className="profile-recipe-image"
               />
-            </Link>
-          )}
-          <div className="profile-recipe-details">
-            <h3 className="profile-recipe-name">{recipe.name}</h3>
-            <div className="profile-reviews">
-              {recipe.reviews && recipe.reviews.length > 0 && (
-                <div className="profile-recipe-rating">
-                  <p>
-                    Rating: {"⭐".repeat(recipe.reviews[0].rating)} <br />
-                    Review: {recipe.reviews[0].comment}
-                  </p>
-                </div>
-              )}
+            )}
+            <div className="profile-recipe-details">
+              <h3 className="profile-recipe-name">{recipe.name}</h3>
+              <div className="profile-reviews">
+                {recipe.reviews && recipe.reviews.length > 0 && (
+                  <div className="profile-recipe-rating">
+                    <p>
+                      Rating: {"⭐".repeat(recipe.reviews[0].rating)} <br />
+                      Review: {truncateText(recipe.reviews[0].comment, 50)}
+                    </p>
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
+          </Link>
         </div>
       ))}
     </div>
   );
+};
+
+// Apufunktio teksti katkaisemiseen
+const truncateText = (text, maxLength) => {
+  if (text.length <= maxLength) {
+    return text;
+  } else {
+    return text.substring(0, maxLength) + "...";
+  }
 };
 
 export default ProfileRecipeGrid;
