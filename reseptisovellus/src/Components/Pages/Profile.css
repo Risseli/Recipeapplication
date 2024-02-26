@@ -72,5 +72,38 @@
     transition: background-color 0.3s ease; 
   }
   
-
+  .reviews-list {
+    font-size: 120%;
+    list-style-type: none;
+    background-color: #fbfaf9;
+    border: 1px solid #ddd;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 10px;
+  }
   
+  .reviews-list li {
+    margin-bottom: 10px;
+    transition: background-color 0.3s ease;
+  }
+  
+  .reviews-list p {
+    margin: 0;
+  }
+  
+  .reviews-list button {
+    background-color: #172554;
+    color: #fff;
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+    border-radius: 5px;
+    margin-right: 5px;
+  }
+  
+  .reviews-list button:hover {
+    background-color: #1d4ed8;
+  }
+  .star-icon {
+    color: gold; 
+  }
