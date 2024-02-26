@@ -171,36 +171,52 @@ const Profile = () => {
   
         if (response.ok) {
           console.log("User deleted successfully.");
+          // Näytä ilmoitus onnistuneesta poistosta
+          alert('User deleted successfully.');
           navigate("/"); // Palaa etusivulle
         } else {
           console.error("Error deleting user:", response);
+          // Näytä ilmoitus epäonnistuneesta poistosta
+          alert('Error deleting user. Please try again.');
         }
       } catch (error) {
         console.error("Error deleting user:", error);
+        // Näytä ilmoitus epäonnistuneesta poistosta
+        alert('Error deleting user. Please try again.');
       }
     }
   };
+  
 
 
 
   const deleteReview = async (reviewId) => {
-    try {
-      // Tee API-kutsu poistaaksesi arvostelun
-      const response = await fetch(`https://recipeappapi.azurewebsites.net/api/Review/${reviewId}`, {
-        method: 'DELETE',
-      });
-
-      if (response.ok) {
-        // Päivitä tila poistetulla arvostelulla
-        setRecipes(recipes.filter(recipe => recipe.id !== reviewId));
-        console.log('Review deleted successfully.');
-      } else {
-        console.error('Error deleting review:', response);
+    if (window.confirm(`Are you sure you want to delete this review ?`)) {
+      try {
+        // Tee API-kutsu poistaaksesi arvostelun
+        const response = await fetch(`https://recipeappapi.azurewebsites.net/api/Review/${reviewId}`, {
+          method: 'DELETE',
+        });
+  
+        if (response.ok) {
+          // Päivitä tila poistetulla arvostelulla
+          setRecipes(recipes.filter(recipe => recipe.id !== reviewId));
+          console.log('Review deleted successfully.');
+          // Näytä ilmoitus onnistuneesta poistosta
+          alert('Review deleted successfully.');
+        } else {
+          console.error('Error deleting review:', response);
+          // Näytä ilmoitus epäonnistuneesta poistosta
+          alert('Error deleting review. Please try again.');
+        }
+      } catch (error) {
+        console.error('Error deleting review:', error);
+        // Näytä ilmoitus epäonnistuneesta poistosta
+        alert('Error deleting review. Please try again.');
       }
-    } catch (error) {
-      console.error('Error deleting review:', error);
     }
   };
+  
   
   
 
