@@ -2,8 +2,10 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import './Profile.css';
 import ProfileRecipeGrid from "../../Components/ProfileRecipeGrid";
+//import { useAuth } from "../Authentication";
 
 const Profile = () => {
+  //const { user, logout } = useAuth();
   const [user, setUser] = useState(null);
   const [editMode, setEditMode] = useState(false);
   const [editedUser, setEditedUser] = useState({});
@@ -11,7 +13,8 @@ const Profile = () => {
   const navigate = useNavigate();
   const [recipes, setRecipes] = useState([]); 
   const [recipeNames, setRecipeNames] = useState({});
-
+  const [adminMode, setAdminMode] = useState(false);  
+  const [users, setUsers] = useState([]); 
 
 
 
@@ -20,11 +23,21 @@ const Profile = () => {
   useEffect(() => {
     const checkUserStatus = async () => {
       try {
-        const response = await fetch("https://recipeappapi.azurewebsites.net/api/user/4"); // testataan käyttäjällä id:5
+        const response = await fetch("https://recipeappapi.azurewebsites.net/api/user/2"); // testataan käyttäjällä id:3
         const data = await response.json();
   
         if (data) {
           setUser(data);
+
+        // Check if the user is an admin
+        if (data.admin) {
+          setAdminMode(true);
+          // Fetch the list of users if needed
+          const usersResponse = await fetch("https://recipeappapi.azurewebsites.net/api/User");
+          const usersData = await usersResponse.json();
+          setUsers(usersData);
+        }
+
           loadRecipes("ownRecipes", data.id);
         } else {
           navigate("/login");
@@ -36,6 +49,31 @@ const Profile = () => {
   
     checkUserStatus();
   }, [navigate]);
+
+
+
+
+
+  // TÄSSÄ OLI YRITETTY KIRJAUTUNEELLA KÄYTTÄJÄLLÄ PROFIILISIVUA, MUTTA EI TOIMI
+ // useEffect(() => {
+ //   const checkUserStatus = async () => {
+ //     try {
+ //       if (!user) {
+ //         // Redirect to login if user is not authenticated
+ //         navigate("/login");
+ //         return;
+ //       }
+ //       console.log("User:", user);
+ //     } catch (error) {
+ //       console.error("Error checking user status:", error);
+ //     }
+ //   };
+ //   checkUserStatus();
+ // }, [user, navigate]);
+ // const handleLogout = () => {
+ //   logout();
+ //   navigate("/login");
+ // };
 
 
 
@@ -221,6 +259,64 @@ const Profile = () => {
   
 
 
+
+  const handleAdminCheckboxChange = (userId) => {
+    const updatedUsers = users.map((user) =>
+      user.id === userId ? { ...user, admin: !user.admin } : user
+    );
+
+    setUsers(updatedUsers);
+  };
+
+  const handleSaveAdminChanges = async () => {
+    try {
+      // Create an array of promises for each user update
+      const updatePromises = users.map(async (user) => {
+        await fetch(`https://recipeappapi.azurewebsites.net/api/User/${user.id}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ admin: user.admin }),
+        });
+      });
+  
+      // Wait for all updates to complete
+      await Promise.all(updatePromises);
+  
+      console.log("Admin changes saved successfully.");
+  
+      // Notify the user upon successful save
+      alert("Admin changes saved successfully.");
+    } catch (error) {
+      console.error("Error saving admin changes:", error);
+      // You may add additional error handling or notifications here
+    }
+  };
+
+
+    const handleDeleteUser = async (userId) => {
+      if (window.confirm(`Are you sure you want to delete this user?`)) {
+        try {
+          // Delete the user on the server
+          const response = await fetch(`https://recipeappapi.azurewebsites.net/api/User/${userId}`, {
+            method: "DELETE",
+          });
+  
+          if (response.ok) {
+            // Update the users list in the state
+            setUsers(users.filter((user) => user.id !== userId));
+            console.log("User deleted successfully.");
+          } else {
+            console.error("Error deleting user:", response);
+          }
+        } catch (error) {
+          console.error("Error deleting user:", error);
+        }
+      }
+    };
+
+
   
 
   return (
@@ -228,7 +324,7 @@ const Profile = () => {
       <h1>Profile</h1>
       {user ? (
         <>
-          {!editMode && (
+          {!editMode && !adminMode && (
             <div className="profile-section">
               <p>
                 <strong>Name:</strong> {user.name}
@@ -243,7 +339,7 @@ const Profile = () => {
               <button className="delete-button" onClick={handleDeleteClick}>Delete</button>
             </div>
           )}
-          {editMode && (
+          {editMode && !adminMode && (
             <div className="profile-section">
 <p>
   <strong>Name:</strong>{" "}
@@ -269,6 +365,89 @@ const Profile = () => {
               <button className="cancel-button" onClick={() => setEditMode(false)}>Cancel</button>
             </div>
           )}
+{!editMode && adminMode && (
+  <div className="admin-section">
+                <div className="profile-section">
+              <p>
+                <strong>Name:</strong> {user.name}
+              </p>
+              <p>
+                <strong>Email:</strong> {user.email}
+              </p>
+              <p>
+                <strong>Admin:</strong> {user.admin ? "Yes" : "No"}
+              </p>
+              <button className="edit-button" onClick={handleEditClick}>Edit</button>
+              <button className="delete-button" onClick={handleDeleteClick}>Delete</button>
+            </div>
+    <h2>Admin Mode</h2>
+    <p>User Management:</p>
+    {users.map((adminUser) => (
+      <div key={adminUser.id} className="admin-user">
+        <span>{adminUser.name}</span>
+        <input
+          type="checkbox"
+          checked={adminUser.admin}
+          onChange={() => handleAdminCheckboxChange(adminUser.id)}
+        />
+        {/* Delete button remains for individual deletion */}
+        <button onClick={() => handleDeleteUser(adminUser.id)}>Delete</button>
+      </div>
+    ))}
+
+    {/* Save button to save admin changes */}
+    <button className="save-button" onClick={handleSaveAdminChanges}>
+      Save Admin Changes
+    </button>
+  </div>
+)}
+{editMode && adminMode && (
+  <div className="admin-section">
+ <div className="profile-section">
+<p>
+  <strong>Name:</strong>{" "}
+  <input
+    type="text"
+    value={editedUser.name}
+    onChange={(e) => setEditedUser({ ...editedUser, name: e.target.value })}
+  />
+</p>
+              <p>
+                <strong>Email:</strong>{" "}
+                <input
+                  type="email"
+                  value={editedUser.email}
+                  onChange={(e) => setEditedUser({ ...editedUser, email: e.target.value })}
+                />
+              </p>
+              <p>
+                <strong>Admin:</strong> {editedUser.admin ? "Yes" : "No"}
+              </p>
+              {/* Admin information is not editable, so no input field */}
+              <button className="save-button" onClick={handleSaveClick}>Save</button>
+              <button className="cancel-button" onClick={() => setEditMode(false)}>Cancel</button>
+            </div>
+    <h2>Admin Mode</h2>
+    <p>User Management:</p>
+    {users.map((adminUser) => (
+      <div key={adminUser.id} className="admin-user">
+        <span>{adminUser.name}</span>
+        <input
+          type="checkbox"
+          checked={adminUser.admin}
+          onChange={() => handleAdminCheckboxChange(adminUser.id)}
+        />
+        {/* Delete button remains for individual deletion */}
+        <button onClick={() => handleDeleteUser(adminUser.id)}>Delete</button>
+      </div>
+    ))}
+
+    {/* Save button to save admin changes */}
+    <button className="save-button" onClick={handleSaveAdminChanges}>
+      Save Admin Changes
+    </button>
+  </div>
+)}
           <div className="view-select">
             <label>
               <strong>View: </strong>

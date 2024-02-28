@@ -13,7 +13,7 @@
     padding: 20px;
     margin-bottom: 20px;
     border-radius: 10px; 
-    width: 40%;
+    width: 90%;
   }
   
   .profile-section p {
@@ -106,4 +106,60 @@
   }
   .star-icon {
     color: gold; 
+  }
+
+
+  .admin-section {
+    background-color: #fbfaf9;
+    border: 1px solid #ddd;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 10px;
+    width: 40%;
+  }
+  
+  .admin-section h2 {
+    margin-bottom: 10px;
+  }
+  
+  .admin-user {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  
+  .admin-user span {
+    flex-grow: 1;
+  }
+  
+  .admin-user input {
+    margin-right: 10px;
+  }
+  
+  .admin-user button {
+    background-color: #172554;
+    color: #fff;
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+    border-radius: 5px;
+  }
+  
+  .admin-user button:hover {
+    background-color: #1d4ed8;
+  }
+  
+  .save-button-admin {
+    background-color: #172554;
+    color: #fff;
+    border: none;
+    padding: 10px 15px;
+    cursor: pointer;
+    border-radius: 5px;
+    margin-top: 20px;
+  }
+  
+  .save-button-admin:hover {
+    background-color: #1d4ed8;
   }
