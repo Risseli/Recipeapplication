@@ -5,7 +5,7 @@ import ProfileRecipeGrid from "../../Components/ProfileRecipeGrid";
 //import { useAuth } from "../Authentication";
 
 const Profile = () => {
-  //const { user, logout } = useAuth();
+  //const { user, logout, setUser } = useAuth();
   const [user, setUser] = useState(null);
   const [editMode, setEditMode] = useState(false);
   const [editedUser, setEditedUser] = useState({});
@@ -23,7 +23,7 @@ const Profile = () => {
   useEffect(() => {
     const checkUserStatus = async () => {
       try {
-        const response = await fetch("https://recipeappapi.azurewebsites.net/api/user/2"); // testataan käyttäjällä id:3
+        const response = await fetch("https://recipeappapi.azurewebsites.net/api/user/2"); // testataan käyttäjällä id:2
         const data = await response.json();
   
         if (data) {
