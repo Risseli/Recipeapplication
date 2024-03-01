@@ -54,7 +54,8 @@ const Profile = () => {
 
 
 
-  // TÄSSÄ OLI YRITETTY KIRJAUTUNEELLA KÄYTTÄJÄLLÄ PROFIILISIVUA, MUTTA EI TOIMI
+
+  // TÄSSÄ OLI YRITETTY KIRJAUTUNEELLA KÄYTTÄJÄLLÄ PROFIILISIVUA, MUTTA EI TOIMI. HAETAANKO KIRJAUTUNEEN ID:LLÄ VIELÄ TIEDOT APISTA
  // useEffect(() => {
  //   const checkUserStatus = async () => {
  //     try {
@@ -70,10 +71,10 @@ const Profile = () => {
  //   };
  //   checkUserStatus();
  // }, [user, navigate]);
- // const handleLogout = () => {
+ //const handleLogout = () => {
  //   logout();
  //   navigate("/login");
- // };
+ //};
 
 
 
