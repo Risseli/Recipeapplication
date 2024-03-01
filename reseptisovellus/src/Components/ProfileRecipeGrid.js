@@ -8,26 +8,24 @@ const ProfileRecipeGrid = ({ recipes }) => {
       {recipes.map((recipe) => (
         <div key={recipe.id} className="profile-recipe-item">
           <Link to={`/recipe/${recipe.id}`} className="recipe-link">
-            {recipe.images && recipe.images.map((image, index) => (
+            {recipe.images && recipe.images.length > 0 && (
               <img
-                key={index}
-                src={`data:image/jpeg;base64,${image.imageData}`}
+                src={`data:image/jpeg;base64,${recipe.images[0].imageData}`}
                 alt={`Image for ${recipe.name}`}
                 className="profile-recipe-image"
               />
-            ))}
+            )}
             <div className="profile-recipe-details">
               <h3 className="profile-recipe-name">{recipe.name}</h3>
-              <p className="profile-recipe-instructions">{recipe.instructions}</p>
               <div className="profile-reviews">
-                {recipe.reviews && recipe.reviews.map((review) => (
-                  <div key={review.id} className="profile-recipe-rating">
+                {recipe.reviews && recipe.reviews.length > 0 && (
+                  <div className="profile-recipe-rating">
                     <p>
-                      Rating: {"⭐".repeat(review.rating)} <br />
-                      Review: {review.comment}
+                      Rating: {"⭐".repeat(recipe.reviews[0].rating)} <br />
+                      Review: {truncateText(recipe.reviews[0].comment, 50)}
                     </p>
                   </div>
-                ))}
+                )}
               </div>
             </div>
           </Link>
@@ -35,6 +33,15 @@ const ProfileRecipeGrid = ({ recipes }) => {
       ))}
     </div>
   );
+};
+
+// Apufunktio teksti katkaisemiseen
+const truncateText = (text, maxLength) => {
+  if (text.length <= maxLength) {
+    return text;
+  } else {
+    return text.substring(0, maxLength) + "...";
+  }
 };
 
 export default ProfileRecipeGrid;
