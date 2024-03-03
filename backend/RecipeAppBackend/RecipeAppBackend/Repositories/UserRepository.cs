@@ -69,6 +69,11 @@ namespace RecipeAppBackend.Repositories
             return _context.Reviews.Include(r => r.User).Include(r => r.Recipe).Where(r => r.User.Id == id).ToList();
         }
 
+        public string HashPassword(string password)
+        {
+            return BCrypt.Net.BCrypt.HashPassword(password);
+        }
+
         public bool RemoveFavorite(Favorite favorite)
         {
             _context.Remove(favorite);
