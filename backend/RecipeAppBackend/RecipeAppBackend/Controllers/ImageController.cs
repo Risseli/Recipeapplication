@@ -1,9 +1,11 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RecipeAppBackend.Dto;
 using RecipeAppBackend.Interfaces;
 using RecipeAppBackend.Models;
 using RecipeAppBackend.Repositories;
+using RecipeAppBackend.Services;
 
 namespace RecipeAppBackend.Controllers
 {
@@ -14,14 +16,17 @@ namespace RecipeAppBackend.Controllers
         private readonly IImageRepository _imageRepository;
         private readonly IMapper _mapper;
         private readonly IRecipeRepository _recipeRepository;
+        private readonly IAuthService _authService;
 
         public ImageController(IImageRepository imageRepository
             , IMapper mapper
-            , IRecipeRepository recipeRepository)
+            , IRecipeRepository recipeRepository
+            , IAuthService authService)
         {
             _imageRepository = imageRepository;
             _mapper = mapper;
             _recipeRepository = recipeRepository;
+            _authService = authService;
         }
 
         [HttpGet]
@@ -58,6 +63,7 @@ namespace RecipeAppBackend.Controllers
 
 
 
+        [Authorize]
         [HttpPost]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
@@ -88,6 +94,18 @@ namespace RecipeAppBackend.Controllers
                 return StatusCode(422, ModelState);
             }
 
+
+
+            //Authorize user
+            var token = HttpContext.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
+
+            var authUserId = _authService.GetUserId(token);
+
+            if (recipe.User.Id.ToString() != authUserId)
+                return Forbid();
+
+
+
             var imageMap = _mapper.Map<Image>(createImage);
             //imageMap.ImageData = imageData;
             imageMap.Recipe = recipe;
@@ -102,7 +120,7 @@ namespace RecipeAppBackend.Controllers
         }
 
 
-
+        [Authorize]
         [HttpPut("{imageId}")]
         [ProducesResponseType(400)]
         [ProducesResponseType(204)]
@@ -122,6 +140,19 @@ namespace RecipeAppBackend.Controllers
             var oldImage = _imageRepository.GetImage(imageId);
             if (oldImage == null)
                 return NotFound();
+
+
+            //Authorize user
+            var authRecipe = _recipeRepository.GetRecipe(oldImage.Recipe.Id);
+            var token = HttpContext.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
+
+            var authUserId = _authService.GetUserId(token);
+            var isAdmin = _authService.IsAdmin(token);
+
+            if (authRecipe.User.Id.ToString() != authUserId && !isAdmin)
+                return Forbid();
+
+
 
             //Set the new recipe id
             if (updateImage.RecipeId != 0)
@@ -153,6 +184,7 @@ namespace RecipeAppBackend.Controllers
 
 
 
+        [Authorize]
         [HttpDelete("{imageId}")]
         [ProducesResponseType(400)]
         [ProducesResponseType(200)]
@@ -163,6 +195,19 @@ namespace RecipeAppBackend.Controllers
                 return NotFound();
 
             var deleteImage = _imageRepository.GetImage(imageId);
+
+
+            //Authorize user
+            var recipe = _recipeRepository.GetRecipe(deleteImage.Recipe.Id);
+            var token = HttpContext.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
+
+            var authUserId = _authService.GetUserId(token);
+            var isAdmin = _authService.IsAdmin(token);
+
+            if (recipe.User.Id.ToString() != authUserId && !isAdmin)
+                return Forbid();
+
+
 
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);

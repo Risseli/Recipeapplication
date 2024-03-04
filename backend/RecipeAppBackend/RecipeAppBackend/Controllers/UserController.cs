@@ -28,20 +28,11 @@ namespace RecipeAppBackend.Controllers
             _mapper = mapper;
         }
 
-        [Authorize]
+        
         [HttpGet]
         [ProducesResponseType(200, Type =  typeof(IEnumerable<User>))]
         public IActionResult GetUsers()
         {
-
-            //var token = HttpContext.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
-
-            //var userId = _authService.GetUserId(token);
-            //var isAdmin = _authService.IsAdmin(token);
-
-            //return Ok(userId + " " +  isAdmin);
-
-
             var users = _mapper.Map<List<UserDto>>(_userRepository.GetUsers());
 
             if (!ModelState.IsValid)
@@ -238,6 +229,7 @@ namespace RecipeAppBackend.Controllers
             });
         }
 
+        [Authorize]
         [HttpPost("{userId}/Favorites")]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
@@ -245,6 +237,15 @@ namespace RecipeAppBackend.Controllers
         [ProducesResponseType(404)]
         public IActionResult AddFavorite(int userId, [FromQuery] int recipeId)
         {
+            var token = HttpContext.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
+
+            var authUserId = _authService.GetUserId(token);
+
+            if (userId.ToString() != authUserId)
+                return Forbid();            
+
+
+
             var user = _userRepository.GetUser(userId);
             var recipe = _recipeRepository.GetRecipe(recipeId);
 
@@ -286,6 +287,7 @@ namespace RecipeAppBackend.Controllers
         }
 
 
+        [Authorize]
         [HttpPut("{userId}")]
         [ProducesResponseType(400)]
         [ProducesResponseType(204)]
@@ -293,6 +295,16 @@ namespace RecipeAppBackend.Controllers
         [ProducesResponseType(422)]
         public IActionResult UpdateUser(int userId, [FromBody] CreateUserDto updateUser)
         {
+            var token = HttpContext.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
+
+            var authUserId = _authService.GetUserId(token);
+            var isAdmin = _authService.IsAdmin(token);
+
+            if (userId.ToString() != authUserId && !isAdmin)
+                return Forbid();
+
+
+
             if (updateUser == null) 
                 return BadRequest(ModelState);
 
@@ -352,12 +364,23 @@ namespace RecipeAppBackend.Controllers
         }
 
 
+        [Authorize]
         [HttpDelete("{userId}")]
         [ProducesResponseType(400)]
         [ProducesResponseType(200)]
         [ProducesResponseType(404)]
         public IActionResult DeleteUser(int userId)
         {
+            var token = HttpContext.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
+
+            var authUserId = _authService.GetUserId(token);
+            var isAdmin = _authService.IsAdmin(token);
+
+            if (userId.ToString() != authUserId && !isAdmin)
+                return Forbid();
+
+
+
             if (!_userRepository.UserExists(userId))
                 return NotFound();
 
@@ -389,6 +412,7 @@ namespace RecipeAppBackend.Controllers
         }
 
 
+        [Authorize]
         [HttpDelete("{userId}/Favorites")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
@@ -396,6 +420,16 @@ namespace RecipeAppBackend.Controllers
         [ProducesResponseType(404)]
         public IActionResult RemoveFavorite(int userId, [FromQuery] int recipeId)
         {
+            var token = HttpContext.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
+
+            var authUserId = _authService.GetUserId(token);
+            
+
+            if (userId.ToString() != authUserId)
+                return Forbid();
+
+
+
             var user = _userRepository.GetUser(userId);
             var recipe = _recipeRepository.GetRecipe(recipeId);
 

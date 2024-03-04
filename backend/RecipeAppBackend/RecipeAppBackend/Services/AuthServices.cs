@@ -4,6 +4,7 @@ using RecipeAppBackend.Models;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 using System.Security.Claims;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 
 namespace RecipeAppBackend.Services
 {
@@ -39,6 +40,8 @@ namespace RecipeAppBackend.Services
 
         public string GetUserId(string jwtToken)
         {
+            if (jwtToken == null) return null;
+
             var tokenHandler = new JwtSecurityTokenHandler();
             var token = tokenHandler.ReadToken(jwtToken) as JwtSecurityToken;
 
@@ -57,6 +60,8 @@ namespace RecipeAppBackend.Services
 
         public bool IsAdmin(string jwtToken)
         {
+            if (jwtToken == null) return false;
+
             var tokenHandler = new JwtSecurityTokenHandler();
             var token = tokenHandler.ReadToken(jwtToken) as JwtSecurityToken;
 

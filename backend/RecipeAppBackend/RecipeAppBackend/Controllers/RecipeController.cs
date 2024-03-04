@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -17,6 +18,7 @@ namespace RecipeAppBackend.Controllers
         private readonly IImageRepository _imageRepository;
         private readonly IIngredientRepository _ingredientRepository;
         private readonly IKeywordRepository _keywordRepository;
+        private readonly IAuthService _authService;
         private readonly IMapper _mapper;
 
         public RecipeController(IRecipeRepository recipeRepository
@@ -24,6 +26,7 @@ namespace RecipeAppBackend.Controllers
             , IImageRepository imageRepository
             , IIngredientRepository ingredientRepository
             , IKeywordRepository keywordRepository
+            , IAuthService authService
             , IMapper mapper)
         {
             _recipeRepository = recipeRepository;
@@ -31,6 +34,7 @@ namespace RecipeAppBackend.Controllers
             _imageRepository = imageRepository;
             _ingredientRepository = ingredientRepository;
             _keywordRepository = keywordRepository;
+            _authService = authService;
             _mapper = mapper;
         }
 
@@ -150,6 +154,7 @@ namespace RecipeAppBackend.Controllers
         }
 
 
+        [Authorize]
         [HttpPost]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
@@ -162,6 +167,18 @@ namespace RecipeAppBackend.Controllers
 
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
+
+
+
+            //Authorize user
+            var token = HttpContext.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
+
+            var authUserId = _authService.GetUserId(token);
+
+            if (createRecipe.UserId.ToString() != authUserId)
+                return Forbid();
+
+
 
             //Handle user
             var user = _userRepository.GetUser(createRecipe.UserId);
@@ -249,6 +266,7 @@ namespace RecipeAppBackend.Controllers
             return Ok("Succesfully created");
         }
 
+        [Authorize]
         [HttpPost("{recipeId}/Keywords")]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
@@ -263,6 +281,17 @@ namespace RecipeAppBackend.Controllers
 
             if (recipe == null)
                 return NotFound();
+
+
+            //Authorize user
+            var token = HttpContext.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
+
+            var authUserId = _authService.GetUserId(token);
+            var isAdmin = _authService.IsAdmin(token);
+
+            if (recipe.User.Id.ToString() != authUserId && !isAdmin)
+                return Forbid();
+
 
             RecipeKeyword recipeKeyword;
 
@@ -319,6 +348,7 @@ namespace RecipeAppBackend.Controllers
 
 
 
+        [Authorize]
         [HttpPut("{recipeId}")]
         [ProducesResponseType(400)]
         [ProducesResponseType(204)]
@@ -338,6 +368,17 @@ namespace RecipeAppBackend.Controllers
             var oldRecipe = _recipeRepository.GetRecipe(recipeId);
             if (oldRecipe == null)
                 return NotFound();
+
+
+            //Authorize user
+            var token = HttpContext.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
+
+            var authUserId = _authService.GetUserId(token);
+            var isAdmin = _authService.IsAdmin(token);
+
+            if (oldRecipe.User.Id.ToString() != authUserId && !isAdmin)
+                return Forbid();
+
 
             oldRecipe.Name = updateRecipe.Name != null ? updateRecipe.Name : oldRecipe.Name;
             oldRecipe.Instructions = updateRecipe.Instructions != null ? updateRecipe.Instructions : oldRecipe.Instructions;
@@ -365,6 +406,7 @@ namespace RecipeAppBackend.Controllers
             return Ok("Successfully updated");
         }
 
+        [Authorize]
         [HttpDelete("{recipeId}")]
         [ProducesResponseType(400)]
         [ProducesResponseType(200)]
@@ -375,6 +417,19 @@ namespace RecipeAppBackend.Controllers
                 return NotFound();
 
             var deleteRecipe = _recipeRepository.GetRecipe(recipeId);
+
+
+
+            //Authorize user
+            var token = HttpContext.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
+
+            var authUserId = _authService.GetUserId(token);
+            var isAdmin = _authService.IsAdmin(token);
+
+            if (deleteRecipe.User.Id.ToString() != authUserId && !isAdmin)
+                return Forbid();
+
+
 
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -388,6 +443,7 @@ namespace RecipeAppBackend.Controllers
             return Ok("Succesfully deleted");
         }
 
+        [Authorize]
         [HttpDelete("{recipeId}/Keywords")]
         [ProducesResponseType(400)]
         [ProducesResponseType(200)]
@@ -400,6 +456,18 @@ namespace RecipeAppBackend.Controllers
 
             if (keyword.Length == 0)
                 return BadRequest(ModelState);
+
+            var recipe = _recipeRepository.GetRecipe(recipeId);
+
+            //Authorize user
+            var token = HttpContext.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
+
+            var authUserId = _authService.GetUserId(token);
+            var isAdmin = _authService.IsAdmin(token);
+
+            if (recipe.User.Id.ToString() != authUserId && !isAdmin)
+                return Forbid();
+
 
             var removeRecipeKeyword = _recipeRepository.GetRecipeKeywordsOfRecipe(recipeId)
                 .Where(rk => rk.Keyword.Word.Trim().ToLower() == keyword.Trim().ToLower()).FirstOrDefault();

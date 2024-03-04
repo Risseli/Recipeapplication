@@ -7,6 +7,8 @@ using RecipeAppBackend.Data;
 using RecipeAppBackend.Interfaces;
 using RecipeAppBackend.Repositories;
 using RecipeAppBackend.Services;
+using RecipeAppBackend.Swagger;
+using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -43,6 +45,7 @@ builder.Services.AddScoped<IAuthService, AuthServices>();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>();
 
 //Adds DataContext to app and connects it to the database
 builder.Services.AddDbContext<DataContext>(options =>

@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -17,16 +18,19 @@ namespace RecipeAppBackend.Controllers
         private readonly IMapper _mapper;
         private readonly IUserRepository _userRepository;
         private readonly IRecipeRepository _recipeRepository;
+        private readonly IAuthService _authService;
 
         public ReviewController(IReviewRepository reviewRepository
             , IMapper mapper
             , IUserRepository userRepository
-            , IRecipeRepository recipeRepository)
+            , IRecipeRepository recipeRepository
+            , IAuthService authService)
         {
             _reviewRepository = reviewRepository;
             _mapper = mapper;
             _userRepository = userRepository;
             _recipeRepository = recipeRepository;
+            _authService = authService;
         }
 
         [HttpGet]
@@ -65,6 +69,7 @@ namespace RecipeAppBackend.Controllers
         }
 
 
+        [Authorize]
         [HttpPost]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
@@ -76,6 +81,19 @@ namespace RecipeAppBackend.Controllers
 
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
+
+
+
+            //Authorize user
+            var token = HttpContext.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
+
+            var authUserId = _authService.GetUserId(token);
+            
+
+            if (createReview.UserId.ToString() != authUserId)
+                return Forbid();
+
+
 
             //Limit rating to 1-5
             if (createReview.Rating <= 1) createReview.Rating = 1;
@@ -117,6 +135,7 @@ namespace RecipeAppBackend.Controllers
         }
 
 
+        [Authorize]
         [HttpPut("{reviewId}")]
         [ProducesResponseType(400)]
         [ProducesResponseType(204)]
@@ -137,6 +156,18 @@ namespace RecipeAppBackend.Controllers
 
             if (oldReview == null)
                 return NotFound();
+
+
+            //Authorize user
+            var token = HttpContext.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
+
+            var authUserId = _authService.GetUserId(token);
+            var isAdmin = _authService.IsAdmin(token);
+
+            if (oldReview.User.Id.ToString() != authUserId && !isAdmin)
+                return Forbid();
+
+
 
             //Rating
             if (updateReview.Rating != 0)
@@ -192,6 +223,7 @@ namespace RecipeAppBackend.Controllers
         }
 
 
+        [Authorize]
         [HttpDelete("{reviewId}")]
         [ProducesResponseType(400)]
         [ProducesResponseType(200)]
@@ -205,6 +237,18 @@ namespace RecipeAppBackend.Controllers
                 return BadRequest(ModelState);
 
             var deleteReview = _reviewRepository.GetReview(reviewId);
+
+
+            //Authorize user
+            var token = HttpContext.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
+
+            var authUserId = _authService.GetUserId(token);
+            var isAdmin = _authService.IsAdmin(token);
+
+            if (deleteReview.User.Id.ToString() != authUserId && !isAdmin)
+                return Forbid();
+
+
 
             if (!_reviewRepository.DeleteReview(deleteReview))
             {

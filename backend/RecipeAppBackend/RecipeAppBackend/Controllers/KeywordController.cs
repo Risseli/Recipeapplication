@@ -1,10 +1,12 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components.RenderTree;
 using Microsoft.AspNetCore.Mvc;
 using RecipeAppBackend.Dto;
 using RecipeAppBackend.Interfaces;
 using RecipeAppBackend.Models;
 using RecipeAppBackend.Repositories;
+using RecipeAppBackend.Services;
 using System.Collections.Generic;
 
 namespace RecipeAppBackend.Controllers
@@ -14,11 +16,15 @@ namespace RecipeAppBackend.Controllers
     public class KeywordController : Controller
     {
         private readonly IKeywordRepository _keywordRepository;
+        private readonly IAuthService _authService;
         private readonly IMapper _mapper;
 
-        public KeywordController(IKeywordRepository keywordRepository, IMapper mapper)
+        public KeywordController(IKeywordRepository keywordRepository
+            , IAuthService authService
+            , IMapper mapper)
         {
             _keywordRepository = keywordRepository;
+            _authService = authService;
             _mapper = mapper;
         }
 
@@ -102,6 +108,7 @@ namespace RecipeAppBackend.Controllers
         }
 
 
+        [Authorize]
         [HttpPut("{keywordId}")]
         [ProducesResponseType(400)]
         [ProducesResponseType(204)]
@@ -109,6 +116,15 @@ namespace RecipeAppBackend.Controllers
         [ProducesResponseType(422)]
         public IActionResult UpdateKeyword(int keywordId, [FromBody] KeywordDto updateKeyword)
         {
+            //Authorize user
+            var token = HttpContext.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
+
+            var isAdmin = _authService.IsAdmin(token);
+
+            if (!isAdmin)
+                return Forbid();
+
+
             if (updateKeyword == null) 
                 return BadRequest(ModelState);
 
@@ -135,13 +151,22 @@ namespace RecipeAppBackend.Controllers
         }
 
 
-
+        [Authorize]
         [HttpDelete("{keywordId}")]
         [ProducesResponseType(400)]
         [ProducesResponseType(200)]
         [ProducesResponseType(404)]
         public IActionResult DeleteKeyword(int keywordId)
         {
+            //Authorize user
+            var token = HttpContext.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
+
+            var isAdmin = _authService.IsAdmin(token);
+
+            if (!isAdmin)
+                return Forbid();
+
+
             if (!_keywordRepository.KeywordExists(keywordId))
                 return NotFound();
 
