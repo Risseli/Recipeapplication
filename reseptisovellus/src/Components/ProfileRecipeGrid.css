@@ -39,4 +39,23 @@
     font-weight: bold;
     display: inline-block;
   }
+
+  .delete-button,
+  .edit-button {
+    background-color: #172554;
+    color: #fff;
+    border: none;
+    padding: 10px 15px;
+    margin-right: 10px;
+    cursor: pointer;
+    border-radius: 5px; 
+    text-decoration: none;
+    font-size: 0.8em;
+  }
+
+  .delete-button:hover,
+  .edit-button:hover {
+    background-color: #1d4ed8; 
+  }
+
   

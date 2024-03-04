@@ -13,7 +13,6 @@
     padding: 20px;
     margin-bottom: 20px;
     border-radius: 10px; 
-    width: 90%;
   }
   
   .profile-section p {
@@ -161,5 +160,20 @@
   }
   
   .save-button-admin:hover {
+    background-color: #1d4ed8;
+  }
+
+  .add-recipe-button {
+    background-color: #172554;
+    color: #fff;
+    border: none;
+    padding: 15px 20px;
+    cursor: pointer;
+    border-radius: 5px;
+    font-size: 0.7em;
+    text-decoration: none;
+  }
+  
+  .add-recipe-button:hover {
     background-color: #1d4ed8;
   }
