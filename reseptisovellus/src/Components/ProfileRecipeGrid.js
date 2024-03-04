@@ -2,7 +2,36 @@ import React from "react";
 import { Link } from "react-router-dom";
 import "./ProfileRecipeGrid.css";
 
-const ProfileRecipeGrid = ({ recipes }) => {
+
+
+
+const handleDeleteRecipe = async (recipeId) => {
+  if (window.confirm(`Are you sure you want to delete this recipe?`)) {
+    try {
+      // Delete the recipe on the server
+      const response = await fetch(`https://recipeappapi.azurewebsites.net/api/Recipe/${recipeId}`, {
+        method: "DELETE",
+      });
+
+      if (response.ok) {
+        console.log("Recipe deleted successfully.");
+
+        // Display success message
+        alert("Recipe deleted successfully.");
+
+        // Reload the profile page
+        window.location.reload();
+      } else {
+        console.error("Error deleting recipe:", response);
+      }
+    } catch (error) {
+      console.error("Error deleting recipe:", error);
+    }
+  }
+};
+
+
+const ProfileRecipeGrid = ({ recipes, selectedOption}) => {
   return (
     <div className="profile-recipe-grid">
       {recipes.map((recipe) => (
@@ -29,6 +58,16 @@ const ProfileRecipeGrid = ({ recipes }) => {
               </div>
             </div>
           </Link>
+          {selectedOption === "ownRecipes" && (
+                <div className="profile-recipe-actions">
+                  <Link to={`/edit-recipe/${recipe.id}`} className="edit-button">
+                    Edit
+                  </Link>
+                  <button className="delete-button" onClick={() => handleDeleteRecipe(recipe.id)}>
+                    Delete
+                  </button>
+                </div>
+              )}
         </div>
       ))}
     </div>

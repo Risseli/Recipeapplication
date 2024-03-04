@@ -4,3 +4,4 @@ export * from "./About";
 export * from "./Profile";
 export * from "./Login";
 export * from "./RecipeDetails";
+export * from "./AddRecipe";

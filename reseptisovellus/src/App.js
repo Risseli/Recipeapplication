@@ -8,6 +8,7 @@ import {
   Profile,
   Login,
   RecipeDetails,
+  AddRecipe,
 } from "./Components/Pages";
 import { Route, Routes } from "react-router-dom";
 
@@ -22,6 +23,7 @@ function App() {
         <Route path="/about" element={<About />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/add-recipe" element={<AddRecipe />} /> 
       </Routes>
     </div>
   );

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import './Profile.css';
 import ProfileRecipeGrid from "../../Components/ProfileRecipeGrid";
+import { Link } from 'react-router-dom';
 //import { useAuth } from "../Authentication";
 
 const Profile = () => {
@@ -23,7 +24,7 @@ const Profile = () => {
   useEffect(() => {
     const checkUserStatus = async () => {
       try {
-        const response = await fetch("https://recipeappapi.azurewebsites.net/api/user/2"); // testataan käyttäjällä id:2
+        const response = await fetch("https://recipeappapi.azurewebsites.net/api/user/4"); // testataan käyttäjällä id:2
         const data = await response.json();
   
         if (data) {
@@ -79,10 +80,12 @@ const Profile = () => {
 
 
 
-  const handleOptionChange = (event) => {
-    setSelectedOption(event.target.value);
-    loadRecipes(event.target.value, user.id);
-  };
+ const handleOptionChange = (event) => {
+  setSelectedOption(event.target.value);
+  // Pass the correct user id based on edit mode
+  const userId = editMode ? editedUser.id : user.id;
+  loadRecipes(event.target.value, userId);
+};
 
 
   const loadRecipes = async (option, id) => {
@@ -230,27 +233,27 @@ const Profile = () => {
 
 
   const deleteReview = async (reviewId) => {
-    if (window.confirm(`Are you sure you want to delete this review ?`)) {
+    if (window.confirm(`Are you sure you want to delete this review?`)) {
       try {
-        // Tee API-kutsu poistaaksesi arvostelun
+        // Make API call to delete the review
         const response = await fetch(`https://recipeappapi.azurewebsites.net/api/Review/${reviewId}`, {
           method: 'DELETE',
         });
   
         if (response.ok) {
-          // Päivitä tila poistetulla arvostelulla
-          setRecipes(recipes.filter(recipe => recipe.id !== reviewId));
+          // Update the state by removing the deleted review
+          setRecipes((prevRecipes) => prevRecipes.filter(recipe => recipe.id !== reviewId));
           console.log('Review deleted successfully.');
-          // Näytä ilmoitus onnistuneesta poistosta
+          // Display a success message
           alert('Review deleted successfully.');
         } else {
           console.error('Error deleting review:', response);
-          // Näytä ilmoitus epäonnistuneesta poistosta
+          // Display an error message
           alert('Error deleting review. Please try again.');
         }
       } catch (error) {
         console.error('Error deleting review:', error);
-        // Näytä ilmoitus epäonnistuneesta poistosta
+        // Display an error message
         alert('Error deleting review. Please try again.');
       }
     }
@@ -338,6 +341,9 @@ const Profile = () => {
               </p>
               <button className="edit-button" onClick={handleEditClick}>Edit</button>
               <button className="delete-button" onClick={handleDeleteClick}>Delete</button>
+              <Link to="/add-recipe" className="add-recipe-button">
+    Add new Recipe
+</Link>
             </div>
           )}
           {editMode && !adminMode && (
@@ -380,6 +386,9 @@ const Profile = () => {
               </p>
               <button className="edit-button" onClick={handleEditClick}>Edit</button>
               <button className="delete-button" onClick={handleDeleteClick}>Delete</button>
+              <Link to="/add-recipe" className="add-recipe-button">
+    Add new Recipe
+</Link>
             </div>
     <h2>Admin Mode</h2>
     <p>User Management:</p>
