@@ -1,11 +1,10 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using RecipeAppBackend.Dto;
 using RecipeAppBackend.Interfaces;
 using RecipeAppBackend.Models;
-using RecipeAppBackend.Repositories;
-using System.Collections.Generic;
+
 
 namespace RecipeAppBackend.Controllers
 {
@@ -15,19 +14,34 @@ namespace RecipeAppBackend.Controllers
     {
         private readonly IUserRepository _userRepository;
         private readonly IRecipeRepository _recipeRepository;
+        private readonly IAuthService _authService;
         private readonly IMapper _mapper;
 
-        public UserController(IUserRepository userRepository, IRecipeRepository recipeRepository, IMapper mapper)
+        public UserController(IUserRepository userRepository
+            , IRecipeRepository recipeRepository
+            , IAuthService authService
+            , IMapper mapper)
         {
             _userRepository = userRepository;
             _recipeRepository = recipeRepository;
+            _authService = authService;
             _mapper = mapper;
         }
 
+        [Authorize]
         [HttpGet]
         [ProducesResponseType(200, Type =  typeof(IEnumerable<User>))]
         public IActionResult GetUsers()
         {
+
+            //var token = HttpContext.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
+
+            //var userId = _authService.GetUserId(token);
+            //var isAdmin = _authService.IsAdmin(token);
+
+            //return Ok(userId + " " +  isAdmin);
+
+
             var users = _mapper.Map<List<UserDto>>(_userRepository.GetUsers());
 
             if (!ModelState.IsValid)
@@ -143,7 +157,8 @@ namespace RecipeAppBackend.Controllers
         }
 
 
-        [HttpPost]
+
+        [HttpPost("register")]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
         [ProducesResponseType(422)]
@@ -173,6 +188,12 @@ namespace RecipeAppBackend.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
+            //Uusi käyttäjä ei ole koskaan admin
+            createUser.Admin = false;
+
+            //Hash the password
+            createUser.Password = _userRepository.HashPassword(createUser.Password);
+
             var userMap = _mapper.Map<User>(createUser);
 
             if (!_userRepository.CreateUser(userMap))
@@ -182,6 +203,39 @@ namespace RecipeAppBackend.Controllers
             }
 
             return Ok("Succesfully created");
+        }
+
+
+        [HttpPost("login")]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(422)]
+        public IActionResult Login([FromBody] LoginUserDto loginUser)
+        {
+            if (loginUser == null)
+                return BadRequest(ModelState);
+
+            var user = _userRepository.GetUsers()
+                .Where(u => u.Username == loginUser.Username).FirstOrDefault();
+
+            if (user == null || !_authService.VerifyPassword(loginUser.Password, user.Password))
+            {
+                ModelState.AddModelError("", "Incorrect username or password");
+                return StatusCode(422, ModelState);
+            }
+
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var token = _authService.GenerateToken(user);
+
+
+            return Ok(new
+            {
+                UserId = user.Id,
+                Token = token
+            });
         }
 
         [HttpPost("{userId}/Favorites")]
@@ -253,7 +307,7 @@ namespace RecipeAppBackend.Controllers
                 return NotFound();
 
             oldUser.Admin = updateUser.Admin != null ? (bool)updateUser.Admin : oldUser.Admin;
-            oldUser.Password = updateUser.Password != null ? updateUser.Password : oldUser.Password;
+            oldUser.Password = updateUser.Password != null ? _userRepository.HashPassword(updateUser.Password) : oldUser.Password;
             oldUser.Name = updateUser.Name != null ? updateUser.Name : oldUser.Name;
 
 
