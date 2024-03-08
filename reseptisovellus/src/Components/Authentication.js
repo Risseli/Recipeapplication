@@ -1,20 +1,25 @@
-import React, { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useState, useCallback } from 'react';
 
 const AuthContext = createContext();
 
 const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
 
-  const login = (userData) => {
-    setUser(userData);
-  };
+  const login = useCallback((userData) => {
+    const { userId, token } = userData;
+    
+    // Console testaus
+    console.log('UserId:', userId);
 
-  const logout = () => {
+    setUser({ userId, token });
+  }, []);
+
+  const logout = useCallback(() => {
     setUser(null);
-  };
+  }, []);
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, setUser }}>
+    <AuthContext.Provider value={{ user, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

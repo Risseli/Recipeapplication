@@ -3,10 +3,10 @@ import { useNavigate } from "react-router-dom";
 import './Profile.css';
 import ProfileRecipeGrid from "../../Components/ProfileRecipeGrid";
 import { Link } from 'react-router-dom';
-//import { useAuth } from "../Authentication";
+import { useAuth } from "../Authentication";
 
 const Profile = () => {
-  //const { user, logout, setUser } = useAuth();
+  const { user:authUser} = useAuth();
   const [user, setUser] = useState(null);
   const [editMode, setEditMode] = useState(false);
   const [editedUser, setEditedUser] = useState({});
@@ -21,10 +21,12 @@ const Profile = () => {
 
 
 
+
   useEffect(() => {
     const checkUserStatus = async () => {
       try {
-        const response = await fetch("https://recipeappapi.azurewebsites.net/api/user/4"); // testataan käyttäjällä id:2
+        const response = await fetch(`https://recipeappapi.azurewebsites.net/api/user/${authUser.userId}`);
+        //const response = await fetch("https://recipeappapi.azurewebsites.net/api/user/4"); // 
         const data = await response.json();
   
         if (data) {

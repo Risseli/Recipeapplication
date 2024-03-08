@@ -23,33 +23,44 @@ const Login = () => {
   });
 
   const [isLoggedIn, setLoggedIn] = useState(false);
-
+  const [loginError, setLoginError] = useState(null);
 
   const loginUser = async () => {
     try {
-      const response = await fetch("https://recipeappapi.azurewebsites.net/api/user", {
+      const response = await fetch("https://recipeappapi.azurewebsites.net/api/User/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(loginData),
       });
-
+  
+      if (!response.ok) {
+        console.error("Väärät tiedot.");
+        setLoginError("Wrong Username or Password");
+        return;
+      }
+  
       const result = await response.json();
-
+  
       console.log("Login successful:", result);
-
-      login(result);
-
+  
+      login({
+        userId: result.userId,
+        token: result.token,
+      });
+  
+      setLoggedIn(true); // Optionally set a state to track login status
+  
       navigate("/");
     } catch (error) {
       console.error("Error during login:", error);
+      setLoginError("An error occurred during login.");
     }
   };
-
   const registerUser = async () => {
 
-      const response = await fetch("https://recipeappapi.azurewebsites.net/api/user", {
+      const response = await fetch("https://recipeappapi.azurewebsites.net/api/user/Register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -80,6 +91,7 @@ const Login = () => {
       ) : (
         <>
           <h1>Login</h1>
+          {loginError && <p style={{color:"red"}}>{loginError}</p>}
           <form>
             <input
               type="text"
