@@ -1,20 +1,22 @@
 import React, { useState } from 'react';
 import './AddRecipe.css';
+import { useAuth } from "../Authentication";
 
 const AddRecipe = () => {
+
+  const { user: authUser } = useAuth();
   const [recipeData, setRecipeData] = useState({
     name: '',
     instructions: '',
     visibility: false,
-    userId: 4, // käytetään tässä kovakoodattua käyttäjää
+    userId: authUser ? authUser.userId : null,
   });
 
   const [ingredients, setIngredients] = useState([]);
   const [keywords, setKeywords] = useState([]);
-  const [images, setImages] = useState([]);
   const [selectedImages, setSelectedImages] = useState([]);
   const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false); // New loading state
+  const [loading, setLoading] = useState(false); 
 
   const handleNameInputChange = (e) => {
     const { name, value } = e.target;
@@ -77,6 +79,10 @@ const AddRecipe = () => {
       return;
     }
 
+     // Tarkista, että authUser ei ole falsy-arvo ennen kuin käytät authUser.userId
+     const userId = authUser ? authUser.userId : null;
+     setRecipeData((prevRecipeData) => ({ ...prevRecipeData, userId }));
+
     setLoading(true);
 
     try {
@@ -85,6 +91,7 @@ const AddRecipe = () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          Authorization: `Bearer ${authUser?.token}`,
         },
         body: JSON.stringify({
           ...recipeData,
@@ -107,6 +114,9 @@ const AddRecipe = () => {
         const imageResponse = await fetch('https://recipeappapi.azurewebsites.net/api/Image', {
           method: 'POST',
           body: imageData,
+          headers: {
+            Authorization: `Bearer ${authUser?.token}`,
+          },
         });
 
         if (!imageResponse.ok) {
@@ -123,6 +133,9 @@ const AddRecipe = () => {
             )}`,
             {
               method: 'POST',
+              headers: {
+                Authorization: `Bearer ${authUser?.token}`,
+              },
             }
           );
 
@@ -157,7 +170,6 @@ const AddRecipe = () => {
     });
     setIngredients([]);
     setKeywords([]);
-    setImages([]);
     setSelectedImages([]);
     setError('');
   };

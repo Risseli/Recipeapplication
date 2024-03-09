@@ -1,16 +1,23 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import "./ProfileRecipeGrid.css";
+import { useAuth } from "./Authentication";
 
 
-
+const ProfileRecipeGrid = ({ recipes }) => {
+  const { user:authUser} = useAuth();
 
 const handleDeleteRecipe = async (recipeId) => {
+  
+ 
   if (window.confirm(`Are you sure you want to delete this recipe?`)) {
     try {
       // Delete the recipe on the server
       const response = await fetch(`https://recipeappapi.azurewebsites.net/api/Recipe/${recipeId}`, {
         method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${authUser.token}`,
+        },
       });
 
       if (response.ok) {
@@ -31,7 +38,6 @@ const handleDeleteRecipe = async (recipeId) => {
 };
 
 
-const ProfileRecipeGrid = ({ recipes, selectedOption}) => {
   return (
     <div className="profile-recipe-grid">
       {recipes.map((recipe) => (
@@ -58,7 +64,6 @@ const ProfileRecipeGrid = ({ recipes, selectedOption}) => {
               </div>
             </div>
           </Link>
-          {selectedOption === "ownRecipes" && (
                 <div className="profile-recipe-actions">
                   <Link to={`/edit-recipe/${recipe.id}`} className="edit-button">
                     Edit
@@ -67,7 +72,6 @@ const ProfileRecipeGrid = ({ recipes, selectedOption}) => {
                     Delete
                   </button>
                 </div>
-              )}
         </div>
       ))}
     </div>

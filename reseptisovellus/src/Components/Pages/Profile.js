@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import './Profile.css';
 import ProfileRecipeGrid from "../../Components/ProfileRecipeGrid";
+import FavoritesRecipeGrid from "../../Components/FavoritesRecipeGrid";
 import { Link } from 'react-router-dom';
 import { useAuth } from "../Authentication";
 
@@ -18,66 +19,57 @@ const Profile = () => {
   const [users, setUsers] = useState([]); 
 
 
-
-
-
-
   useEffect(() => {
     const checkUserStatus = async () => {
       try {
-        const response = await fetch(`https://recipeappapi.azurewebsites.net/api/user/${authUser.userId}`);
-        //const response = await fetch("https://recipeappapi.azurewebsites.net/api/user/4"); // 
+        // Tarkista, onko käyttäjä kirjautunut sisään
+        if (!authUser || !authUser.token) {
+          navigate("/login");
+          return;
+        }
+  
+        // Hae käyttäjän tiedot
+        const response = await fetch(`https://recipeappapi.azurewebsites.net/api/user/${authUser.userId}`, {
+          headers: {
+            Authorization: `Bearer ${authUser.token}`,
+          },
+        });
+  
         const data = await response.json();
   
-        if (data) {
+        if (response.ok) {
           setUser(data);
 
-        // Check if the user is an admin
+
+
+        // Tarkista, onko käyttäjä admin
         if (data.admin) {
           setAdminMode(true);
-          // Fetch the list of users if needed
-          const usersResponse = await fetch("https://recipeappapi.azurewebsites.net/api/User");
+
+          // Hae käyttäjien lista tarvittaessa
+          const usersResponse = await fetch("https://recipeappapi.azurewebsites.net/api/User", {
+            headers: {
+              Authorization: `Bearer ${authUser.token}`,
+            },
+          });
           const usersData = await usersResponse.json();
           setUsers(usersData);
         }
 
-          loadRecipes("ownRecipes", data.id);
-        } else {
-          navigate("/login");
-        }
-      } catch (error) {
-        console.error("Error checking user status:", error);
+        // Lataa käyttäjän reseptit
+        loadRecipes("ownRecipes", data.id);
+      } else {
+        // Käyttäjä ei ole kirjautunut sisään, ohjaa kirjautumissivulle
+        navigate("/login");
       }
-    };
-  
-    checkUserStatus();
-  }, [navigate]);
+    } catch (error) {
+      console.error("Error checking user status:", error);
+    }
+  };
 
+  checkUserStatus();
+}, [authUser, navigate]);
 
-
-
-
-
-  // TÄSSÄ OLI YRITETTY KIRJAUTUNEELLA KÄYTTÄJÄLLÄ PROFIILISIVUA, MUTTA EI TOIMI. HAETAANKO KIRJAUTUNEEN ID:LLÄ VIELÄ TIEDOT APISTA
- // useEffect(() => {
- //   const checkUserStatus = async () => {
- //     try {
- //       if (!user) {
- //         // Redirect to login if user is not authenticated
- //         navigate("/login");
- //         return;
- //       }
- //       console.log("User:", user);
- //     } catch (error) {
- //       console.error("Error checking user status:", error);
- //     }
- //   };
- //   checkUserStatus();
- // }, [user, navigate]);
- //const handleLogout = () => {
- //   logout();
- //   navigate("/login");
- //};
 
 
 
@@ -90,71 +82,72 @@ const Profile = () => {
 };
 
 
-  const loadRecipes = async (option, id) => {
-    try {
-      let recipesData = [];
-  
-      // Set a loading state while fetching recipes
-      setRecipes([]);
-      setRecipeNames({}); // Tyhjennä reseptinimet joka kerta kun ladat reseptejä
-  
-      if (!id) {
-        console.error("User ID is undefined.");
-        return; // Exit the function if ID is undefined
-      }
-  
-      let apiUrl;
-      if (option === "ownRecipes") {
-        // Fetch user's own recipes
-        apiUrl = `https://recipeappapi.azurewebsites.net/api/User/${id}/Recipes`;
-      } else if (option === "favorites") {
-        // Fetch user's favorite recipes
-        apiUrl = `https://recipeappapi.azurewebsites.net/api/User/${id}/Favorites`;
-      }
-      else if (option === "reviews") {
-        // Fetch user's reviews
-        apiUrl = `https://recipeappapi.azurewebsites.net/api/User/${id}/Reviews`;
-      }
-  
-      const response = await fetch(apiUrl);
-      const responseData = await response.json();
-  
-      if (response.ok) {
-        recipesData = responseData;
-        console.log(`${option} Data:`, recipesData);
+const loadRecipes = async (option, id) => {
+  try {
+    let recipesData = [];
 
+    // Aseta lataustila fetch-pyyntöjä tehtäessä
+    setRecipes([]);
+    setRecipeNames({}); // Tyhjennä reseptinimet aina kun ladat reseptejä
 
-
-                // Hae reseptinimet käyttämällä reseptin id:tä
-                const namesPromises = recipesData.map(async (recipe) => {
-                  const nameResponse = await fetch(`https://recipeappapi.azurewebsites.net/api/Recipe/${recipe.recipeId}`);
-                  const nameData = await nameResponse.json();
-                  return { id: recipe.id, name: nameData.name };
-                });
-        
-                const resolvedNames = await Promise.all(namesPromises);
-                const recipeNameMap = resolvedNames.reduce((acc, item) => {
-                  acc[item.id] = item.name;
-                  return acc;
-                }, {});
-        
-                setRecipeNames(recipeNameMap);
-
-
-
-
-      } else {
-        console.error(`Error fetching ${option} recipes:`, responseData);
-      }
-  
-      setRecipes(recipesData);
-      console.log("Recipes State:", recipes);
-      console.log("Recipe Names State:", recipeNames);
-  
-    } catch (error) {
-      console.error("Error loading recipes:", error);
+    if (!id) {
+      console.error("User ID is undefined.");
+      return; // Poistu funktiosta, jos ID on määrittelemätön
     }
-  };
+
+    let apiUrl;
+    if (option === "ownRecipes") {
+      // Hae käyttäjän omat reseptit
+      apiUrl = `https://recipeappapi.azurewebsites.net/api/User/${id}/Recipes`;
+    } else if (option === "favorites") {
+      // Hae käyttäjän suosikkireseptit
+      apiUrl = `https://recipeappapi.azurewebsites.net/api/User/${id}/Favorites`;
+    } else if (option === "reviews") {
+      // Hae käyttäjän arvostelut
+      apiUrl = `https://recipeappapi.azurewebsites.net/api/User/${id}/Reviews`;
+    }
+
+    const response = await fetch(apiUrl, {
+      headers: {
+        Authorization: `Bearer ${authUser.token}`, // Lisää token otsikkoon
+      },
+    });
+    const responseData = await response.json();
+
+    if (response.ok) {
+      recipesData = responseData;
+      console.log(`${option} Data:`, recipesData);
+
+      // Hae reseptinimet käyttämällä reseptin id:tä
+      const namesPromises = recipesData.map(async (recipe) => {
+        const nameResponse = await fetch(`https://recipeappapi.azurewebsites.net/api/Recipe/${recipe.recipeId}`, {
+          headers: {
+            Authorization: `Bearer ${authUser.token}`, // Lisää token otsikkoon
+          },
+        });
+        const nameData = await nameResponse.json();
+        return { id: recipe.id, name: nameData.name };
+      });
+
+      const resolvedNames = await Promise.all(namesPromises);
+      const recipeNameMap = resolvedNames.reduce((acc, item) => {
+        acc[item.id] = item.name;
+        return acc;
+      }, {});
+
+      setRecipeNames(recipeNameMap);
+    } else {
+      console.error(`Error fetching ${option} recipes:`, responseData);
+    }
+
+    setRecipes(recipesData);
+    console.log("Recipes State:", recipes);
+    console.log("Recipe Names State:", recipeNames);
+  } catch (error) {
+    console.error("Error loading recipes:", error);
+  }
+};
+
 
 
 
@@ -173,7 +166,6 @@ const Profile = () => {
 
 
 
-
   const handleSaveClick = async () => {
     try {
       // Poista userId pyynnön rungosta, koska se on jo polussa
@@ -185,6 +177,7 @@ const Profile = () => {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${authUser.token}`, // Lisää token otsikkoon
         },
         body: JSON.stringify(userWithoutId), // Käytä userWithoutId:tä pyynnön rungossa
       });
@@ -204,6 +197,8 @@ const Profile = () => {
     }
   };
   
+  
+
 
 
   const handleDeleteClick = async () => {
@@ -211,6 +206,9 @@ const Profile = () => {
       try {
         const response = await fetch(`https://recipeappapi.azurewebsites.net/api/user/${user.id}`, {
           method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${authUser.token}`, // Lisää token otsikkoon
+          },
         });
   
         if (response.ok) {
@@ -231,15 +229,18 @@ const Profile = () => {
     }
   };
   
+  
 
 
 
   const deleteReview = async (reviewId) => {
     if (window.confirm(`Are you sure you want to delete this review?`)) {
       try {
-        // Make API call to delete the review
         const response = await fetch(`https://recipeappapi.azurewebsites.net/api/Review/${reviewId}`, {
           method: 'DELETE',
+          headers: {
+            Authorization: `Bearer ${authUser.token}`, // Lisää token otsikkoon
+          },
         });
   
         if (response.ok) {
@@ -263,6 +264,7 @@ const Profile = () => {
   
   
   
+  
 
 
 
@@ -270,10 +272,10 @@ const Profile = () => {
     const updatedUsers = users.map((user) =>
       user.id === userId ? { ...user, admin: !user.admin } : user
     );
-
+  
     setUsers(updatedUsers);
   };
-
+  
   const handleSaveAdminChanges = async () => {
     try {
       // Create an array of promises for each user update
@@ -282,6 +284,7 @@ const Profile = () => {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${authUser.token}`, // Lisää token otsikkoon
           },
           body: JSON.stringify({ admin: user.admin }),
         });
@@ -296,33 +299,36 @@ const Profile = () => {
       alert("Admin changes saved successfully.");
     } catch (error) {
       console.error("Error saving admin changes:", error);
-      // You may add additional error handling or notifications here
+      // Voit lisätä tähän lisää virheenkäsittelyä tai ilmoituksia tarvittaessa
     }
   };
-
-
-    const handleDeleteUser = async (userId) => {
-      if (window.confirm(`Are you sure you want to delete this user?`)) {
-        try {
-          // Delete the user on the server
-          const response = await fetch(`https://recipeappapi.azurewebsites.net/api/User/${userId}`, {
-            method: "DELETE",
-          });
   
-          if (response.ok) {
-            // Update the users list in the state
-            setUsers(users.filter((user) => user.id !== userId));
-            console.log("User deleted successfully.");
-          } else {
-            console.error("Error deleting user:", response);
-          }
-        } catch (error) {
-          console.error("Error deleting user:", error);
+
+
+  const handleDeleteUser = async (userId) => {
+    if (window.confirm(`Are you sure you want to delete this user?`)) {
+      try {
+        // Delete the user on the server
+        const response = await fetch(`https://recipeappapi.azurewebsites.net/api/User/${userId}`, {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${authUser.token}`, // Lisää token otsikkoon
+          },
+        });
+  
+        if (response.ok) {
+          // Update the users list in the state
+          setUsers(users.filter((user) => user.id !== userId));
+          console.log("User deleted successfully.");
+        } else {
+          console.error("Error deleting user:", response);
         }
+      } catch (error) {
+        console.error("Error deleting user:", error);
       }
-    };
-
-
+    }
+  };
+  
   
 
   return (
@@ -471,38 +477,45 @@ const Profile = () => {
             </label>
             </div>
             <div className="recipe-list">
-        {selectedOption !== "reviews" ? (
-          // Renderöi reseptit normaalisti, kun valittu option ei ole "reviews"
-          <ProfileRecipeGrid recipes={recipes} />
-          ) : (
-            <div className="reviews-list">
-              {recipes.length > 0 ? (
-                <ul>
-                  {recipes.map(recipe => (
-                    <li key={recipe.id}>
-                      <p>Recipe: {recipeNames[recipe.id]}</p>
-                      <p>
-                        Rating: {Array.from({ length: recipe.rating }, (_, index) => (
-                          <span key={index} className="star-icon">⭐</span>
-                        ))}
-                      </p>
-                      <p>Comment: {recipe.comment}</p>
-                      <button onClick={() => deleteReview(recipe.id)}>Delete</button>
-                    </li>
+  {selectedOption === "ownRecipes" ? (
+    // Renderöi reseptit normaalisti, kun valittu option on own recipes
+    <ProfileRecipeGrid recipes={recipes} />
+  ) : (
+    selectedOption === "favorites" ? (
+      // Renderöi reseptit normaalisti, kun valittu option on favorites
+      <FavoritesRecipeGrid recipes={recipes} />
+    ) : (
+      <div className="reviews-list">
+        {recipes.length > 0 ? (
+          <ul>
+            {recipes.map((recipe) => (
+              <li key={recipe.id}>
+                <p>Recipe: {recipeNames[recipe.id]}</p>
+                <p>
+                  Rating: {Array.from({ length: recipe.rating }, (_, index) => (
+                    <span key={index} className="star-icon">
+                      ⭐
+                    </span>
                   ))}
-                </ul>
-              ) : (
-                <p>This User has no reviews.</p>
-              )}
-            </div>
-          )}
-        </div>
+                </p>
+                <p>Comment: {recipe.comment}</p>
+                <button onClick={() => deleteReview(recipe.id)}>Delete</button>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p>This User has no reviews.</p>
+        )}
+      </div>
+    )
+  )}
+</div>
       </>
     ) : (
       <p>Loading...</p>
     )}
   </div>
-);
+  );
 };
 
 
