@@ -19,6 +19,76 @@ const Profile = () => {
   const [users, setUsers] = useState([]); 
 
 
+    // Uudet tilat arvostelun muokkausta varten
+    const [isEditing, setEditing] = useState(false);
+    const [editedRating, setEditedRating] = useState(0);
+    const [editedComment, setEditedComment] = useState("");
+    const [editingReviewId, setEditingReviewId] = useState(null);
+
+
+      // Uusi funktio avaa arvostelun muokkauslomakkeen
+  const handleEditReviewClick = (reviewId) => {
+    const reviewToEdit = recipes.find((recipe) => recipe.id === reviewId);
+    if (reviewToEdit) {
+      setEditing(true);
+      setEditingReviewId(reviewId);
+      setEditedRating(reviewToEdit.rating);
+      setEditedComment(reviewToEdit.comment);
+    }
+  };
+
+  const handleSaveEdit = async () => {
+    try {
+      console.log('Start handleSaveEdit');
+  
+      const requestBody = {
+        id: editingReviewId,
+        rating: editedRating !== undefined ? editedRating : null,
+        comment: editedComment !== undefined ? editedComment : null,
+      };
+  
+      console.log('Request Body:', requestBody);
+  
+      const response = await fetch(`https://recipeappapi.azurewebsites.net/api/Review/${editingReviewId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json', 
+          Authorization: `Bearer ${authUser.token}`,
+        },
+        body: JSON.stringify(requestBody),
+      });
+  
+      console.log('Response:', response);
+  
+      let data;
+  
+      if (response.ok) {
+        data = await response.json();
+        console.log('Review updated successfully.');
+        setEditing(false);
+        setRecipes((prevRecipes) => {
+          return prevRecipes.map((recipe) =>
+            recipe.id === editingReviewId
+              ? { ...recipe, rating: editedRating !== undefined ? editedRating : recipe.rating, comment: editedComment !== undefined ? editedComment : recipe.comment }
+              : recipe
+          );
+        });
+        alert('Review updated successfully.');
+      } else {
+        data = await response.json();
+        console.error('Error updating review:', data);
+        alert('Error updating review. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error in handleSaveEdit:', error);
+      alert('Error updating review. Please try again.');
+    }
+  };
+  
+  
+
+
   useEffect(() => {
     const checkUserStatus = async () => {
       try {
@@ -30,6 +100,7 @@ const Profile = () => {
   
         // Hae käyttäjän tiedot
         const response = await fetch(`https://recipeappapi.azurewebsites.net/api/user/${authUser.userId}`, {
+          method: 'GET',
           headers: {
             Authorization: `Bearer ${authUser.token}`,
           },
@@ -48,6 +119,7 @@ const Profile = () => {
 
           // Hae käyttäjien lista tarvittaessa
           const usersResponse = await fetch("https://recipeappapi.azurewebsites.net/api/User", {
+            method: "GET",
             headers: {
               Authorization: `Bearer ${authUser.token}`,
             },
@@ -108,6 +180,7 @@ const loadRecipes = async (option, id) => {
     }
 
     const response = await fetch(apiUrl, {
+      method: 'GET',
       headers: {
         Authorization: `Bearer ${authUser.token}`, // Lisää token otsikkoon
       },
@@ -118,16 +191,16 @@ const loadRecipes = async (option, id) => {
       recipesData = responseData;
       console.log(`${option} Data:`, recipesData);
 
-      // Hae reseptinimet käyttämällä reseptin id:tä
-      const namesPromises = recipesData.map(async (recipe) => {
-        const nameResponse = await fetch(`https://recipeappapi.azurewebsites.net/api/Recipe/${recipe.recipeId}`, {
-          headers: {
-            Authorization: `Bearer ${authUser.token}`, // Lisää token otsikkoon
-          },
-        });
-        const nameData = await nameResponse.json();
-        return { id: recipe.id, name: nameData.name };
-      });
+ // Hae reseptinimet käyttämällä reseptin id:tä
+ if (option === "reviews") {
+ const namesPromises = recipesData.map(async (recipe) => {
+  const nameResponse = await fetch(`https://recipeappapi.azurewebsites.net/api/Recipe/${recipe.recipeId}`, {
+    method:'GET',
+  });
+  const nameData = await nameResponse.json();
+  return { id: recipe.id, name: nameData.name };
+});
+
 
       const resolvedNames = await Promise.all(namesPromises);
       const recipeNameMap = resolvedNames.reduce((acc, item) => {
@@ -136,6 +209,7 @@ const loadRecipes = async (option, id) => {
       }, {});
 
       setRecipeNames(recipeNameMap);
+    }
     } else {
       console.error(`Error fetching ${option} recipes:`, responseData);
     }
@@ -486,22 +560,50 @@ const loadRecipes = async (option, id) => {
       <FavoritesRecipeGrid recipes={recipes} />
     ) : (
       <div className="reviews-list">
-        {recipes.length > 0 ? (
-          <ul>
-            {recipes.map((recipe) => (
-              <li key={recipe.id}>
-                <p>Recipe: {recipeNames[recipe.id]}</p>
-                <p>
-                  Rating: {Array.from({ length: recipe.rating }, (_, index) => (
-                    <span key={index} className="star-icon">
-                      ⭐
-                    </span>
-                  ))}
-                </p>
-                <p>Comment: {recipe.comment}</p>
+      {recipes.length > 0 ? (
+        <ul>
+          {recipes.map((recipe) => (
+            <li key={recipe.id}>
+              <p>Recipe: {recipeNames[recipe.id]}</p>
+              <p>
+                Rating: {Array.from({ length: recipe.rating }, (_, index) => (
+                  <span key={index} className="star-icon">
+                    ⭐
+                  </span>
+                ))}
+              </p>
+              <p>Comment: {recipe.comment}</p>
+                <button onClick={() => handleEditReviewClick(recipe.id)}>Edit</button>
                 <button onClick={() => deleteReview(recipe.id)}>Delete</button>
               </li>
             ))}
+
+         {/* Muokkauslomake */}
+         {isEditing && (
+  <div className="edit-form">
+    <h2>Edit Review:</h2>
+    <label>
+      Rating:
+      <input
+        type="number"
+        value={editedRating}
+        onChange={(e) => setEditedRating(e.target.value)}
+      />
+    </label>
+    <label>
+      <br />
+      Comment:
+      <textarea
+        value={editedComment}
+        onChange={(e) => setEditedComment(e.target.value)}
+      />
+    </label>
+    <br />
+    <button onClick={handleSaveEdit}>Save</button>
+    <button onClick={() => setEditing(false)}>Cancel</button>
+  </div>
+)}
+
           </ul>
         ) : (
           <p>This User has no reviews.</p>

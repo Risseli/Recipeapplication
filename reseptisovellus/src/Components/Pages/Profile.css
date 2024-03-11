@@ -177,3 +177,31 @@
   .add-recipe-button:hover {
     background-color: #1d4ed8;
   }
+
+
+  .edit-form {
+    background-color: #fbfaf9;
+    border: 1px solid #ddd;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 10px;
+  }
+  
+  .edit-form h2 {
+    margin-bottom: 10px;
+  }
+  
+  .edit-form label {
+    display: block;
+    margin-bottom: 10px;
+  }
+
+  .edit-form textarea {
+    width: 80%; 
+    height: 80px;
+    padding: 10px;
+    border: 1px solid darkgrey;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    resize: vertical; 
+  }
