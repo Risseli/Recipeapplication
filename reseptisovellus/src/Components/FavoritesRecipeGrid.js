@@ -12,12 +12,15 @@ const FavoritesRecipeGrid = ({ recipes}) => {
       {recipes.map((recipe) => (
         <div key={recipe.id} className="favorite-recipe-item">
           <Link to={`/recipe/${recipe.id}`} className="recipe-link">
-            {recipe.images && recipe.images.length > 0 && (
+          {recipe.images && recipe.images.length > 0 && (
               <img
                 src={`data:image/jpeg;base64,${recipe.images[0].imageData}`}
                 alt={`Image for ${recipe.name}`}
                 className="favorite-recipe-image"
               />
+            )}
+                        {!recipe.images || recipe.images.length === 0 && (
+               <img src="default_pic.jpg" alt="default picture" className="favorite-recipe-default"/>
             )}
             <div className="favorite-recipe-details">
               <h3 className="favorite-recipe-name">{recipe.name}</h3>

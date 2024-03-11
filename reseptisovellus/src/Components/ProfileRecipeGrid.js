@@ -4,6 +4,7 @@ import "./ProfileRecipeGrid.css";
 import { useAuth } from "./Authentication";
 
 
+
 const ProfileRecipeGrid = ({ recipes }) => {
   const { user:authUser} = useAuth();
 
@@ -49,6 +50,9 @@ const handleDeleteRecipe = async (recipeId) => {
                 alt={`Image for ${recipe.name}`}
                 className="profile-recipe-image"
               />
+            )}
+                        {!recipe.images || recipe.images.length === 0 && (
+               <img src="default_pic.jpg" alt="default picture" className="profile-recipe-default"/>
             )}
             <div className="profile-recipe-details">
               <h3 className="profile-recipe-name">{recipe.name}</h3>
