@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import "./RecipeDetails.css";
+import { useAuth } from "../Authentication";
 
 const RecipeDetails = () => {
   const [recipe, setRecipe] = useState(null);
   const [user, setUser] = useState(null);
   const { id } = useParams();
   const [printing, setPrinting] = useState(false);
+  const { user: authUser } = useAuth();
 
   useEffect(() => {
     const fetchRecipeDetails = async () => {
@@ -38,9 +40,33 @@ const RecipeDetails = () => {
 
   // set recipe as favourite
   const setFavourite = async () => {
-    // set this recipe to users favourite
+    try {
+      const response = await fetch(
+        `https://recipeappapi.azurewebsites.net/api/User/${authUser.userId}/Favorites`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${authUser.token}`,
+            "Content-Type": "application/json",
+          },
+          // body: JSON.stringify({ favorite: true }), // Voit lähettää lisätietoja täällä
+        }
+      );
 
-    return;
+      if (response.ok) {
+        const updatedUser = await response.json();
+        setUser(updatedUser);
+        console.log("Käyttäjän suosikit päivitetty:", updatedUser);
+      } else {
+        console.error(
+          "Suosikin lisääminen epäonnistui: ",
+          response,
+          authUser.userId
+        );
+      }
+    } catch (error) {
+      console.error("Virhe suosikin lisäämisessä:", error);
+    }
   };
 
   // open email client with recipe details
@@ -88,13 +114,18 @@ const RecipeDetails = () => {
           <h1>
             {recipe.name} from {userInfo()}
           </h1>
-          {/* map through images */}
           <div className="recipe-detail-image">
-            {recipe.images && <RecipeSlider images={recipe.images} />}
+            {recipe.images.length > 0 ? (
+              <RecipeSlider images={recipe.images} />
+            ) : (
+              <img src="/default_pic.jpg" alt="default picture" />
+            )}
           </div>
-          {recipe.keywords.map((keyword, index) => (
-            <p key={index}>Keywords: {keyword.word}</p>
-          ))}
+
+          <p>
+            Keywords:{" "}
+            {recipe.keywords.map((keyword) => keyword.word).join(", ")}
+          </p>
 
           <div className="recipe-detail-actions">
             <a className="recipe-detail-links" href="#" onClick={setFavourite}>

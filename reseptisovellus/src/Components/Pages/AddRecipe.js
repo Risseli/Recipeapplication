@@ -1,169 +1,141 @@
 import React, { useState } from 'react';
+import { useAuth } from '../Authentication';
 import './AddRecipe.css';
 
 const AddRecipe = () => {
+  const { user: authUser } = useAuth();
   const [recipeData, setRecipeData] = useState({
     name: '',
     instructions: '',
     visibility: false,
-    userId: 4, // käytetään tässä kovakoodattua käyttäjää
+    userId: authUser.userId, 
+    ingredients: [],
+    keywords: [],
+    images: [],
   });
 
-  const [ingredients, setIngredients] = useState([]);
-  const [keywords, setKeywords] = useState([]);
-  const [images, setImages] = useState([]);
   const [selectedImages, setSelectedImages] = useState([]);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false); // New loading state
-
-  const handleNameInputChange = (e) => {
-    const { name, value } = e.target;
-    setRecipeData({ ...recipeData, [name]: value});
-  };
-
-  const handleInstructionsInputChange = (e) => {
-    const { name, value } = e.target;
-    setRecipeData({ ...recipeData, instructions: value });
-  };
-
-
-  const handleIngredientChange = (index, e) => {
-    const updatedIngredients = [...ingredients];
-    updatedIngredients[index][e.target.name] = e.target.value;
-    setIngredients(updatedIngredients);
-  };
-
-  const handleKeywordChange = (index, e) => {
-    const updatedKeywords = [...keywords];
-    updatedKeywords[index][e.target.name] = e.target.value;
-    setKeywords(updatedKeywords);
-  };
-
-  const handleImageChange = (e) => {
-    const files = e.target.files;
-    const newSelectedImages = [];
-  
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i];
-  
-      // File type validation
-      if (!file.type.startsWith('image/')) {
-        setError('Please select valid image files.');
-        setSelectedImages([]);
-        return;
-      } else {
-        newSelectedImages.push(file);
-      }
-    }
-  
-    setSelectedImages([...selectedImages, ...newSelectedImages]);
-    setError('');
-  };
-
-  const handleAddIngredient = () => {
-    setIngredients([...ingredients, { name: '', amount: '', unit: '' }]);
-  };
-
-  const handleAddKeyword = () => {
-    setKeywords([...keywords, { word: '' }]);
-  };
 
   const handleFormSubmit = async (e) => {
     e.preventDefault();
+    await handleAddRecipe();
+  };
 
-    // Form validation
-    if (!recipeData.name || !recipeData.instructions) {
-      setError('Please fill in all required fields.');
-      return;
-    }
-
-    setLoading(true);
-
+  const handleAddRecipe = async () => {
     try {
-      // Create the recipe
+      setLoading(true);
+
       const response = await fetch('https://recipeappapi.azurewebsites.net/api/Recipe', {
         method: 'POST',
         headers: {
+          Authorization: `Bearer ${authUser.token}`,
+          'Accept': 'application/json',
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          ...recipeData,
-          ingredients,
-        }),
+        body: JSON.stringify({ ...recipeData, images: selectedImages }),
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to create recipe');
+      if (response.ok) {
+        console.log('Resepti lisätty onnistuneesti!');
+      } else {
+        console.error('Reseptin lisäys epäonnistui.');
+       
       }
-
-      const recipeId = await response.json();
-
-      // Upload images
-      if (selectedImages) {
-        const imageData = new FormData();
-        imageData.append('recipeId', recipeId);
-        imageData.append('imageData', selectedImages);
-
-        const imageResponse = await fetch('https://recipeappapi.azurewebsites.net/api/Image', {
-          method: 'POST',
-          body: imageData,
-        });
-
-        if (!imageResponse.ok) {
-          throw new Error('Failed to upload image');
-        }
-      }
-
-      // Add keywords to the recipe
-      await Promise.all(
-        keywords.map(async (keyword) => {
-          const keywordResponse = await fetch(
-            `https://recipeappapi.azurewebsites.net/api/Recipe/${recipeId}/Keywords?keyword=${encodeURIComponent(
-              keyword.word.trim().toLowerCase()
-            )}`,
-            {
-              method: 'POST',
-            }
-          );
-
-          if (!keywordResponse.ok) {
-            console.error(`Failed to add keyword: ${keyword.word}`);
-          }
-        })
-      );
-
-      // Handle success, e.g., redirect to the recipe list page
-      console.log('Recipe added successfully');
-      // Clear form fields
-      handleReset();
-      // Redirect or display success message
-      window.location.href = '/profile';
     } catch (error) {
-      console.error('Error:', error.message);
-      setError('Failed to add recipe. Please try again.');
+      console.error('Virhe tapahtui:', error);
+      setError('Virhe tapahtui reseptin lisäyksessä.');
     } finally {
       setLoading(false);
     }
   };
 
+  const handleNameInputChange = (e) => {
+    setRecipeData({ ...recipeData, name: e.target.value });
+  };
 
-  const handleReset = () => {
-    // Reset all form fields
-    setRecipeData({
-      name: '',
-      instructions: '',
-      visibility: false,
-      userId: 4,
-    });
-    setIngredients([]);
-    setKeywords([]);
-    setImages([]);
-    setSelectedImages([]);
-    setError('');
+  const handleInstructionsInputChange = (e) => {
+    setRecipeData({ ...recipeData, instructions: e.target.value });
+  };
+
+  const handleIngredientChange = (index, e) => {
+    const updatedIngredients = [...recipeData.ingredients];
+    updatedIngredients[index][e.target.name] = e.target.value;
+    setRecipeData({ ...recipeData, ingredients: updatedIngredients });
   };
 
 
 
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    const reader = new FileReader();
+
+    reader.onloadend = () => {
+      const newImage = {
+        name: file.name,
+        base64Data: reader.result,
+      };
+      setSelectedImages([...selectedImages, newImage]);
+    };
+
+    if (file) {
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleAddIngredient = () => {
+    setRecipeData({
+      ...recipeData,
+      ingredients: [...recipeData.ingredients, { name: '', amount: '', unit: '' }],
+    });
+  };
+
+  const handleAddKeyword = () => {
+    setRecipeData({
+      ...recipeData,
+      keywords: [...recipeData.keywords, { word: '' }],
+    });
+  };
+
+  const handleKeywordChange = (index, e) => {
+    const updatedKeywords = [...recipeData.keywords];
+    updatedKeywords[index][e.target.name] = e.target.value;
+    setRecipeData({ ...recipeData, keywords: updatedKeywords });
+  };
+
+  const handleRemoveKeyword = (index) => {
+    const updatedKeywords = [...recipeData.keywords];
+    updatedKeywords.splice(index, 1);
+    setRecipeData({ ...recipeData, keywords: updatedKeywords });
+  };
+
+  const handleRemoveImg = () => {
+    const updatedSelectedImages = [...selectedImages];
+    updatedSelectedImages.pop();
+    setSelectedImages(updatedSelectedImages);
+  };
+
+  const handleRemoveIngredient = (index) => {
+    const updatedIngredients = [...recipeData.ingredients];
+    updatedIngredients.splice(index, 1);
+    setRecipeData({ ...recipeData, ingredients: updatedIngredients });
+  };
+
+
+  const handleReset = () => {
+    setRecipeData({
+      name: '',
+      instructions: '',
+      visibility: false,
+      userId: authUser ? authUser.userId : 0,
+      ingredients: [],
+      keywords: [],
+      images: [],
+    });
+    setSelectedImages([]);
+    setError('');
+  };
 
   return (
     <div className="container">
@@ -202,9 +174,10 @@ const AddRecipe = () => {
 
         {/* Ingredients */}
         <h2>Ingredients</h2>
-        {ingredients.map((ingredient, index) => (
+        {recipeData.ingredients.map((ingredient, index) => (
           <div key={index}>
             <label>
+              <br/>
               Name:
               <input
                 type="text"
@@ -234,6 +207,9 @@ const AddRecipe = () => {
               />
             </label>
             <br />
+            <button className="remove-button" onClick={() => handleRemoveIngredient(index)}>
+              Remove ingredient
+            </button>
           </div>
         ))}
         <button className="add-button" type="button" onClick={handleAddIngredient}>
@@ -243,7 +219,7 @@ const AddRecipe = () => {
 
         {/* Keywords */}
         <h2>Keywords</h2>
-        {keywords.map((keyword, index) => (
+        {recipeData.keywords.map((keyword, index) => (
           <div key={index}>
             <label>
               Keyword:
@@ -255,6 +231,9 @@ const AddRecipe = () => {
               />
             </label>
             <br />
+            <button className="remove-button" onClick={() => handleRemoveKeyword(index)}>
+              Remove keyword
+            </button>
           </div>
         ))}
         <button className="add-button" type="button" onClick={handleAddKeyword}>
@@ -270,6 +249,13 @@ const AddRecipe = () => {
         {selectedImages.map((image, index) => (
           <div key={index}>
             <p>{image.name}</p>
+            <img
+              src={image.base64Data}
+              alt={`Preview of ${image.name}`}
+              style={{ maxWidth: '200px', maxHeight: '200px' }}
+            />
+            <br/>
+            <button className="remove-button" onClick={handleRemoveImg}>Remove image</button>
           </div>
         ))}
         <br />
@@ -289,4 +275,3 @@ const AddRecipe = () => {
 };
 
 export { AddRecipe };
-

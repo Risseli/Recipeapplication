@@ -9,6 +9,7 @@ import {
   Login,
   RecipeDetails,
   AddRecipe,
+  EditRecipe,
 } from "./Components/Pages";
 import { Route, Routes } from "react-router-dom";
 
@@ -24,6 +25,7 @@ function App() {
         <Route path="/profile" element={<Profile />} />
         <Route path="/login" element={<Login />} />
         <Route path="/add-recipe" element={<AddRecipe />} /> 
+        <Route path="/edit-recipe/:id" element={<EditRecipe />} />
       </Routes>
     </div>
   );

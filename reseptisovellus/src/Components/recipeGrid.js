@@ -12,11 +12,13 @@ const RecipeGrid = ({ recipes }) => {
           {/* create every recipe as a link */}
           <Link to={`/recipe/${recipe.id}`} className="recipe-grid-link">
             <div className="recipe-grid-image">
-              {recipe.images.length > 0 && ( // Tarkista, onko kuvia
+              {recipe.images.length > 0 ? ( // Tarkista, onko kuvia
                 <img
                   src={`data:image/jpeg;base64,${recipe.images[0].imageData}`} // Näytä vain ensimmäinen kuva
                   alt={`Image for ${recipe.name}`}
                 />
+              ) : (
+                <img src="default_pic.jpg" alt="default picture" />
               )}
             </div>
             <div className="recipe-grid-details">
