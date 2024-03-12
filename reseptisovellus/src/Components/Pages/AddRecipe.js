@@ -8,7 +8,7 @@ const AddRecipe = () => {
     name: '',
     instructions: '',
     visibility: false,
-    userId: authUser.id,
+    userId: authUser.userId, 
     ingredients: [],
     keywords: [],
     images: [],
@@ -41,6 +41,7 @@ const AddRecipe = () => {
         console.log('Resepti lisätty onnistuneesti!');
       } else {
         console.error('Reseptin lisäys epäonnistui.');
+       
       }
     } catch (error) {
       console.error('Virhe tapahtui:', error);
