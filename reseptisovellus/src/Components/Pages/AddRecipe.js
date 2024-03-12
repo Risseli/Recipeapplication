@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import './AddRecipe.css';
 import { useAuth } from '../Authentication';
+import './AddRecipe.css';
 
 const AddRecipe = () => {
   const { user: authUser } = useAuth();
@@ -8,24 +8,54 @@ const AddRecipe = () => {
     name: '',
     instructions: '',
     visibility: false,
-    userId: authUser ? authUser.userId : 0,
+    userId: authUser.id,
     ingredients: [],
     keywords: [],
     images: [],
   });
 
   const [selectedImages, setSelectedImages] = useState([]);
-  const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleFormSubmit = async (e) => {
+    e.preventDefault();
+    await handleAddRecipe();
+  };
+
+  const handleAddRecipe = async () => {
+    try {
+      setLoading(true);
+
+      const response = await fetch('https://recipeappapi.azurewebsites.net/api/Recipe', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${authUser.token}`,
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ ...recipeData, images: selectedImages }),
+      });
+
+      if (response.ok) {
+        console.log('Resepti lisätty onnistuneesti!');
+      } else {
+        console.error('Reseptin lisäys epäonnistui.');
+      }
+    } catch (error) {
+      console.error('Virhe tapahtui:', error);
+      setError('Virhe tapahtui reseptin lisäyksessä.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleNameInputChange = (e) => {
-    const { name, value } = e.target;
-    setRecipeData({ ...recipeData, [name]: value });
+    setRecipeData({ ...recipeData, name: e.target.value });
   };
 
   const handleInstructionsInputChange = (e) => {
-    const { name, value } = e.target;
-    setRecipeData({ ...recipeData, instructions: value });
+    setRecipeData({ ...recipeData, instructions: e.target.value });
   };
 
   const handleIngredientChange = (index, e) => {
@@ -34,113 +64,63 @@ const AddRecipe = () => {
     setRecipeData({ ...recipeData, ingredients: updatedIngredients });
   };
 
+
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    const reader = new FileReader();
+
+    reader.onloadend = () => {
+      const newImage = {
+        name: file.name,
+        base64Data: reader.result,
+      };
+      setSelectedImages([...selectedImages, newImage]);
+    };
+
+    if (file) {
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleAddIngredient = () => {
+    setRecipeData({
+      ...recipeData,
+      ingredients: [...recipeData.ingredients, { name: '', amount: '', unit: '' }],
+    });
+  };
+
+  const handleAddKeyword = () => {
+    setRecipeData({
+      ...recipeData,
+      keywords: [...recipeData.keywords, { word: '' }],
+    });
+  };
+
   const handleKeywordChange = (index, e) => {
     const updatedKeywords = [...recipeData.keywords];
     updatedKeywords[index][e.target.name] = e.target.value;
     setRecipeData({ ...recipeData, keywords: updatedKeywords });
   };
 
-  const handleImageChange = (e) => {
-    const files = e.target.files;
-    const newSelectedImages = [];
-
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i];
-
-      // File type validation
-      if (!file.type.startsWith('image/')) {
-        setError('Please select valid image files.');
-        setSelectedImages([]);
-        return;
-      } else {
-        newSelectedImages.push(file);
-      }
-    }
-
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const base64Data = event.target.result;
-
-      setSelectedImages([...selectedImages, { name: newSelectedImages[0].name, base64Data }]);
-      setError('');
-    };
-
-    reader.readAsDataURL(newSelectedImages[0]);
+  const handleRemoveKeyword = (index) => {
+    const updatedKeywords = [...recipeData.keywords];
+    updatedKeywords.splice(index, 1);
+    setRecipeData({ ...recipeData, keywords: updatedKeywords });
   };
 
-  const handleAddIngredient = () => {
-    setRecipeData({
-      ...recipeData,
-      ingredients: [...recipeData.ingredients, { name: '', amount: 0, unit: 'string' }],
-    });
+  const handleRemoveImg = () => {
+    const updatedSelectedImages = [...selectedImages];
+    updatedSelectedImages.pop();
+    setSelectedImages(updatedSelectedImages);
   };
 
-  const handleAddKeyword = () => {
-    setRecipeData({ ...recipeData, keywords: [...recipeData.keywords, { word: 'string' }] });
+  const handleRemoveIngredient = (index) => {
+    const updatedIngredients = [...recipeData.ingredients];
+    updatedIngredients.splice(index, 1);
+    setRecipeData({ ...recipeData, ingredients: updatedIngredients });
   };
 
-  const handleFormSubmit = async (e) => {
-    e.preventDefault();
-
-    // Form validation
-    if (!recipeData.name || !recipeData.instructions || recipeData.ingredients.length === 0) {
-      setError('Please fill in all required fields.');
-      return;
-    }
-
-    setLoading(true);
-
-    try {
-      const formData = new FormData();
-    
-      // Append recipe data as a JSON string
-      formData.append('recipeData', JSON.stringify(recipeData));
-      
-      // Append selected images
-      selectedImages.forEach((image, index) => {
-        formData.append(`images[${index}]`, image);
-      });
-      
-      try {
-        const response = await fetch('https://recipeappapi.azurewebsites.net/api/Recipe', {
-          method: 'POST',
-          headers: {
-            Authorization: `Bearer ${authUser.token}`,
-            'Accept': 'application/json', 
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ recipeData, images: selectedImages }),
-        });
-    
-        console.log(response)
-
-        if (!response.ok) {
-          throw new Error('Failed to create recipe');
-        }
-    
-        const createdRecipe = await response.json();
-    
-        if (!createdRecipe.id) {
-          throw new Error('Recipe ID is missing or invalid.');
-        }
-    
-        console.log('Recipe added successfully');
-        handleReset();
-      } catch (error) {
-        console.error('Error:', error.message);
-        setError('Failed to add recipe. Please try again.');
-      } finally {
-        setLoading(false);
-      }
-    } catch (outerError) {
-      console.error('Outer Error:', outerError.message);
-      setError('Outer error occurred. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  
 
   const handleReset = () => {
     setRecipeData({
@@ -196,6 +176,7 @@ const AddRecipe = () => {
         {recipeData.ingredients.map((ingredient, index) => (
           <div key={index}>
             <label>
+              <br/>
               Name:
               <input
                 type="text"
@@ -225,6 +206,9 @@ const AddRecipe = () => {
               />
             </label>
             <br />
+            <button className="remove-button" onClick={() => handleRemoveIngredient(index)}>
+              Remove ingredient
+            </button>
           </div>
         ))}
         <button className="add-button" type="button" onClick={handleAddIngredient}>
@@ -246,6 +230,9 @@ const AddRecipe = () => {
               />
             </label>
             <br />
+            <button className="remove-button" onClick={() => handleRemoveKeyword(index)}>
+              Remove keyword
+            </button>
           </div>
         ))}
         <button className="add-button" type="button" onClick={handleAddKeyword}>
@@ -261,6 +248,13 @@ const AddRecipe = () => {
         {selectedImages.map((image, index) => (
           <div key={index}>
             <p>{image.name}</p>
+            <img
+              src={image.base64Data}
+              alt={`Preview of ${image.name}`}
+              style={{ maxWidth: '200px', maxHeight: '200px' }}
+            />
+            <br/>
+            <button className="remove-button" onClick={handleRemoveImg}>Remove image</button>
           </div>
         ))}
         <br />

@@ -69,9 +69,15 @@ const handleDeleteRecipe = async (recipeId) => {
             </div>
           </Link>
                 <div className="profile-recipe-actions">
-                  <Link to={`/edit-recipe/${recipe.id}`} className="edit-button">
-                    Edit
-                  </Link>
+                <Link
+  to={{
+    pathname: `/edit-recipe/${recipe.id}`,
+    state: { recipe },
+  }}
+  className="edit-button"
+>
+  Edit Recipe
+</Link>
                   <button className="delete-button" onClick={() => handleDeleteRecipe(recipe.id)}>
                     Delete
                   </button>
