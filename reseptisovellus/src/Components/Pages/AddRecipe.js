@@ -1,26 +1,26 @@
 import React, { useState } from 'react';
 import './AddRecipe.css';
-import { useAuth } from "../Authentication";
+import { useAuth } from '../Authentication';
 
 const AddRecipe = () => {
-
   const { user: authUser } = useAuth();
   const [recipeData, setRecipeData] = useState({
     name: '',
     instructions: '',
     visibility: false,
-    userId: authUser ? authUser.userId : null,
+    userId: authUser ? authUser.userId : 0,
+    ingredients: [],
+    keywords: [],
+    images: [],
   });
 
-  const [ingredients, setIngredients] = useState([]);
-  const [keywords, setKeywords] = useState([]);
   const [selectedImages, setSelectedImages] = useState([]);
   const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false); 
+  const [loading, setLoading] = useState(false);
 
   const handleNameInputChange = (e) => {
     const { name, value } = e.target;
-    setRecipeData({ ...recipeData, [name]: value});
+    setRecipeData({ ...recipeData, [name]: value });
   };
 
   const handleInstructionsInputChange = (e) => {
@@ -28,26 +28,25 @@ const AddRecipe = () => {
     setRecipeData({ ...recipeData, instructions: value });
   };
 
-
   const handleIngredientChange = (index, e) => {
-    const updatedIngredients = [...ingredients];
+    const updatedIngredients = [...recipeData.ingredients];
     updatedIngredients[index][e.target.name] = e.target.value;
-    setIngredients(updatedIngredients);
+    setRecipeData({ ...recipeData, ingredients: updatedIngredients });
   };
 
   const handleKeywordChange = (index, e) => {
-    const updatedKeywords = [...keywords];
+    const updatedKeywords = [...recipeData.keywords];
     updatedKeywords[index][e.target.name] = e.target.value;
-    setKeywords(updatedKeywords);
+    setRecipeData({ ...recipeData, keywords: updatedKeywords });
   };
 
   const handleImageChange = (e) => {
     const files = e.target.files;
     const newSelectedImages = [];
-  
+
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
-  
+
       // File type validation
       if (!file.type.startsWith('image/')) {
         setError('Please select valid image files.');
@@ -57,125 +56,105 @@ const AddRecipe = () => {
         newSelectedImages.push(file);
       }
     }
-  
-    setSelectedImages([...selectedImages, ...newSelectedImages]);
-    setError('');
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const base64Data = event.target.result;
+
+      setSelectedImages([...selectedImages, { name: newSelectedImages[0].name, base64Data }]);
+      setError('');
+    };
+
+    reader.readAsDataURL(newSelectedImages[0]);
   };
 
   const handleAddIngredient = () => {
-    setIngredients([...ingredients, { name: '', amount: '', unit: '' }]);
+    setRecipeData({
+      ...recipeData,
+      ingredients: [...recipeData.ingredients, { name: '', amount: 0, unit: 'string' }],
+    });
   };
 
   const handleAddKeyword = () => {
-    setKeywords([...keywords, { word: '' }]);
+    setRecipeData({ ...recipeData, keywords: [...recipeData.keywords, { word: 'string' }] });
   };
 
   const handleFormSubmit = async (e) => {
     e.preventDefault();
 
     // Form validation
-    if (!recipeData.name || !recipeData.instructions) {
+    if (!recipeData.name || !recipeData.instructions || recipeData.ingredients.length === 0) {
       setError('Please fill in all required fields.');
       return;
     }
 
-     // Tarkista, että authUser ei ole falsy-arvo ennen kuin käytät authUser.userId
-     const userId = authUser ? authUser.userId : null;
-     setRecipeData((prevRecipeData) => ({ ...prevRecipeData, userId }));
-
     setLoading(true);
 
     try {
-      // Create the recipe
-      const response = await fetch('https://recipeappapi.azurewebsites.net/api/Recipe', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${authUser?.token}`,
-        },
-        body: JSON.stringify({
-          ...recipeData,
-          ingredients,
-        }),
+      const formData = new FormData();
+    
+      // Append recipe data as a JSON string
+      formData.append('recipeData', JSON.stringify(recipeData));
+      
+      // Append selected images
+      selectedImages.forEach((image, index) => {
+        formData.append(`images[${index}]`, image);
       });
-
-      if (!response.ok) {
-        throw new Error('Failed to create recipe');
-      }
-
-      const recipeId = await response.json();
-
-      // Upload images
-      if (selectedImages) {
-        const imageData = new FormData();
-        imageData.append('recipeId', recipeId);
-        imageData.append('imageData', selectedImages);
-
-        const imageResponse = await fetch('https://recipeappapi.azurewebsites.net/api/Image', {
+      
+      try {
+        const response = await fetch('https://recipeappapi.azurewebsites.net/api/Recipe', {
           method: 'POST',
-          body: imageData,
           headers: {
-            Authorization: `Bearer ${authUser?.token}`,
+            Authorization: `Bearer ${authUser.token}`,
+            'Accept': 'application/json', 
+            'Content-Type': 'application/json',
           },
+          body: JSON.stringify({ recipeData, images: selectedImages }),
         });
+    
+        console.log(response)
 
-        if (!imageResponse.ok) {
-          throw new Error('Failed to upload image');
+        if (!response.ok) {
+          throw new Error('Failed to create recipe');
         }
+    
+        const createdRecipe = await response.json();
+    
+        if (!createdRecipe.id) {
+          throw new Error('Recipe ID is missing or invalid.');
+        }
+    
+        console.log('Recipe added successfully');
+        handleReset();
+      } catch (error) {
+        console.error('Error:', error.message);
+        setError('Failed to add recipe. Please try again.');
+      } finally {
+        setLoading(false);
       }
-
-      // Add keywords to the recipe
-      await Promise.all(
-        keywords.map(async (keyword) => {
-          const keywordResponse = await fetch(
-            `https://recipeappapi.azurewebsites.net/api/Recipe/${recipeId}/Keywords?keyword=${encodeURIComponent(
-              keyword.word.trim().toLowerCase()
-            )}`,
-            {
-              method: 'POST',
-              headers: {
-                Authorization: `Bearer ${authUser?.token}`,
-              },
-            }
-          );
-
-          if (!keywordResponse.ok) {
-            console.error(`Failed to add keyword: ${keyword.word}`);
-          }
-        })
-      );
-
-      // Handle success, e.g., redirect to the recipe list page
-      console.log('Recipe added successfully');
-      // Clear form fields
-      handleReset();
-      // Redirect or display success message
-      window.location.href = '/profile';
-    } catch (error) {
-      console.error('Error:', error.message);
-      setError('Failed to add recipe. Please try again.');
+    } catch (outerError) {
+      console.error('Outer Error:', outerError.message);
+      setError('Outer error occurred. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
+  
 
   const handleReset = () => {
-    // Reset all form fields
     setRecipeData({
       name: '',
       instructions: '',
       visibility: false,
-      userId: 4,
+      userId: authUser ? authUser.userId : 0,
+      ingredients: [],
+      keywords: [],
+      images: [],
     });
-    setIngredients([]);
-    setKeywords([]);
     setSelectedImages([]);
     setError('');
   };
-
-
-
 
   return (
     <div className="container">
@@ -214,7 +193,7 @@ const AddRecipe = () => {
 
         {/* Ingredients */}
         <h2>Ingredients</h2>
-        {ingredients.map((ingredient, index) => (
+        {recipeData.ingredients.map((ingredient, index) => (
           <div key={index}>
             <label>
               Name:
@@ -255,7 +234,7 @@ const AddRecipe = () => {
 
         {/* Keywords */}
         <h2>Keywords</h2>
-        {keywords.map((keyword, index) => (
+        {recipeData.keywords.map((keyword, index) => (
           <div key={index}>
             <label>
               Keyword:
@@ -301,4 +280,3 @@ const AddRecipe = () => {
 };
 
 export { AddRecipe };
-
