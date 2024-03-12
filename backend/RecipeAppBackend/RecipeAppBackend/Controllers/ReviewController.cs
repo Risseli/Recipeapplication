@@ -105,7 +105,7 @@ namespace RecipeAppBackend.Controllers
 
             if (user == null)   //Checking that the user existed
             {
-                ModelState.AddModelError("","There is no user with the Id: " + userId);
+                ModelState.AddModelError("ModelStateError", "There is no user with the Id: " + userId);
                 return StatusCode(422, ModelState);
             }
 
@@ -116,7 +116,7 @@ namespace RecipeAppBackend.Controllers
 
             if (recipe == null)   //Checking that the recipe existed
             {
-                ModelState.AddModelError("", "There is no recipe with the Id: " + recipeId);
+                ModelState.AddModelError("ModelStateError", "There is no recipe with the Id: " + recipeId);
                 return StatusCode(422, ModelState);
             }
 
@@ -127,7 +127,7 @@ namespace RecipeAppBackend.Controllers
 
             if (!_reviewRepository.CreateReview(reviewMap))
             {
-                ModelState.AddModelError("", "Something went wrong while creating the review.");
+                ModelState.AddModelError("ModelStateError", "Something went wrong while creating the review.");
                 return StatusCode(500, ModelState);
             }
 
@@ -189,7 +189,7 @@ namespace RecipeAppBackend.Controllers
 
                 if (user == null)
                 {
-                    ModelState.AddModelError("", "There is no user with the id: " + updateReview.UserId);
+                    ModelState.AddModelError("ModelStateError", "There is no user with the id: " + updateReview.UserId);
                     return StatusCode(422, ModelState);
                 } 
                     
@@ -204,7 +204,7 @@ namespace RecipeAppBackend.Controllers
 
                 if (recipe == null)
                 {
-                    ModelState.AddModelError("", "There is no recipe with the id: " + updateReview.RecipeId);
+                    ModelState.AddModelError("ModelStateError", "There is no recipe with the id: " + updateReview.RecipeId);
                     return StatusCode(422, ModelState);
                 }
 
@@ -215,7 +215,7 @@ namespace RecipeAppBackend.Controllers
             //Update
             if (!_reviewRepository.UpdateReview(oldReview))
             {
-                ModelState.AddModelError("", "Something went wrong while updating review: " + reviewId);
+                ModelState.AddModelError("ModelStateError", "Something went wrong while updating review: " + reviewId);
                 return StatusCode(500, ModelState);
             }
 
@@ -252,7 +252,7 @@ namespace RecipeAppBackend.Controllers
 
             if (!_reviewRepository.DeleteReview(deleteReview))
             {
-                ModelState.AddModelError("", "Something went wrong while deleting review: " + reviewId);
+                ModelState.AddModelError("ModelStateError", "Something went wrong while deleting review: " + reviewId);
                 return StatusCode(500, ModelState);
             }
 

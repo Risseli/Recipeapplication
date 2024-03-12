@@ -90,7 +90,7 @@ namespace RecipeAppBackend.Controllers
 
             if (recipe == null)
             {
-                ModelState.AddModelError("", "There is no recipe with the Id: " + recipeId);
+                ModelState.AddModelError("ModelStateError", "There is no recipe with the Id: " + recipeId);
                 return StatusCode(422, ModelState);
             }
 
@@ -112,7 +112,7 @@ namespace RecipeAppBackend.Controllers
 
             if (!_imageRepository.CreateImage(imageMap))
             {
-                ModelState.AddModelError("", "Something went wrong while creating the image.");
+                ModelState.AddModelError("ModelStateError", "Something went wrong while creating the image.");
                 return StatusCode(500, ModelState);
             }
 
@@ -161,7 +161,7 @@ namespace RecipeAppBackend.Controllers
 
                 if (recipe == null)
                 {
-                    ModelState.AddModelError("", "There is no recipe with the id: " + updateImage.RecipeId);
+                    ModelState.AddModelError("ModelStateError", "There is no recipe with the id: " + updateImage.RecipeId);
                     return StatusCode(422, ModelState);
                 }
 
@@ -175,7 +175,7 @@ namespace RecipeAppBackend.Controllers
 
             if (!_imageRepository.UpdateImage(oldImage))
             {
-                ModelState.AddModelError("", "Something went wrong while updating image: " + oldImage.Id);
+                ModelState.AddModelError("ModelStateError", "Something went wrong while updating image: " + oldImage.Id);
                 return StatusCode(500, ModelState);
             }
 
@@ -214,7 +214,7 @@ namespace RecipeAppBackend.Controllers
 
             if (!_imageRepository.DeleteImage(deleteImage))
             {
-                ModelState.AddModelError("","Something went wrong while deleting image: " + imageId);
+                ModelState.AddModelError("ModelStateError", "Something went wrong while deleting image: " + imageId);
                 return StatusCode(500, ModelState);
             }
 
