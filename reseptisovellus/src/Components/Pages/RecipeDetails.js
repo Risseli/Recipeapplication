@@ -2,6 +2,16 @@ import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import "./RecipeDetails.css";
 import { useAuth } from "../Authentication";
+import {
+  EmailShareButton,
+  FacebookShareButton,
+  LinkedinShareButton,
+  WhatsappShareButton,
+  EmailIcon,
+  FacebookIcon,
+  LinkedinIcon,
+  WhatsappIcon,
+} from "react-share";
 
 const RecipeDetails = () => {
   const [recipe, setRecipe] = useState(null);
@@ -42,7 +52,7 @@ const RecipeDetails = () => {
   const setFavourite = async () => {
     try {
       const response = await fetch(
-        `https://recipeappapi.azurewebsites.net/api/User/${authUser.userId}/Favorites`,
+        `https://recipeappapi.azurewebsites.net/api/User/${authUser.userId}/Favorites?recipeId=${id}`,
         {
           method: "POST",
           headers: {
@@ -52,35 +62,25 @@ const RecipeDetails = () => {
           // body: JSON.stringify({ favorite: true }), // Voit lähettää lisätietoja täällä
         }
       );
+      const responseData = await response.text(); // Haetaan vastauksen tekstimuotoinen sisältö
+      const trimmedData = responseData.trim(); // Poistetaan ylimääräiset merkit
+      const updatedUser = JSON.parse(trimmedData); // Parsitaan JSON-muotoon
+      console.log("Response data:", updatedUser);
 
       if (response.ok) {
-        const updatedUser = await response.json();
         setUser(updatedUser);
         console.log("Käyttäjän suosikit päivitetty:", updatedUser);
       } else {
         console.error(
           "Suosikin lisääminen epäonnistui: ",
-          response,
-          authUser.userId
+          response.status,
+          updatedUser
         );
       }
     } catch (error) {
       console.error("Virhe suosikin lisäämisessä:", error);
     }
   };
-
-  // open email client with recipe details
-  const shareRecipe = () => {
-    //something to share the recipe
-    const emailSubject = encodeURIComponent("Tarkista tämä resepti!");
-    const emailBody = encodeURIComponent(
-      `Tässä on herkullinen resepti: ${recipe.name} \n\n ${recipe.instructions}`
-    );
-
-    window.open(`mailto:?subject=${emailSubject}&body=${emailBody}`);
-    return;
-  };
-
   // create a function to print the recipe with button click
   const printRecipe = () => {
     setPrinting(true);
@@ -107,6 +107,8 @@ const RecipeDetails = () => {
     return null; // Jos vastaavaa käyttäjää ei löydy
   };
 
+  const currentPage = `https://recipeappgl.azurewebsites.net/recipe/${id}`;
+
   return (
     <div className="recipe-details-container">
       {recipe ? (
@@ -114,6 +116,37 @@ const RecipeDetails = () => {
           <h1>
             {recipe.name} from {userInfo()}
           </h1>
+          {authUser ? (
+            <div className="recipe-detail-sharing">
+              <EmailShareButton
+                subject="Check out this awesome recipe!"
+                body={`Here is a delicious recipe: ${recipe.name} \n\n ${recipe.instructions}`}
+              >
+                <EmailIcon size={45} round={false} borderRadius={10} />
+              </EmailShareButton>
+              <FacebookShareButton url={currentPage} hashtag="#reseptisovellus">
+                <FacebookIcon size={45} round={false} borderRadius={10} />
+              </FacebookShareButton>
+              <LinkedinShareButton
+                url={currentPage}
+                title="Reseptisovellus"
+                summary="Browse add and share recepies!"
+                source="Reseptisovellus Group L"
+              >
+                <LinkedinIcon size={45} round={false} borderRadius={10} />
+              </LinkedinShareButton>
+              <WhatsappShareButton url={currentPage}>
+                <WhatsappIcon size={45} round={false} borderRadius={10} />
+              </WhatsappShareButton>
+              <a
+                className="recipe-detail-links"
+                href="#"
+                onClick={setFavourite}
+              >
+                Set Favourite {recipe.favoriteCount}
+              </a>
+            </div>
+          ) : null}
           <div className="recipe-detail-image">
             {recipe.images.length > 0 ? (
               <RecipeSlider images={recipe.images} />
@@ -128,12 +161,6 @@ const RecipeDetails = () => {
           </p>
 
           <div className="recipe-detail-actions">
-            <a className="recipe-detail-links" href="#" onClick={setFavourite}>
-              Set Favourite {recipe.favoriteCount}
-            </a>
-            <a className="recipe-detail-links" href="#" onClick={shareRecipe}>
-              Share
-            </a>
             <a
               className="recipe-detail-links"
               href="#"
