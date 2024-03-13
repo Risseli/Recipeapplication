@@ -40,6 +40,8 @@ const AddRecipe = () => {
 
       if (response.ok) {
         console.log('Resepti lisätty onnistuneesti!');
+        alert('Resepti lisätty onnistuneesti!');
+        handleReset();
       } else {
         console.error('Reseptin lisäys epäonnistui.');
        
