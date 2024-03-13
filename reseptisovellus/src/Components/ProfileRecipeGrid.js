@@ -28,7 +28,7 @@ const handleDeleteRecipe = async (recipeId) => {
         alert("Recipe deleted successfully.");
 
         // Reload the profile page
-      //  window.location.reload();
+        window.location.reload();
       } else {
         console.error("Error deleting recipe:", response);
       }
