@@ -57,3 +57,40 @@
 .remove-button:hover {
     background-color: #1d4ed8; 
 }
+
+
+.ingredient-section label {
+    display: block;
+    font-size: 1em;
+    margin-bottom: 5px; /* Pieni marginaali labelien välillä */
+  }
+  
+  .ingredient-section input[type="text"],
+  .ingredient-section input[type="number"],
+  .ingredient-section input[type="checkbox"],
+  .ingredient-section input[type="radio"],
+  .ingredient-section select,
+  .ingredient-section textarea {
+    width: 30%; 
+    padding: 8px; 
+    font-size: 0.8em;
+    margin-bottom: 5px; 
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;
+  }
+  
+  .ingredient-section button {
+    background-color: #172554;
+    color: #fff;
+    border: none;
+    padding: 10px 15px;
+    margin-right: 10px;
+    cursor: pointer;
+    border-radius: 5px;
+  }
+  
+  .ingredient-section button:hover {
+    background-color: #1d4ed8;
+  }
+  
