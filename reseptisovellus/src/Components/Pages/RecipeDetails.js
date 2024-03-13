@@ -43,11 +43,6 @@ const RecipeDetails = () => {
     fetchRecipeDetails();
   }, [id]);
 
-  const likeRecipe = async () => {
-    //something to like the recipe put method to database
-    return;
-  };
-
   // set recipe as favourite
   const setFavourite = async () => {
     try {
@@ -119,8 +114,9 @@ const RecipeDetails = () => {
           {authUser ? (
             <div className="recipe-detail-sharing">
               <EmailShareButton
+                url={currentPage}
                 subject="Check out this awesome recipe!"
-                body={`Here is a delicious recipe: ${recipe.name} \n\n ${recipe.instructions}`}
+                body={`Here is a delicious recipe: ${recipe.name} \n\n ${recipe.instructions} \n\n`}
               >
                 <EmailIcon size={45} round={false} borderRadius={10} />
               </EmailShareButton>
@@ -128,10 +124,10 @@ const RecipeDetails = () => {
                 <FacebookIcon size={45} round={false} borderRadius={10} />
               </FacebookShareButton>
               <LinkedinShareButton
-                url={currentPage}
+                url={"https://recipeappgl.azurewebsites.net/recipe/2/"}
                 title="Reseptisovellus"
                 summary="Browse add and share recepies!"
-                source="Reseptisovellus Group L"
+                // source="Reseptisovellus Group L"
               >
                 <LinkedinIcon size={45} round={false} borderRadius={10} />
               </LinkedinShareButton>
