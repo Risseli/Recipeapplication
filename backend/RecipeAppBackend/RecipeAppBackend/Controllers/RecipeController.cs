@@ -184,7 +184,7 @@ namespace RecipeAppBackend.Controllers
             var user = _userRepository.GetUser(createRecipe.UserId);
             if (user == null)
             {
-                ModelState.AddModelError("","There is no user with the id: " +  createRecipe.UserId);
+                ModelState.AddModelError("ModelStateError", "There is no user with the id: " +  createRecipe.UserId);
                 return StatusCode(404, ModelState);
             }
 
@@ -207,7 +207,7 @@ namespace RecipeAppBackend.Controllers
                 {
                     if (!_keywordRepository.CreateKeyword(key))
                     {
-                        ModelState.AddModelError("", "Something went wrong while creating keyword: " + key.Word);
+                        ModelState.AddModelError("ModelStateError", "Something went wrong while creating keyword: " + key.Word);
                         return StatusCode(500, ModelState);
                     }
 
@@ -231,7 +231,7 @@ namespace RecipeAppBackend.Controllers
             //Create the recipe
             if (!_recipeRepository.CreateRecipe(recipeMap, recipeKeywords))
             {
-                ModelState.AddModelError("", "Something went wrong while creating the recipe");
+                ModelState.AddModelError("ModelStateError", "Something went wrong while creating the recipe");
                 return StatusCode(500, ModelState);
             }
 
@@ -245,7 +245,7 @@ namespace RecipeAppBackend.Controllers
 
                 if (!_ingredientRepository.CreateIngredient(ing))
                 {
-                    ModelState.AddModelError("", "Something went wrong while creating ingredient: " + ing);
+                    ModelState.AddModelError("ModelStateError", "Something went wrong while creating ingredient: " + ing);
                     return StatusCode(500, ModelState);
                 }
             }
@@ -259,7 +259,7 @@ namespace RecipeAppBackend.Controllers
 
                 if (!_imageRepository.CreateImage(images[i]))
                 {
-                    ModelState.AddModelError("", "Something went wrong while creating image number: " + i);
+                    ModelState.AddModelError("ModelStateError", "Something went wrong while creating image number: " + i);
                 }
             }
 
@@ -309,7 +309,7 @@ namespace RecipeAppBackend.Controllers
 
                 if (!_keywordRepository.CreateKeyword(key))
                 {
-                    ModelState.AddModelError("", "Something went wrong while creating keyword: " + key.Word);
+                    ModelState.AddModelError("ModelStateError", "Something went wrong while creating keyword: " + key.Word);
                     return StatusCode(500, ModelState);
                 }
 
@@ -326,7 +326,7 @@ namespace RecipeAppBackend.Controllers
                 //Checking for an existing connection
                 if (_recipeRepository.KeywordExists(recipe.Id, oldKeyword.Id))
                 {
-                    ModelState.AddModelError("","The recipe already has the keyword '" +  oldKeyword.Word + "'");
+                    ModelState.AddModelError("ModelStateError","The recipe already has the keyword '" +  oldKeyword.Word + "'");
                     return StatusCode(422, ModelState);
                 }
 
@@ -339,7 +339,7 @@ namespace RecipeAppBackend.Controllers
 
             if (!_recipeRepository.AddKeyword(recipeKeyword))
             {
-                ModelState.AddModelError("", "Something went wrong while creating the connection");
+                ModelState.AddModelError("ModelStateError", "Something went wrong while creating the connection");
                 return StatusCode(500, ModelState);
             }
 
@@ -390,7 +390,7 @@ namespace RecipeAppBackend.Controllers
 
                 if (user == null)
                 {
-                    ModelState.AddModelError("","There is no user with the id: " + updateRecipe.UserId);
+                    ModelState.AddModelError("ModelStateError","There is no user with the id: " + updateRecipe.UserId);
                     return StatusCode(422, ModelState);
                 }
 
@@ -399,7 +399,7 @@ namespace RecipeAppBackend.Controllers
 
             if (!_recipeRepository.UpdateRecipe(oldRecipe))
             {
-                ModelState.AddModelError("", "Something went wrong while updating recipe: " + recipeId);
+                ModelState.AddModelError("ModelStateError", "Something went wrong while updating recipe: " + recipeId);
                 return StatusCode(500, ModelState);
             }
 
@@ -436,7 +436,7 @@ namespace RecipeAppBackend.Controllers
 
             if (!_recipeRepository.DeleteRecipe(deleteRecipe))
             {
-                ModelState.AddModelError("", "Something went wrong while deleting recipe: " + recipeId);
+                ModelState.AddModelError("ModelStateError", "Something went wrong while deleting recipe: " + recipeId);
                 return StatusCode(500, ModelState);
             }
 
@@ -474,7 +474,7 @@ namespace RecipeAppBackend.Controllers
 
             if (removeRecipeKeyword == null)
             {
-                ModelState.AddModelError("","The recipe " +  recipeId + " doesn't have the keyword '" + keyword + "'");
+                ModelState.AddModelError("ModelStateError","The recipe " +  recipeId + " doesn't have the keyword '" + keyword + "'");
                 return StatusCode(422, ModelState);
             }
 
@@ -483,7 +483,7 @@ namespace RecipeAppBackend.Controllers
 
             if (!_recipeRepository.RemoveKeyword(removeRecipeKeyword))
             {
-                ModelState.AddModelError("", "Something went wrong while removing keyword '" + keyword + "'");
+                ModelState.AddModelError("ModelStateError", "Something went wrong while removing keyword '" + keyword + "'");
                 return StatusCode(500, ModelState);
             }
 

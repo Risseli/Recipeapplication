@@ -8,5 +8,8 @@ namespace RecipeAppBackend.Interfaces
         string GenerateToken(User user);
         bool IsAdmin(string jwtToken);
         string GetUserId(string jwtToken);
+        void RestorePassword(string recipientEmail, string encryptedPassword);
+        string EncryptString(string text);
+        string DecryptString(string text);
     }
 }

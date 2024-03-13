@@ -1,0 +1,4 @@
+{
+    "appService.defaultWebAppToDeploy": "/subscriptions/4a5f3610-6eb3-4120-9f23-b086ef9156a4/resourceGroups/rg-RecipeApp/providers/Microsoft.Web/sites/RecipeAppGL",
+    "appService.deploySubpath": "reseptisovellus\\build"
+}

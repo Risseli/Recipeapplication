@@ -88,7 +88,7 @@ namespace RecipeAppBackend.Controllers
 
             if (keyword != null)
             {
-                ModelState.AddModelError("", "Keyword already exists");
+                ModelState.AddModelError("ModelStateError", "Keyword already exists");
                 return StatusCode(422, ModelState);
             }
 
@@ -100,7 +100,7 @@ namespace RecipeAppBackend.Controllers
 
             if (!_keywordRepository.CreateKeyword(keywordMap))
             {
-                ModelState.AddModelError("", "Something went wrong while creating the keyword " + keywordMap.Word);
+                ModelState.AddModelError("ModelStateError", "Something went wrong while creating the keyword " + keywordMap.Word);
                 return StatusCode(500, ModelState);
             }
 
@@ -143,7 +143,7 @@ namespace RecipeAppBackend.Controllers
 
             if (!_keywordRepository.UpdateKeyword(oldKeyword))
             {
-                ModelState.AddModelError("", "Something went wrong while updating keyword: " + keywordId);
+                ModelState.AddModelError("ModelStateError", "Something went wrong while updating keyword: " + keywordId);
                 return StatusCode(500, ModelState);
             }
 
@@ -177,7 +177,7 @@ namespace RecipeAppBackend.Controllers
 
             if (!_keywordRepository.DeleteKeyword(deleteKeyword))
             {
-                ModelState.AddModelError("", "Something went wrong while deleting keyword: " + keywordId);
+                ModelState.AddModelError("ModelStateError", "Something went wrong while deleting keyword: " + keywordId);
                 return StatusCode(500, ModelState);
             }
 

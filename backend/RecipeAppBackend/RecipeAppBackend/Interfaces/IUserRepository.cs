@@ -17,6 +17,5 @@ namespace RecipeAppBackend.Interfaces
         bool RemoveFavorite(Favorite favorite);
         bool FavoriteExists(int userId, int recipeId);
         bool Save();
-        string HashPassword(string password);
     }
 }
