@@ -13,6 +13,7 @@ const AddRecipe = () => {
     keywords: [],
     images: [],
   });
+  const [recipeImages, setRecipeImages] = useState([]);
 
   const [selectedImages, setSelectedImages] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -34,7 +35,7 @@ const AddRecipe = () => {
           'Accept': 'application/json',
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ ...recipeData, images: selectedImages }),
+        body: JSON.stringify({...recipeData, images: recipeImages}),//{ ...recipeData, images: selectedImages }),
       });
 
       if (response.ok) {
@@ -74,9 +75,16 @@ const AddRecipe = () => {
     reader.onloadend = () => {
       const newImage = {
         name: file.name,
-        base64Data: reader.result,
+        imageData: reader.result,
       };
       setSelectedImages([...selectedImages, newImage]);
+      setRecipeImages([...recipeImages, { imageData: newImage.imageData.split(",")[1] }])
+      // setRecipeData({
+      //   ...recipeData,
+      //   images: [...recipeData.images, { imageData: newImage.imageData.split(",")[1] }]
+      // });
+      //console.log(newImage.imageData);
+      //console.log("recipeData images: " + recipeData.images[1].imageData);
     };
 
     if (file) {
@@ -250,7 +258,7 @@ const AddRecipe = () => {
           <div key={index}>
             <p>{image.name}</p>
             <img
-              src={image.base64Data}
+              src={image.imageData}
               alt={`Preview of ${image.name}`}
               style={{ maxWidth: '200px', maxHeight: '200px' }}
             />
