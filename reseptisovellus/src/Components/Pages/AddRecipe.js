@@ -35,13 +35,14 @@ const AddRecipe = () => {
           'Accept': 'application/json',
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({...recipeData, images: recipeImages}),//{ ...recipeData, images: selectedImages }),
+        body: JSON.stringify({...recipeData, images: recipeImages}),
       });
 
       if (response.ok) {
         console.log('Resepti lisätty onnistuneesti!');
         alert('Resepti lisätty onnistuneesti!');
         handleReset();
+        window.location.href = '/profile'; 
       } else {
         console.error('Reseptin lisäys epäonnistui.');
        
@@ -81,12 +82,6 @@ const AddRecipe = () => {
       };
       setSelectedImages([...selectedImages, newImage]);
       setRecipeImages([...recipeImages, { imageData: newImage.imageData.split(",")[1] }])
-      // setRecipeData({
-      //   ...recipeData,
-      //   images: [...recipeData.images, { imageData: newImage.imageData.split(",")[1] }]
-      // });
-      //console.log(newImage.imageData);
-      //console.log("recipeData images: " + recipeData.images[1].imageData);
     };
 
     if (file) {
