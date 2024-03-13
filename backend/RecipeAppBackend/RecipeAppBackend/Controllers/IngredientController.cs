@@ -77,7 +77,7 @@ namespace RecipeAppBackend.Controllers
 
             if (recipe == null)
             {
-                ModelState.AddModelError("", "There is no recipe with the id: " + recipeId);
+                ModelState.AddModelError("ModelStateError", "There is no recipe with the id: " + recipeId);
                 return StatusCode(422, ModelState);
             }
 
@@ -99,7 +99,7 @@ namespace RecipeAppBackend.Controllers
 
             if (!_ingredientRepository.CreateIngredient(ingredientMap))
             {
-                ModelState.AddModelError("", "Something went wrong while creating the ingredient: " + ingredientMap.Id);
+                ModelState.AddModelError("ModelStateError", "Something went wrong while creating the ingredient: " + ingredientMap.Id);
                 return StatusCode(500, ModelState);
             }
 
@@ -153,7 +153,7 @@ namespace RecipeAppBackend.Controllers
 
                 if (recipe == null) //if no recipe exists
                 {
-                    ModelState.AddModelError("", "There is no recipe with the id: " + updateIngredient.RecipeId);
+                    ModelState.AddModelError("ModelStateError", "There is no recipe with the id: " + updateIngredient.RecipeId);
                     return StatusCode(422, ModelState);
                 }
 
@@ -163,7 +163,7 @@ namespace RecipeAppBackend.Controllers
 
             if (!_ingredientRepository.UpdateIngredient(oldIngredient))
             {
-                ModelState.AddModelError("", "Something went wrong while updating ingredient: " + oldIngredient.Id);
+                ModelState.AddModelError("ModelStateError", "Something went wrong while updating ingredient: " + oldIngredient.Id);
                 return StatusCode(500, ModelState);
             }
 
@@ -204,7 +204,7 @@ namespace RecipeAppBackend.Controllers
 
             if (!_ingredientRepository.DeleteIngredient(deleteIng))
             {
-                ModelState.AddModelError("", "Something went wrong while deleting ingredient: " + ingId);
+                ModelState.AddModelError("ModelStateError", "Something went wrong while deleting ingredient: " + ingId);
                 return StatusCode(500,ModelState);
             }
 

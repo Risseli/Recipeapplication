@@ -69,12 +69,6 @@ namespace RecipeAppBackend.Controllers
 
             var recipes = _mapper.Map<List<RecipeDto>>(_userRepository.GetUsersFavorites(userId));
 
-            //if (recipes.Count == 0)
-            //{
-            //    ModelState.AddModelError("", "User has no favorites.");
-            //    return BadRequest(ModelState);
-            //}
-
             foreach (var recipe in recipes)
             {
                 recipe.Ingredients = _mapper.Map<List<IngredientDto>>(_recipeRepository.GetIngredientsOfRecipe(recipe.Id));
@@ -101,12 +95,6 @@ namespace RecipeAppBackend.Controllers
                 return NotFound();
 
             var recipes = _mapper.Map<List<RecipeDto>>(_userRepository.GetUsersRecipes(userId));
-
-            //if (recipes.Count == 0)
-            //{
-            //    ModelState.AddModelError("", "User has no recipes.");
-            //    return BadRequest(ModelState);
-            //}
 
             foreach (var recipe in recipes)
             {
@@ -135,16 +123,32 @@ namespace RecipeAppBackend.Controllers
 
             var reviews = _mapper.Map<List<ReviewDto>>(_userRepository.GetUsersReviews(userId));
 
-            //if (reviews.Count == 0)
-            //{
-            //    ModelState.AddModelError("", "User has no reviews.");
-            //    return BadRequest(ModelState);
-            //}
-
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
             return Ok(reviews);
+        }
+
+        [HttpGet("RecoverPassword/{email}")]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        public IActionResult RecoverPassword(string email)
+        {
+            var user = _userRepository.GetUsers().Where(u => u.Email == email).FirstOrDefault();
+
+            if (user == null)
+            {
+                ModelState.AddModelError("ModelStateError", "Incorrect email");
+                return StatusCode(422, ModelState);
+            }
+
+            _authService.RestorePassword(email, user.Password);
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            return NoContent();
         }
 
 
@@ -163,7 +167,7 @@ namespace RecipeAppBackend.Controllers
 
             if (user != null)
             {
-                ModelState.AddModelError("", "The email" + createUser.Email + " is already in use");
+                ModelState.AddModelError("ModelStateError", "The email" + createUser.Email + " is already in use");
                 return StatusCode(422, ModelState);
             }
 
@@ -172,7 +176,7 @@ namespace RecipeAppBackend.Controllers
 
             if (user != null)
             {
-                ModelState.AddModelError("", "The username" + createUser.Username + " is already in use");
+                ModelState.AddModelError("ModelStateError", "The username" + createUser.Username + " is already in use");
                 return StatusCode(422, ModelState);
             }
 
@@ -182,14 +186,14 @@ namespace RecipeAppBackend.Controllers
             //Uusi käyttäjä ei ole koskaan admin
             createUser.Admin = false;
 
-            //Hash the password
-            createUser.Password = _userRepository.HashPassword(createUser.Password);
+            //Encrypt the password
+            createUser.Password = _authService.EncryptString(createUser.Password);
 
             var userMap = _mapper.Map<User>(createUser);
 
             if (!_userRepository.CreateUser(userMap))
             {
-                ModelState.AddModelError("", "Something went wrong while creating the user");
+                ModelState.AddModelError("ModelStateError", "Something went wrong while creating the user");
                 return StatusCode(500, ModelState);
             }
 
@@ -211,7 +215,7 @@ namespace RecipeAppBackend.Controllers
 
             if (user == null || !_authService.VerifyPassword(loginUser.Password, user.Password))
             {
-                ModelState.AddModelError("", "Incorrect username or password");
+                ModelState.AddModelError("ModelStateError", "Incorrect username or password");
                 return StatusCode(422, ModelState);
             }
 
@@ -251,18 +255,18 @@ namespace RecipeAppBackend.Controllers
 
             if (user == null)
             {
-                ModelState.AddModelError("", "There is no user with the id: " + userId);
+                ModelState.AddModelError("ModelStateError", "There is no user with the id: " + userId);
                 return StatusCode(404, ModelState);
             }
             if (recipe == null)
             {
-                ModelState.AddModelError("", "There is no recipe with the id: " + recipeId);
+                ModelState.AddModelError("ModelStateError", "There is no recipe with the id: " + recipeId);
                 return StatusCode(404, ModelState);
             }
 
             if (_userRepository.FavoriteExists(userId, recipeId))
             {
-                ModelState.AddModelError("", "The recipe is already a favorite of the user");
+                ModelState.AddModelError("ModelStateError", "The recipe is already a favorite of the user");
                 return StatusCode(422, ModelState);
             }
 
@@ -279,7 +283,7 @@ namespace RecipeAppBackend.Controllers
 
             if (!_userRepository.AddFavorite(favorite))
             {
-                ModelState.AddModelError("", "Something went wrong while adding the favorite");
+                ModelState.AddModelError("ModelStateError", "Something went wrong while adding the favorite");
                 return StatusCode(500, ModelState);
             }
 
@@ -319,7 +323,7 @@ namespace RecipeAppBackend.Controllers
                 return NotFound();
 
             oldUser.Admin = updateUser.Admin != null ? (bool)updateUser.Admin : oldUser.Admin;
-            oldUser.Password = updateUser.Password != null ? _userRepository.HashPassword(updateUser.Password) : oldUser.Password;
+            oldUser.Password = updateUser.Password != null ? _authService.EncryptString(updateUser.Password) : oldUser.Password;
             oldUser.Name = updateUser.Name != null ? updateUser.Name : oldUser.Name;
 
 
@@ -331,7 +335,7 @@ namespace RecipeAppBackend.Controllers
 
                 if (user != null)
                 {
-                    ModelState.AddModelError("", "The username " + user.Username + " is already in use");
+                    ModelState.AddModelError("ModelStateError", "The username " + user.Username + " is already in use");
                     return StatusCode(422, ModelState);
                 }
 
@@ -347,7 +351,7 @@ namespace RecipeAppBackend.Controllers
 
                 if (user != null )
                 {
-                    ModelState.AddModelError("", "The email " + user.Email + " is already in use");
+                    ModelState.AddModelError("ModelStateError", "The email " + user.Email + " is already in use");
                     return StatusCode(422, ModelState);
                 }
 
@@ -356,7 +360,7 @@ namespace RecipeAppBackend.Controllers
             
             if (!_userRepository.UpdateUser(oldUser))
             {
-                ModelState.AddModelError("", "Something went wrong while updating user: " + userId);
+                ModelState.AddModelError("ModelStateError", "Something went wrong while updating user: " + userId);
                 return StatusCode(500, ModelState);
             }
 
@@ -394,7 +398,7 @@ namespace RecipeAppBackend.Controllers
             {
                 if (!_recipeRepository.DeleteRecipe(recipe))
                 {
-                    ModelState.AddModelError("", "Something went wrong while deleting recipe: " + recipe.Id);
+                    ModelState.AddModelError("ModelStateError", "Something went wrong while deleting recipe: " + recipe.Id);
                     return StatusCode(500, ModelState);
                 }
             }
@@ -403,7 +407,7 @@ namespace RecipeAppBackend.Controllers
 
             if (!_userRepository.DeleteUser(deleteUser))
             {
-                ModelState.AddModelError("", "Something went wrong while deleting user: " +  userId);
+                ModelState.AddModelError("ModelStateError", "Something went wrong while deleting user: " +  userId);
                 return StatusCode(500, ModelState);
             }
 
@@ -435,18 +439,18 @@ namespace RecipeAppBackend.Controllers
 
             if (user == null)
             {
-                ModelState.AddModelError("", "There is no user with the id: " + userId);
+                ModelState.AddModelError("ModelStateError", "There is no user with the id: " + userId);
                 return StatusCode(404, ModelState);
             }
             if (recipe == null)
             {
-                ModelState.AddModelError("", "There is no recipe with the id: " + recipeId);
+                ModelState.AddModelError("ModelStateError", "There is no recipe with the id: " + recipeId);
                 return StatusCode(404, ModelState);
             }
 
             if (!_userRepository.FavoriteExists(userId, recipeId))
             {
-                ModelState.AddModelError("", "The recipe is not a favorite of the user");
+                ModelState.AddModelError("ModelStateError", "The recipe is not a favorite of the user");
                 return StatusCode(422, ModelState);
             }
 
@@ -463,7 +467,7 @@ namespace RecipeAppBackend.Controllers
 
             if (!_userRepository.RemoveFavorite(favorite))
             {
-                ModelState.AddModelError("", "Something went wrong while removing the favorite");
+                ModelState.AddModelError("ModelStateError", "Something went wrong while removing the favorite");
                 return StatusCode(500, ModelState);
             }
 
