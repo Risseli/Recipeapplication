@@ -269,9 +269,9 @@ const RecipeDetails = () => {
             )}
             {visibility ? (
               <div className="recipe-detail-newReview">
-                <textarea
+                <textarea style={{resize: 'vertical'}}
                   autoFocus={true}
-                  maxLength={500}
+                  maxLength={200}
                   rows={10}
                   cols={98}
                   value={comment}
