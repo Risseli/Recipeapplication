@@ -39,17 +39,16 @@ const AddRecipe = () => {
       });
 
       if (response.ok) {
-        console.log('Resepti lisätty onnistuneesti!');
-        alert('Resepti lisätty onnistuneesti!');
+        console.log('Recipe added successfully!');
+        alert('Recipe added successfully!');
         handleReset();
         window.location.href = '/profile'; 
       } else {
-        console.error('Reseptin lisäys epäonnistui.');
-       
+        console.error('Failed to add recipe.');
       }
     } catch (error) {
-      console.error('Virhe tapahtui:', error);
-      setError('Virhe tapahtui reseptin lisäyksessä.');
+      console.error('An error occurred:', error);
+      setError('An error occurred while adding the recipe.');
     } finally {
       setLoading(false);
     }
@@ -68,8 +67,6 @@ const AddRecipe = () => {
     updatedIngredients[index][e.target.name] = e.target.value;
     setRecipeData({ ...recipeData, ingredients: updatedIngredients });
   };
-
-
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -115,7 +112,7 @@ const AddRecipe = () => {
     setRecipeData({ ...recipeData, keywords: updatedKeywords });
   };
 
-  const handleRemoveImg = (e) => { // kuvan nimi parametrina, voi filtter array komennolla poistaa oikein kuvan. tai samalla tavalla kun ingredients
+  const handleRemoveImg = (e) => {
     e.preventDefault();
     const updatedSelectedImages = [...selectedImages];
     updatedSelectedImages.pop();
