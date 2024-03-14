@@ -157,7 +157,7 @@ const RecipeDetails = () => {
     }
   };
 
-  const currentPage = `https://recipeappgl.azurewebsites.net/recipe/${id}`;
+  const currentPage = `https://recipeappgl.azurewebsites.net/`;
 
   return (
     <div className="recipe-details-container">
@@ -179,7 +179,7 @@ const RecipeDetails = () => {
                 <FacebookIcon size={45} round={false} borderRadius={10} />
               </FacebookShareButton>
               <LinkedinShareButton
-                url={"https://recipeappgl.azurewebsites.net/recipe/2/"}
+                url={"https://recipeappgl.azurewebsites.net/"}
                 title="Reseptisovellus"
                 summary="Browse add and share recepies!"
                 // source="Reseptisovellus Group L"
@@ -269,7 +269,8 @@ const RecipeDetails = () => {
             )}
             {visibility ? (
               <div className="recipe-detail-newReview">
-                <textarea style={{resize: 'vertical'}}
+                <textarea
+                  style={{ resize: "vertical" }}
                   autoFocus={true}
                   maxLength={200}
                   rows={10}
