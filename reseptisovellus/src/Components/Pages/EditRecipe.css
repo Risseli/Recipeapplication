@@ -42,6 +42,7 @@
 
 .edit-button,
 .reset-button,
+.save-button,
 .remove-button {
     background-color: #172554;
     color: #fff;
@@ -54,6 +55,7 @@
 
 .edit-button:hover,
 .reset-button:hover,
+.save-button:hover,
 .remove-button:hover {
     background-color: #1d4ed8; 
 }

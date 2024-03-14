@@ -81,6 +81,41 @@ const EditRecipe = () => {
     }
   };
 
+
+  const handleSaveIngredients = async () => {
+    try {
+      setLoading(true);
+      console.log("Saving ingredient changes...");
+  
+      const response = await fetch(`https://recipeappapi.azurewebsites.net/api/Ingredient`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${authUser.token}`,
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ recipeId: id, ingredients: recipeData.ingredients }),
+      });
+  
+      if (response.ok) {
+        console.log('Ingredient changes saved successfully!');
+        alert('Ingredient changes saved successfully!');
+        window.location.reload();
+      } else {
+        console.error('Failed to save ingredient changes.');
+      }
+    } catch (error) {
+      console.error('Error occurred:', error);
+      setError('Error occurred while saving ingredient changes.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
+
+
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setRecipeData({ ...recipeData, [name]: value });
@@ -92,11 +127,70 @@ const EditRecipe = () => {
     setRecipeData({ ...recipeData, ingredients: updatedIngredients });
   };
 
-  const handleRemoveIngredient = (index) => {
-    const updatedIngredients = [...recipeData.ingredients];
-    updatedIngredients.splice(index, 1);
-    setRecipeData({ ...recipeData, ingredients: updatedIngredients });
+  const handleRemoveIngredient = async (index) => {
+    try {
+      setLoading(true);
+      console.log("Removing ingredient...");
+  
+      const response = await fetch(`https://recipeappapi.azurewebsites.net/api/Ingredient/${recipeData.ingredients[index].id}`, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${authUser.token}`,
+          'Accept': 'application/json',
+        },
+      });
+  
+      if (response.ok) {
+        console.log('Ingredient removed successfully!');
+        alert('Ingredient removed successfully!');
+        window.location.reload();
+        const updatedIngredients = [...recipeData.ingredients];
+        updatedIngredients.splice(index, 1);
+        setRecipeData({ ...recipeData, ingredients: updatedIngredients });
+      } else {
+        console.error('Failed to remove ingredient.');
+      }
+    } catch (error) {
+      console.error('Error occurred:', error);
+      setError('Error occurred while removing ingredient.');
+    } finally {
+      setLoading(false);
+    }
   };
+
+
+  const handleSaveImages = async () => {
+    try {
+      setLoading(true);
+      console.log("Saving image changes...");
+  
+      const response = await fetch(`https://recipeappapi.azurewebsites.net/api/Image`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${authUser.token}`,
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ recipeId: id, images: recipeData.images }),
+      });
+  
+      if (response.ok) {
+        console.log('Image changes saved successfully!');
+        alert('Image changes saved successfully!');
+        window.location.reload();
+      } else {
+        console.error('Failed to save image changes.');
+      }
+    } catch (error) {
+      console.error('Error occurred:', error);
+      setError('Error occurred while saving image changes.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
+
 
   const handleAddIngredient = () => {
     setRecipeData({
@@ -111,10 +205,35 @@ const EditRecipe = () => {
     setRecipeData({ ...recipeData, keywords: updatedKeywords });
   };
 
-  const handleRemoveKeyword = (index) => {
-    const updatedKeywords = [...recipeData.keywords];
-    updatedKeywords.splice(index, 1);
-    setRecipeData({ ...recipeData, keywords: updatedKeywords });
+  const handleRemoveKeyword = async (index) => {
+    try {
+      setLoading(true);
+      console.log("Removing keyword...");
+  
+      const response = await fetch(`https://recipeappapi.azurewebsites.net/api/Recipe/${id}/Keywords?keyword=${recipeData.keywords[index].word}`, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${authUser.token}`,
+          'Accept': 'application/json',
+        },
+      });
+  
+      if (response.ok) {
+        console.log('Keyword removed successfully!');
+        alert('Keyword removed successfully!');
+        window.location.reload();
+        const updatedKeywords = [...recipeData.keywords];
+        updatedKeywords.splice(index, 1);
+        setRecipeData({ ...recipeData, keywords: updatedKeywords });
+      } else {
+        console.error('Failed to remove keyword.');
+      }
+    } catch (error) {
+      console.error('Error occurred:', error);
+      setError('Error occurred while removing keyword.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleAddKeyword = () => {
@@ -141,11 +260,66 @@ const EditRecipe = () => {
     }
   };
 
-  const handleRemoveImg = (index) => {
-    const updatedImages = [...recipeData.images];
-    updatedImages.splice(index, 1);
-    setRecipeData({ ...recipeData, images: updatedImages });
-  };
+const handleRemoveImg = async (index) => {
+  try {
+    setLoading(true);
+    console.log("Removing image...");
+
+    const response = await fetch(`https://recipeappapi.azurewebsites.net/api/Image/${recipeData.images[index].id}`, {
+      method: 'DELETE',
+      headers: {
+        Authorization: `Bearer ${authUser.token}`,
+        'Accept': 'application/json',
+      },
+    });
+
+    if (response.ok) {
+      console.log('Image removed successfully!');
+      alert('Image removed successfully!');
+      const updatedImages = [...recipeData.images];
+      updatedImages.splice(index, 1);
+      setRecipeData({ ...recipeData, images: updatedImages });
+      window.location.reload();
+    } else {
+      console.error('Failed to remove image.');
+    }
+  } catch (error) {
+    console.error('Error occurred:', error);
+    setError('Error occurred while removing image.');
+  } finally {
+    setLoading(false);
+  }
+};
+
+const handleSaveKeywords = async () => {
+  try {
+    setLoading(true);
+    console.log("Saving keyword changes...");
+
+    const response = await fetch(`https://recipeappapi.azurewebsites.net/api/Recipe/${id}/Keywords`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${authUser.token}`,
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(recipeData.keywords.map(keyword => keyword.word)),
+    });
+
+    if (response.ok) {
+      console.log('Keyword changes saved successfully!');
+      alert('Keyword changes saved successfully!');
+      window.location.reload();
+    } else {
+      console.error('Failed to save keyword changes.');
+    }
+  } catch (error) {
+    console.error('Error occurred:', error);
+    setError('Error occurred while saving keyword changes.');
+  } finally {
+    setLoading(false);
+  }
+};
 
   console.log("Rendering EditRecipe component with recipe data:", recipeData);
 
@@ -176,6 +350,12 @@ const EditRecipe = () => {
             onChange={() => setRecipeData({ ...recipeData, visibility: !recipeData.visibility })}
           />
         </label>
+        <br />
+        <br />
+        <button className="edit-button" type="button" onClick={handleEditRecipe}>
+          Save Changes
+        </button>
+        <br />
         <br />
         <div className="ingredient-section">
         <h2>Ingredients</h2>
@@ -214,6 +394,9 @@ const EditRecipe = () => {
             <button className="remove-button" onClick={() => handleRemoveIngredient(index)}>
               Remove ingredient
             </button>
+            <button className="save-button" type="button" onClick={handleSaveIngredients}>
+          Save Ingredient Changes
+        </button>
           </div>
         ))}
         <button className="add-button" type="button" onClick={handleAddIngredient}>
@@ -236,11 +419,15 @@ const EditRecipe = () => {
             <button className="remove-button" onClick={() => handleRemoveKeyword(index)}>
               Remove keyword
             </button>
+            <button className="save-button" type="button" onClick={handleSaveKeywords}>
+          Save keyword Changes
+        </button>
           </div>
         ))}
         <button className="add-button" type="button" onClick={handleAddKeyword}>
           Add Keyword
         </button>
+
         <h2>Images</h2>
         Select Image:
   <label>
@@ -257,12 +444,12 @@ const EditRecipe = () => {
       />
       <br />
       <button className="remove-button" onClick={() => handleRemoveImg(index)}>Remove image</button>
+      <button className="save-button" type="button" onClick={handleSaveImages}>
+          Save image Changes
+        </button>
     </div>
   ))}
-  <br />
-        <button className="edit-button" type="button" onClick={handleEditRecipe}>
-          Save Changes
-        </button>
+<br />
         {loading && <p>Loading...</p>}
         {error && <p style={{ color: 'red' }}>{error}</p>}
       </form>
