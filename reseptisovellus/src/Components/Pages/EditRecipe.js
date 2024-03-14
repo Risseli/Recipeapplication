@@ -1,11 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../Authentication';
-import { useNavigate } from 'react-router-dom';
 import { useParams } from 'react-router-dom';
 import './EditRecipe.css';
 
 const EditRecipe = () => {
-  const navigate = useNavigate();
   const { user: authUser } = useAuth();
   const [recipeData, setRecipeData] = useState({
     name: '',
