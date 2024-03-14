@@ -86,6 +86,67 @@ const EditRecipe = () => {
     setRecipeData({ ...recipeData, [name]: value });
   };
 
+  const handleIngredientChange = (index, e) => {
+    const updatedIngredients = [...recipeData.ingredients];
+    updatedIngredients[index][e.target.name] = e.target.value;
+    setRecipeData({ ...recipeData, ingredients: updatedIngredients });
+  };
+
+  const handleRemoveIngredient = (index) => {
+    const updatedIngredients = [...recipeData.ingredients];
+    updatedIngredients.splice(index, 1);
+    setRecipeData({ ...recipeData, ingredients: updatedIngredients });
+  };
+
+  const handleAddIngredient = () => {
+    setRecipeData({
+      ...recipeData,
+      ingredients: [...recipeData.ingredients, { name: '', amount: '', unit: '' }],
+    });
+  };
+
+  const handleKeywordChange = (index, e) => {
+    const updatedKeywords = [...recipeData.keywords];
+    updatedKeywords[index][e.target.name] = e.target.value;
+    setRecipeData({ ...recipeData, keywords: updatedKeywords });
+  };
+
+  const handleRemoveKeyword = (index) => {
+    const updatedKeywords = [...recipeData.keywords];
+    updatedKeywords.splice(index, 1);
+    setRecipeData({ ...recipeData, keywords: updatedKeywords });
+  };
+
+  const handleAddKeyword = () => {
+    setRecipeData({
+      ...recipeData,
+      keywords: [...recipeData.keywords, { word: '' }],
+    });
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    const reader = new FileReader();
+
+    reader.onloadend = () => {
+      const newImage = {
+        name: file.name,
+        imageData: reader.result,
+      };
+      setRecipeData({ ...recipeData, images: [...recipeData.images, newImage] });
+    };
+
+    if (file) {
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleRemoveImg = (index) => {
+    const updatedImages = [...recipeData.images];
+    updatedImages.splice(index, 1);
+    setRecipeData({ ...recipeData, images: updatedImages });
+  };
+
   console.log("Rendering EditRecipe component with recipe data:", recipeData);
 
   return (
@@ -116,6 +177,89 @@ const EditRecipe = () => {
           />
         </label>
         <br />
+        <div className="ingredient-section">
+        <h2>Ingredients</h2>
+        {recipeData.ingredients.map((ingredient, index) => (
+          <div key={index}>
+            <label>
+              Name:
+              <br />
+              <input
+                type="text"
+                name="name"
+                value={ingredient.name}
+                onChange={(e) => handleIngredientChange(index, e)}
+              />
+            </label>
+            <label>
+              Amount:
+              <br />
+              <input
+                type="text"
+                name="amount"
+                value={ingredient.amount}
+                onChange={(e) => handleIngredientChange(index, e)}
+              />
+            </label>
+            <label>
+              Unit:
+              <br />
+              <input
+                type="text"
+                name="unit"
+                value={ingredient.unit}
+                onChange={(e) => handleIngredientChange(index, e)}
+              />
+            </label>
+            <button className="remove-button" onClick={() => handleRemoveIngredient(index)}>
+              Remove ingredient
+            </button>
+          </div>
+        ))}
+        <button className="add-button" type="button" onClick={handleAddIngredient}>
+          Add Ingredient
+        </button>
+        </div>
+        <h2>Keywords</h2>
+        {recipeData.keywords.map((keyword, index) => (
+          <div key={index}>
+            <label>
+              Keyword:
+              <input
+                type="text"
+                name="word"
+                value={keyword.word}
+                onChange={(e) => handleKeywordChange(index, e)}
+              />
+            </label>
+            <br />
+            <button className="remove-button" onClick={() => handleRemoveKeyword(index)}>
+              Remove keyword
+            </button>
+          </div>
+        ))}
+        <button className="add-button" type="button" onClick={handleAddKeyword}>
+          Add Keyword
+        </button>
+        <h2>Images</h2>
+        Select Image:
+  <label>
+    <input type="file" accept="image/*" onChange={handleImageChange} />
+  </label>
+  <br />
+  {recipeData.images.map((image, index) => (
+    <div key={index}>
+      <p>{image.name}</p>
+      <img
+        src={`data:image/jpeg;base64,${image.imageData}`}
+        alt={`Preview of ${image.name}`}
+        style={{ maxWidth: '200px', maxHeight: '200px' }}
+      />
+      <br />
+      <button className="remove-button" onClick={() => handleRemoveImg(index)}>Remove image</button>
+    </div>
+  ))}
+  <br />
         <button className="edit-button" type="button" onClick={handleEditRecipe}>
           Save Changes
         </button>
