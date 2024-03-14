@@ -382,7 +382,7 @@ const handleAddKeyword = () => {
         </label>
         <br />
         <label>
-          Visibility:
+        Recipe is visible to everyone: 
           <input
             type="checkbox"
             name="visibility"
@@ -391,12 +391,13 @@ const handleAddKeyword = () => {
           />
         </label>
         {/* Ingredients Section */}
+        <div className="ingredient-section">
         <h2>Ingredients</h2>
         {recipeData.ingredients.map((ingredient, index) => (
           <div key={index}>
             <label>
-              <br/>
               Name:
+              <br/>
               <input
                 type="text"
                 name="name"
@@ -404,9 +405,9 @@ const handleAddKeyword = () => {
                 onChange={(e) => handleIngredientChange(index, e)}
               />
             </label>
-            <br />
             <label>
               Amount:
+              <br/>
               <input
                 type="text"
                 name="amount"
@@ -414,9 +415,9 @@ const handleAddKeyword = () => {
                 onChange={(e) => handleIngredientChange(index, e)}
               />
             </label>
-            <br />
             <label>
               Unit:
+              <br/>
               <input
                 type="text"
                 name="unit"
@@ -424,7 +425,6 @@ const handleAddKeyword = () => {
                 onChange={(e) => handleIngredientChange(index, e)}
               />
             </label>
-            <br />
             <button className="remove-button" onClick={() => handleRemoveIngredient(index)}>
               Remove ingredient
             </button>
@@ -434,6 +434,7 @@ const handleAddKeyword = () => {
           Add Ingredient
         </button>
         <br />
+        </div>
                 {/* Keywords */}
                 <h2>Keywords</h2>
         {recipeData.keywords.map((keyword, index) => (

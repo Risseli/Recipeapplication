@@ -35,13 +35,14 @@ const AddRecipe = () => {
           'Accept': 'application/json',
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({...recipeData, images: recipeImages}),//{ ...recipeData, images: selectedImages }),
+        body: JSON.stringify({...recipeData, images: recipeImages}),
       });
 
       if (response.ok) {
         console.log('Resepti lisätty onnistuneesti!');
         alert('Resepti lisätty onnistuneesti!');
         handleReset();
+        window.location.href = '/profile'; 
       } else {
         console.error('Reseptin lisäys epäonnistui.');
        
@@ -81,12 +82,6 @@ const AddRecipe = () => {
       };
       setSelectedImages([...selectedImages, newImage]);
       setRecipeImages([...recipeImages, { imageData: newImage.imageData.split(",")[1] }])
-      // setRecipeData({
-      //   ...recipeData,
-      //   images: [...recipeData.images, { imageData: newImage.imageData.split(",")[1] }]
-      // });
-      //console.log(newImage.imageData);
-      //console.log("recipeData images: " + recipeData.images[1].imageData);
     };
 
     if (file) {
@@ -120,7 +115,8 @@ const AddRecipe = () => {
     setRecipeData({ ...recipeData, keywords: updatedKeywords });
   };
 
-  const handleRemoveImg = () => {
+  const handleRemoveImg = (e) => { // kuvan nimi parametrina, voi filtter array komennolla poistaa oikein kuvan. tai samalla tavalla kun ingredients
+    e.preventDefault();
     const updatedSelectedImages = [...selectedImages];
     updatedSelectedImages.pop();
     setSelectedImages(updatedSelectedImages);
@@ -167,7 +163,7 @@ const AddRecipe = () => {
         </label>
         <br />
         <label>
-          Visibility:
+          Recipe is visible to everyone: 
           <input
             type="checkbox"
             name="visibility"
@@ -180,15 +176,14 @@ const AddRecipe = () => {
             }
           />
         </label>
-        <br />
-
         {/* Ingredients */}
+        <div className="ingredient-section">
         <h2>Ingredients</h2>
         {recipeData.ingredients.map((ingredient, index) => (
           <div key={index}>
             <label>
-              <br/>
               Name:
+              <br/>
               <input
                 type="text"
                 name="name"
@@ -196,9 +191,9 @@ const AddRecipe = () => {
                 onChange={(e) => handleIngredientChange(index, e)}
               />
             </label>
-            <br />
             <label>
               Amount:
+              <br/>
               <input
                 type="text"
                 name="amount"
@@ -206,9 +201,9 @@ const AddRecipe = () => {
                 onChange={(e) => handleIngredientChange(index, e)}
               />
             </label>
-            <br />
             <label>
               Unit:
+              <br/>
               <input
                 type="text"
                 name="unit"
@@ -216,7 +211,6 @@ const AddRecipe = () => {
                 onChange={(e) => handleIngredientChange(index, e)}
               />
             </label>
-            <br />
             <button className="remove-button" onClick={() => handleRemoveIngredient(index)}>
               Remove ingredient
             </button>
@@ -225,8 +219,7 @@ const AddRecipe = () => {
         <button className="add-button" type="button" onClick={handleAddIngredient}>
           Add Ingredient
         </button>
-        <br />
-
+        </div>
         {/* Keywords */}
         <h2>Keywords</h2>
         {recipeData.keywords.map((keyword, index) => (
@@ -265,7 +258,7 @@ const AddRecipe = () => {
               style={{ maxWidth: '200px', maxHeight: '200px' }}
             />
             <br/>
-            <button className="remove-button" onClick={handleRemoveImg}>Remove image</button>
+            <button className="remove-button" onClick={(e) => handleRemoveImg(e)}>Remove image</button>
           </div>
         ))}
         <br />
