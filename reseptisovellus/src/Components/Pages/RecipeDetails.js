@@ -29,26 +29,27 @@ const RecipeDetails = () => {
   console.log("rating:", rating, "color:", color);
 
   // get recipe details from certain recipe and all users
-  useEffect(() => {
-    const fetchRecipeDetails = async () => {
-      try {
-        const response = await fetch(
-          `https://recipeappapi.azurewebsites.net/api/recipe/${id}`
-        );
-        const response2 = await fetch(
-          `https://recipeappapi.azurewebsites.net/api/user`
-        );
+  const fetchRecipeDetails = async () => {
+    try {
+      const response = await fetch(
+        `https://recipeappapi.azurewebsites.net/api/recipe/${id}`
+      );
+      const response2 = await fetch(
+        `https://recipeappapi.azurewebsites.net/api/user`
+      );
 
-        const data = await response.json(); // recipe
-        const data2 = await response2.json(); // user
-        setRecipe(data);
-        setUser(data2);
-        console.log(data);
-        console.log("User: ", data2);
-      } catch (error) {
-        console.error("Error fetching recipe details:", error);
-      }
-    };
+      const data = await response.json(); // recipe
+      const data2 = await response2.json(); // user
+      setRecipe(data);
+      setUser(data2);
+      console.log(data);
+      console.log("User: ", data2);
+    } catch (error) {
+      console.error("Error fetching recipe details:", error);
+    }
+  };
+
+  useEffect(() => {
     fetchRecipeDetails();
   }, [id]);
 
@@ -111,6 +112,13 @@ const RecipeDetails = () => {
     return null; // Jos vastaavaa käyttäjää ei löydy
   };
 
+  // toggle visibility of add review form, click to show/hide, resets comment and rating
+  const toggleVisibility = () => {
+    setVisibility(!visibility);
+    setComment("");
+    setRating(null);
+  };
+
   // add new review to the recipe
   const addReview = async () => {
     setVisibility(false);
@@ -131,16 +139,21 @@ const RecipeDetails = () => {
           }),
         }
       );
+      // reset comment and rating after adding review
+      setComment("");
+      setRating(null);
 
       if (response.ok) {
         const data = await response.json();
+
         console.log("Review sesponse ok!");
       } else {
         console.error("Lisää arvostelu epäonnistui:", response.status);
-        // Käsittely epäonnistui
       }
+      // error not fixed have to do this way, if fixed move fetchRecipeDetails to try response.ok
     } catch (error) {
       console.error("Virhe arvostelun lisäämisessä:", error);
+      fetchRecipeDetails();
     }
   };
 
@@ -233,7 +246,11 @@ const RecipeDetails = () => {
                   fontSize: "20px",
                   textDecoration: "none",
                 }}
-                onClick={() => setVisibility(true)}
+                // prevent screen moving up when clicked preventDefault action
+                onClick={(e) => {
+                  e.preventDefault();
+                  toggleVisibility();
+                }}
               >
                 Add new review +
               </a>
@@ -253,6 +270,7 @@ const RecipeDetails = () => {
             {visibility ? (
               <div className="recipe-detail-newReview">
                 <textarea
+                  autoFocus={true}
                   maxLength={500}
                   rows={10}
                   cols={98}
