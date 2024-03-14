@@ -48,7 +48,7 @@ namespace RecipeAppBackend.Repositories
 
         public int GetFavoriteCount(int id)
         {
-            var count = _context.Reviews.Where(r => r.Recipe.Id == id).ToList();
+            var count = _context.Favorites.Where(r => r.Recipe.Id == id).ToList();
             return count.Count();
         }
 
