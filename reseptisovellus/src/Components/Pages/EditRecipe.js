@@ -92,10 +92,11 @@ const EditRecipe = () => {
     setRecipeData({ ...recipeData, ingredients: updatedIngredients });
   };
 
-  const handleSaveIngredients = async () => {
+  const handleSaveIngredient = async () => {
     try {
       setLoading(true);
-
+      console.log("Saving ingredient changes...");
+  
       const response = await fetch(`https://recipeappapi.azurewebsites.net/api/Ingredient`, {
         method: 'POST',
         headers: {
@@ -105,9 +106,11 @@ const EditRecipe = () => {
         },
         body: JSON.stringify({ recipeId: id, ingredients: recipeData.ingredients }),
       });
-
+  
       if (response.ok) {
+        console.log('Ingredient changes saved successfully!');
         alert('Ingredient changes saved successfully!');
+        window.location.reload();
       } else {
         console.error('Failed to save ingredient changes.');
       }
@@ -119,24 +122,28 @@ const EditRecipe = () => {
     }
   };
 
-  const handleRemoveIngredient = async (index) => {
+  const handleRemoveIngredient = async (ingredient) => {
     try {
       setLoading(true);
-
-      const response = await fetch(`https://recipeappapi.azurewebsites.net/api/Ingredient/${recipeData.ingredients[index].id}`, {
-        method: 'DELETE',
-        headers: {
-          Authorization: `Bearer ${authUser.token}`,
-          'Accept': 'application/json',
-        },
-      });
-
-      if (response.ok) {
-        const updatedIngredients = [...recipeData.ingredients];
-        updatedIngredients.splice(index, 1);
-        setRecipeData({ ...recipeData, ingredients: updatedIngredients });
+  
+      if (ingredient.recipeId === recipeData.recipeId) {
+        const response = await fetch(`https://recipeappapi.azurewebsites.net/api/Ingredient/${ingredient.id}`, {
+          method: 'DELETE',
+          headers: {
+            Authorization: `Bearer ${authUser.token}`,
+            'Accept': 'application/json',
+          },
+        });
+  
+        if (response.ok) {
+          const updatedIngredients = recipeData.ingredients.filter(item => item.id !== ingredient.id);
+          setRecipeData({ ...recipeData, ingredients: updatedIngredients });
+          alert('Ingredient removed successfully!');
+        } else {
+          console.error('Failed to remove ingredient.');
+        }
       } else {
-        console.error('Failed to remove ingredient.');
+        console.error('Recipe ID mismatch. Unable to remove ingredient.');
       }
     } catch (error) {
       console.error('Error occurred:', error);
@@ -145,6 +152,10 @@ const EditRecipe = () => {
       setLoading(false);
     }
   };
+  
+
+
+  
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -323,48 +334,49 @@ const EditRecipe = () => {
         <br />
         <br />
         <div className="ingredient-section">
-          <h2>Ingredients</h2>
-          {recipeData.ingredients.map((ingredient, index) => (
-            <div key={index}>
-              <label>
-                Name:
-                <br />
-                <input
-                  type="text"
-                  value={ingredient.name}
-                  onChange={(e) => handleIngredientChange(index, 'name', e.target.value)}
-                />
-              </label>
-              <label>
-                Amount:
-                <br />
-                <input
-                  type="text"
-                  value={ingredient.amount}
-                  onChange={(e) => handleIngredientChange(index, 'amount', e.target.value)}
-                />
-              </label>
-              <label>
-                Unit:
-                <br />
-                <input
-                  type="text"
-                  value={ingredient.unit}
-                  onChange={(e) => handleIngredientChange(index, 'unit', e.target.value)}
-                />
-              </label>
-              <button className="remove-button" onClick={() => handleRemoveIngredient(index)}>
-                Remove ingredient
-              </button>
-              <button className="save-button" type="button" onClick={handleSaveIngredients}>
-                Save ingredient changes
-              </button>
-            </div>
-          ))}
-          <button className="add-button" type="button" onClick={handleAddIngredient()}>
-            Add Ingredient
-          </button>
-        </div>
+  <h2>Ingredients</h2>
+  {recipeData.ingredients.map((ingredient, index) => (
+    <div key={index}>
+      <label>
+        Name:
+        <br />
+        <input
+          type="text"
+          value={ingredient.name}
+          onChange={(e) => handleIngredientChange(index, 'name', e.target.value)}
+        />
+      </label>
+      <label>
+        Amount:
+        <br />
+        <input
+          type="text"
+          value={ingredient.amount}
+          onChange={(e) => handleIngredientChange(index, 'amount', e.target.value)}
+        />
+      </label>
+      <label>
+        Unit:
+        <br />
+        <input
+          type="text"
+          value={ingredient.unit}
+          onChange={(e) => handleIngredientChange(index, 'unit', e.target.value)}
+        />
+      </label>
+      <button className="remove-button" type="button" onClick={() => handleRemoveIngredient(ingredient, index)}>
+        Remove ingredient
+      </button>
+      <button className="save-button" type="button" onClick={() => handleSaveIngredient(index)}>
+        Save ingredient changes
+      </button>
+    </div>
+  ))}
+  <button className="add-button" type="button" onClick={handleAddIngredient}>
+    Add Ingredient
+  </button>
+</div>
+
 
         <h2>Keywords</h2>
         {recipeData.keywords.map((keyword, index) => (
