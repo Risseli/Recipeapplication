@@ -64,28 +64,28 @@ const RecipeDetails = () => {
             Authorization: `Bearer ${authUser.token}`,
             "Content-Type": "application/json",
           },
-          // body: JSON.stringify({ favorite: true }), // Voit lähettää lisätietoja täällä
         }
       );
-      const responseData = await response.text(); // Haetaan vastauksen tekstimuotoinen sisältö
-      const trimmedData = responseData.trim(); // Poistetaan ylimääräiset merkit
-      const updatedUser = JSON.parse(trimmedData); // Parsitaan JSON-muotoon
-      console.log("Response data:", updatedUser);
 
       if (response.ok) {
-        setUser(updatedUser);
-        console.log("Käyttäjän suosikit päivitetty:", updatedUser);
-      } else {
-        console.error(
-          "Suosikin lisääminen epäonnistui: ",
-          response.status,
-          updatedUser
+        // Fetch updated recipe details after setting favourite
+        const updatedRecipeResponse = await fetch(
+          `https://recipeappapi.azurewebsites.net/api/recipe/${id}`
         );
+        const updatedRecipeData = await updatedRecipeResponse.json();
+
+        // Update recipe state with the updated recipe data
+        setRecipe(updatedRecipeData);
+
+        console.log("Recipe's favourites updated:", updatedRecipeData);
+      } else {
+        console.error("Setting favourite failed: ", response.status);
       }
     } catch (error) {
-      console.error("Virhe suosikin lisäämisessä:", error);
+      console.error("Error setting favourite:", error);
     }
   };
+
   // create a function to print the recipe with button click
   const printRecipe = () => {
     setPrinting(true);
