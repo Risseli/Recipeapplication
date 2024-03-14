@@ -260,6 +260,7 @@ const RecipeDetails = () => {
                   onChange={(e) => setComment(e.target.value)}
                   placeholder="Write your review here"
                 ></textarea>
+                <br />
                 {/* Add star rating to review, rating and color sent as props to StarRating component */}
                 <StarRating
                   rating={rating}
