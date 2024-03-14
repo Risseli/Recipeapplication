@@ -64,7 +64,7 @@ const EditRecipe = () => {
 
       if (response.ok) {
         alert('Recipe edited successfully!');
-        // Redirect user after successful edit if necessary
+        window.location.href = '/profile'; 
       } else {
         console.error('Failed to edit recipe.');
       }
