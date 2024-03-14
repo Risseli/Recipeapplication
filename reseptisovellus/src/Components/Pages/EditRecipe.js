@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../Authentication';
 import { useParams } from 'react-router-dom';
@@ -22,9 +23,6 @@ const EditRecipe = () => {
     const fetchRecipeData = async () => {
       try {
         setLoading(true);
-        console.log("Fetching recipe data...");
-        console.log(id);
-
         const response = await fetch(`https://recipeappapi.azurewebsites.net/api/recipe/${id}`, {
           method: 'GET',
           headers: {
@@ -35,7 +33,6 @@ const EditRecipe = () => {
 
         if (response.ok) {
           const data = await response.json();
-          console.log("Recipe data fetched:", data);
           setRecipeData(data);
         } else {
           console.error('Failed to fetch recipe.');
@@ -54,7 +51,6 @@ const EditRecipe = () => {
   const handleEditRecipe = async () => {
     try {
       setLoading(true);
-      console.log("Editing recipe...");
 
       const response = await fetch(`https://recipeappapi.azurewebsites.net/api/Recipe/${id}`, {
         method: 'PUT',
@@ -67,9 +63,8 @@ const EditRecipe = () => {
       });
 
       if (response.ok) {
-        console.log('Recipe edited successfully!');
         alert('Recipe edited successfully!');
-        window.location.href = '/profile'; 
+        // Redirect user after successful edit if necessary
       } else {
         console.error('Failed to edit recipe.');
       }
@@ -79,6 +74,28 @@ const EditRecipe = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setRecipeData({ ...recipeData, [name]: value });
+  };
+
+
+
+
+  //ingredients
+  const handleAddIngredient = () => {
+    setRecipeData({
+      ...recipeData,
+      ingredients: [...recipeData.ingredients, { name: '', amount: '', unit: '' }],
+    });
+  };
+
+  const handleIngredientChange = (index, field, value) => {
+    const updatedIngredients = [...recipeData.ingredients];
+    updatedIngredients[index][field] = value;
+    setRecipeData({ ...recipeData, ingredients: updatedIngredients });
   };
 
 
@@ -112,26 +129,10 @@ const EditRecipe = () => {
     }
   };
 
-
-
-
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setRecipeData({ ...recipeData, [name]: value });
-  };
-
-  const handleIngredientChange = (index, e) => {
-    const updatedIngredients = [...recipeData.ingredients];
-    updatedIngredients[index][e.target.name] = e.target.value;
-    setRecipeData({ ...recipeData, ingredients: updatedIngredients });
-  };
-
   const handleRemoveIngredient = async (index) => {
     try {
       setLoading(true);
-      console.log("Removing ingredient...");
-  
+
       const response = await fetch(`https://recipeappapi.azurewebsites.net/api/Ingredient/${recipeData.ingredients[index].id}`, {
         method: 'DELETE',
         headers: {
@@ -139,11 +140,8 @@ const EditRecipe = () => {
           'Accept': 'application/json',
         },
       });
-  
+
       if (response.ok) {
-        console.log('Ingredient removed successfully!');
-        alert('Ingredient removed successfully!');
-        window.location.reload();
         const updatedIngredients = [...recipeData.ingredients];
         updatedIngredients.splice(index, 1);
         setRecipeData({ ...recipeData, ingredients: updatedIngredients });
@@ -158,6 +156,26 @@ const EditRecipe = () => {
     }
   };
 
+
+
+
+  //images
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    const reader = new FileReader();
+
+    reader.onloadend = () => {
+      const newImage = {
+        name: file.name,
+        imageData: reader.result,
+      };
+      setRecipeData({ ...recipeData, images: [...recipeData.images, newImage] });
+    };
+
+    if (file) {
+      reader.readAsDataURL(file);
+    }
+  };
 
   const handleSaveImages = async () => {
     try {
@@ -190,12 +208,47 @@ const EditRecipe = () => {
   };
 
 
+  const handleRemoveImg = async (index) => {
+    try {
+      setLoading(true);
+      console.log("Removing image...");
+  
+      const response = await fetch(`https://recipeappapi.azurewebsites.net/api/Image/${recipeData.images[index].id}`, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${authUser.token}`,
+          'Accept': 'application/json',
+        },
+      });
+  
+      if (response.ok) {
+        console.log('Image removed successfully!');
+        alert('Image removed successfully!');
+        const updatedImages = [...recipeData.images];
+        updatedImages.splice(index, 1);
+        setRecipeData({ ...recipeData, images: updatedImages });
+        window.location.reload();
+      } else {
+        console.error('Failed to remove image.');
+      }
+    } catch (error) {
+      console.error('Error occurred:', error);
+      setError('Error occurred while removing image.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
 
-  const handleAddIngredient = () => {
+  
+
+
+
+//keywords
+  const handleAddKeyword = () => {
     setRecipeData({
       ...recipeData,
-      ingredients: [...recipeData.ingredients, { name: '', amount: '', unit: '' }],
+      keywords: [...recipeData.keywords, { word: '' }],
     });
   };
 
@@ -236,92 +289,40 @@ const EditRecipe = () => {
     }
   };
 
-  const handleAddKeyword = () => {
-    setRecipeData({
-      ...recipeData,
-      keywords: [...recipeData.keywords, { word: '' }],
-    });
-  };
-
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    const reader = new FileReader();
-
-    reader.onloadend = () => {
-      const newImage = {
-        name: file.name,
-        imageData: reader.result,
-      };
-      setRecipeData({ ...recipeData, images: [...recipeData.images, newImage] });
-    };
-
-    if (file) {
-      reader.readAsDataURL(file);
+  const handleSaveKeywords = async () => {
+    try {
+      setLoading(true);
+      console.log("Saving keyword changes...");
+  
+      const response = await fetch(`https://recipeappapi.azurewebsites.net/api/Recipe/${id}/Keywords`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${authUser.token}`,
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(recipeData.keywords.map(keyword => keyword.word)),
+      });
+  
+      if (response.ok) {
+        console.log('Keyword changes saved successfully!');
+        alert('Keyword changes saved successfully!');
+        window.location.reload();
+      } else {
+        console.error('Failed to save keyword changes.');
+      }
+    } catch (error) {
+      console.error('Error occurred:', error);
+      setError('Error occurred while saving keyword changes.');
+    } finally {
+      setLoading(false);
     }
   };
+  
 
-const handleRemoveImg = async (index) => {
-  try {
-    setLoading(true);
-    console.log("Removing image...");
 
-    const response = await fetch(`https://recipeappapi.azurewebsites.net/api/Image/${recipeData.images[index].id}`, {
-      method: 'DELETE',
-      headers: {
-        Authorization: `Bearer ${authUser.token}`,
-        'Accept': 'application/json',
-      },
-    });
 
-    if (response.ok) {
-      console.log('Image removed successfully!');
-      alert('Image removed successfully!');
-      const updatedImages = [...recipeData.images];
-      updatedImages.splice(index, 1);
-      setRecipeData({ ...recipeData, images: updatedImages });
-      window.location.reload();
-    } else {
-      console.error('Failed to remove image.');
-    }
-  } catch (error) {
-    console.error('Error occurred:', error);
-    setError('Error occurred while removing image.');
-  } finally {
-    setLoading(false);
-  }
-};
-
-const handleSaveKeywords = async () => {
-  try {
-    setLoading(true);
-    console.log("Saving keyword changes...");
-
-    const response = await fetch(`https://recipeappapi.azurewebsites.net/api/Recipe/${id}/Keywords`, {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${authUser.token}`,
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(recipeData.keywords.map(keyword => keyword.word)),
-    });
-
-    if (response.ok) {
-      console.log('Keyword changes saved successfully!');
-      alert('Keyword changes saved successfully!');
-      window.location.reload();
-    } else {
-      console.error('Failed to save keyword changes.');
-    }
-  } catch (error) {
-    console.error('Error occurred:', error);
-    setError('Error occurred while saving keyword changes.');
-  } finally {
-    setLoading(false);
-  }
-};
-
-  console.log("Rendering EditRecipe component with recipe data:", recipeData);
+    console.log("Rendering EditRecipe component with recipe data:", recipeData);
 
   return (
     <div className="container">
@@ -358,50 +359,47 @@ const handleSaveKeywords = async () => {
         <br />
         <br />
         <div className="ingredient-section">
-        <h2>Ingredients</h2>
-        {recipeData.ingredients.map((ingredient, index) => (
-          <div key={index}>
-            <label>
-              Name:
-              <br />
-              <input
-                type="text"
-                name="name"
-                value={ingredient.name}
-                onChange={(e) => handleIngredientChange(index, e)}
-              />
-            </label>
-            <label>
-              Amount:
-              <br />
-              <input
-                type="text"
-                name="amount"
-                value={ingredient.amount}
-                onChange={(e) => handleIngredientChange(index, e)}
-              />
-            </label>
-            <label>
-              Unit:
-              <br />
-              <input
-                type="text"
-                name="unit"
-                value={ingredient.unit}
-                onChange={(e) => handleIngredientChange(index, e)}
-              />
-            </label>
-            <button className="remove-button" onClick={() => handleRemoveIngredient(index)}>
-              Remove ingredient
-            </button>
-            <button className="save-button" type="button" onClick={handleSaveIngredients}>
-          Save Ingredient Changes
+          <h2>Ingredients</h2>
+          {recipeData.ingredients.map((ingredient, index) => (
+            <div key={index}>
+              <label>
+                Name:
+                <br />
+                <input
+                  type="text"
+                  value={ingredient.name}
+                  onChange={(e) => handleIngredientChange(index, 'name', e.target.value)}
+                />
+              </label>
+              <label>
+                Amount:
+                <br />
+                <input
+                  type="text"
+                  value={ingredient.amount}
+                  onChange={(e) => handleIngredientChange(index, 'amount', e.target.value)}
+                />
+              </label>
+              <label>
+                Unit:
+                <br />
+                <input
+                  type="text"
+                  value={ingredient.unit}
+                  onChange={(e) => handleIngredientChange(index, 'unit', e.target.value)}
+                />
+              </label>
+              <button className="remove-button" onClick={() => handleRemoveIngredient(index)}>
+                Remove ingredient
+              </button>
+              <button className="save-button" type="button" onClick={handleSaveIngredients}>
+          Save keyword Changes
         </button>
-          </div>
-        ))}
-        <button className="add-button" type="button" onClick={handleAddIngredient}>
-          Add Ingredient
-        </button>
+            </div>
+          ))}
+          <button className="add-button" type="button" onClick={handleAddIngredient}>
+            Add Ingredient
+          </button>
         </div>
         <h2>Keywords</h2>
         {recipeData.keywords.map((keyword, index) => (
