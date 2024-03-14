@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import "./RecipeDetails.css";
+import { StarRating } from "../StarRating";
 import { useAuth } from "../Authentication";
+import { Link } from "react-router-dom";
 import {
   EmailShareButton,
   FacebookShareButton,
@@ -14,12 +16,19 @@ import {
 } from "react-share";
 
 const RecipeDetails = () => {
-  const [recipe, setRecipe] = useState(null);
-  const [user, setUser] = useState(null);
-  const { id } = useParams();
-  const [printing, setPrinting] = useState(false);
-  const { user: authUser } = useAuth();
+  const [recipe, setRecipe] = useState(null); // recipe info
+  const [user, setUser] = useState(null); // user info
+  const { id } = useParams(); // Get the recipe id from the URL
+  const [printing, setPrinting] = useState(false); // print recipe
+  const { user: authUser } = useAuth(); // Get the user from the context
+  const [comment, setComment] = useState(""); // review comment
+  const [visibility, setVisibility] = useState(false); // show/hide add review form
+  const [rating, setRating] = useState(null); // sent as props to StarRating component in reviews
+  const [color, setColor] = useState(null); // sent as props to StarRating component in reviews
 
+  console.log("rating:", rating, "color:", color);
+
+  // get recipe details from certain recipe and all users
   useEffect(() => {
     const fetchRecipeDetails = async () => {
       try {
@@ -102,6 +111,39 @@ const RecipeDetails = () => {
     return null; // Jos vastaavaa käyttäjää ei löydy
   };
 
+  // add new review to the recipe
+  const addReview = async () => {
+    setVisibility(false);
+    try {
+      const response = await fetch(
+        `https://recipeappapi.azurewebsites.net/api/review/`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${authUser.token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            recipeId: id,
+            userId: authUser.userId,
+            comment: comment,
+            rating: rating,
+          }),
+        }
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log("Review sesponse ok!");
+      } else {
+        console.error("Lisää arvostelu epäonnistui:", response.status);
+        // Käsittely epäonnistui
+      }
+    } catch (error) {
+      console.error("Virhe arvostelun lisäämisessä:", error);
+    }
+  };
+
   const currentPage = `https://recipeappgl.azurewebsites.net/recipe/${id}`;
 
   return (
@@ -182,7 +224,54 @@ const RecipeDetails = () => {
             <p>{recipe.instructions}</p>
           </div>
           <div className="recipe-detail-reviews">
-            <h3>Reviews</h3>
+            <h3>Reviews</h3> {/* if logged show add review */}
+            {authUser ? (
+              <a
+                href="#"
+                style={{
+                  paddingLeft: "75%",
+                  fontSize: "20px",
+                  textDecoration: "none",
+                }}
+                onClick={() => setVisibility(true)}
+              >
+                Add new review +
+              </a>
+            ) : (
+              // if not logged in, show link to login and redirect to login page
+              <Link
+                to="/login"
+                style={{
+                  paddingLeft: "75%",
+                  fontSize: "20px",
+                  textDecoration: "none",
+                }}
+              >
+                Login to add review
+              </Link>
+            )}
+            {visibility ? (
+              <div className="recipe-detail-newReview">
+                <textarea
+                  maxLength={500}
+                  rows={10}
+                  cols={98}
+                  value={comment}
+                  onChange={(e) => setComment(e.target.value)}
+                  placeholder="Write your review here"
+                ></textarea>
+                {/* Add star rating to review, rating and color sent as props to StarRating component */}
+                <StarRating
+                  rating={rating}
+                  setRating={setRating}
+                  color={color}
+                  setColor={setColor}
+                />
+                <br />
+                <br />
+                <button onClick={addReview}>Add review</button>
+              </div>
+            ) : null}
             {/* map through reviews */}
             {recipe.reviews.map((review, index) => (
               <div key={index} className="recipe-detail-item">
