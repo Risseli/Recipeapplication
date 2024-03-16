@@ -14,6 +14,7 @@ import {
   LinkedinIcon,
   WhatsappIcon,
 } from "react-share";
+import { IoMdHeart, IoMdHeartEmpty } from "react-icons/io";
 
 const RecipeDetails = () => {
   const [recipe, setRecipe] = useState(null); // recipe info
@@ -25,6 +26,7 @@ const RecipeDetails = () => {
   const [visibility, setVisibility] = useState(false); // show/hide add review form
   const [rating, setRating] = useState(null); // sent as props to StarRating component in reviews
   const [color, setColor] = useState(null); // sent as props to StarRating component in reviews
+  const [isFavorite, setIsFavorite] = useState(false); // check if recipe is favourite
 
   console.log("rating:", rating, "color:", color);
 
@@ -53,8 +55,35 @@ const RecipeDetails = () => {
     fetchRecipeDetails();
   }, [id]);
 
+  const checkFavorite = async () => {
+    if (authUser) {
+      try {
+        const response = await fetch(
+          `https://recipeappapi.azurewebsites.net/api/User/${authUser.userId}/Favorites`
+        );
+        if (response.ok) {
+          const data = await response.json();
+          if (data.find((f) => f.id === parseInt(id))) {
+            console.log("Recipe is favourite");
+            setIsFavorite(true);
+          } else {
+            console.log("Recipe is not favourite");
+            setIsFavorite(false);
+          }
+          console.log("Check favorites status: ", data);
+        } else {
+          console.log("Recipe is not favourite");
+          console.error("Error fetching favourites:", response.status);
+        }
+      } catch (error) {
+        console.error("Error fetching favourites:", error);
+        console.log("Hello from checkfavorite catch block!");
+      }
+    }
+  };
+
   // set recipe as favourite
-  const setFavourite = async () => {
+  const addFavorite = async () => {
     try {
       const response = await fetch(
         `https://recipeappapi.azurewebsites.net/api/User/${authUser.userId}/Favorites?recipeId=${id}`,
@@ -76,6 +105,7 @@ const RecipeDetails = () => {
 
         // Update recipe state with the updated recipe data
         setRecipe(updatedRecipeData);
+        setIsFavorite(true);
 
         console.log("Recipe's favourites updated:", updatedRecipeData);
       } else {
@@ -83,6 +113,39 @@ const RecipeDetails = () => {
       }
     } catch (error) {
       console.error("Error setting favourite:", error);
+    }
+  };
+
+  const removeFavorite = async () => {
+    try {
+      const response = await fetch(
+        `https://recipeappapi.azurewebsites.net/api/User/${authUser.userId}/Favorites?recipeId=${id}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${authUser.token}`,
+          },
+        }
+      );
+
+      if (response.ok) {
+        // Fetch updated recipe details after removing favourite
+        const updatedRecipeResponse = await fetch(
+          `https://recipeappapi.azurewebsites.net/api/recipe/${id}`
+        );
+
+        const updatedRecipeData = await updatedRecipeResponse.json();
+        setIsFavorite(false);
+
+        // Update recipe state with the updated recipe data
+        setRecipe(updatedRecipeData);
+
+        console.log("Recipe's favourites updated:", updatedRecipeData);
+      } else {
+        console.error("Removing favourite failed: ", response.status);
+      }
+    } catch (error) {
+      console.error("Error removing favourite:", error);
     }
   };
 
@@ -144,7 +207,7 @@ const RecipeDetails = () => {
       setRating(null);
 
       if (response.ok) {
-        const data = await response.json();
+        await response.json();
 
         console.log("Review sesponse ok!");
       } else {
@@ -153,8 +216,8 @@ const RecipeDetails = () => {
       // error not fixed have to do this way, if fixed move fetchRecipeDetails to try response.ok
     } catch (error) {
       console.error("Virhe arvostelun lisäämisessä:", error);
-      fetchRecipeDetails();
     }
+    fetchRecipeDetails();
   };
 
   const currentPage = `https://recipeappgl.azurewebsites.net/`;
@@ -166,38 +229,59 @@ const RecipeDetails = () => {
           <h1>
             {recipe.name} from {userInfo()}
           </h1>
-          {authUser ? (
-            <div className="recipe-detail-sharing">
-              <EmailShareButton
-                url={currentPage}
-                subject="Check out this awesome recipe!"
-                body={`Here is a delicious recipe: ${recipe.name} \n\n ${recipe.instructions} \n\n`}
-              >
-                <EmailIcon size={45} round={false} borderRadius={10} />
-              </EmailShareButton>
-              <FacebookShareButton url={currentPage} hashtag="#reseptisovellus">
-                <FacebookIcon size={45} round={false} borderRadius={10} />
-              </FacebookShareButton>
-              <LinkedinShareButton
-                url={"https://recipeappgl.azurewebsites.net/"}
-                title="Reseptisovellus"
-                summary="Browse add and share recepies!"
-                // source="Reseptisovellus Group L"
-              >
-                <LinkedinIcon size={45} round={false} borderRadius={10} />
-              </LinkedinShareButton>
-              <WhatsappShareButton url={currentPage}>
-                <WhatsappIcon size={45} round={false} borderRadius={10} />
-              </WhatsappShareButton>
-              <a
-                className="recipe-detail-links"
-                href="#"
-                onClick={setFavourite}
-              >
-                Set Favourite {recipe.favoriteCount}
-              </a>
-            </div>
-          ) : null}
+
+          <div className="recipe-detail-sharing">
+            <EmailShareButton
+              url={currentPage}
+              subject="Check out this awesome recipe!"
+              body={`Here is a delicious recipe: ${recipe.name} \n\n ${recipe.instructions} \n\n`}
+            >
+              <EmailIcon size={45} round={false} borderRadius={10} />
+            </EmailShareButton>
+            <FacebookShareButton url={currentPage} hashtag="#reseptisovellus">
+              <FacebookIcon size={45} round={false} borderRadius={10} />
+            </FacebookShareButton>
+            <LinkedinShareButton
+              url={"https://recipeappgl.azurewebsites.net/"}
+              title="Reseptisovellus"
+              summary="Browse add and share recepies!"
+              // source="Reseptisovellus Group L"
+            >
+              <LinkedinIcon size={45} round={false} borderRadius={10} />
+            </LinkedinShareButton>
+            <WhatsappShareButton url={currentPage}>
+              <WhatsappIcon size={45} round={false} borderRadius={10} />
+            </WhatsappShareButton>
+
+            {authUser ? (
+              <>
+                <button
+                  className="recipe-detail-favorite"
+                  onClick={async () => {
+                    await checkFavorite();
+                    if (isFavorite) {
+                      await removeFavorite();
+                    } else {
+                      await addFavorite();
+                    }
+                  }}
+                >
+                  {isFavorite ? (
+                    <>
+                      <span>Remove from Favorites</span>{" "}
+                      <IoMdHeart size={60} color="#172554" />
+                    </>
+                  ) : (
+                    <>
+                      <span>Add to Favorites</span>{" "}
+                      <IoMdHeartEmpty size={50} color="#172554" />
+                    </>
+                  )}
+                </button>
+              </>
+            ) : null}
+          </div>
+
           <div className="recipe-detail-image">
             {recipe.images.length > 0 ? (
               <RecipeSlider images={recipe.images} />
@@ -292,8 +376,8 @@ const RecipeDetails = () => {
                 <button onClick={addReview}>Add review</button>
               </div>
             ) : null}
-            {/* map through reviews */}
-            {recipe.reviews.map((review, index) => (
+            {/* map reviews backwards, newest comment first */}
+            {recipe.reviews.slice().reverse().map((review, index) => (
               <div key={index} className="recipe-detail-item">
                 <p>
                   <strong>{reviewUser(review)}:</strong> "{review.comment}"

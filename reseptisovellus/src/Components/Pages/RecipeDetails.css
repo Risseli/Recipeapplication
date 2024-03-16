@@ -36,6 +36,13 @@
   transform: scale(1.1);
 }
 
+.recipe-detail-favorite {
+  display: flex;
+  justify-content: start;
+  align-items: center;
+  margin-left: 60%
+}
+
 /* Recipe Detail Image */
 .recipe-detail-image {
   margin-bottom: 20px;
