@@ -3,7 +3,8 @@ import { useParams } from "react-router-dom";
 import "./RecipeDetails.css";
 import { StarRating } from "../StarRating";
 import { useAuth } from "../Authentication";
-import { Link } from "react-router-dom";
+import { NavLink } from "react-router-dom";
+
 import {
   EmailShareButton,
   FacebookShareButton,
@@ -15,6 +16,7 @@ import {
   WhatsappIcon,
 } from "react-share";
 import { IoMdHeart, IoMdHeartEmpty } from "react-icons/io";
+import { CiEdit } from "react-icons/ci";
 
 const RecipeDetails = () => {
   const [recipe, setRecipe] = useState(null); // recipe info
@@ -27,6 +29,8 @@ const RecipeDetails = () => {
   const [rating, setRating] = useState(null); // sent as props to StarRating component in reviews
   const [color, setColor] = useState(null); // sent as props to StarRating component in reviews
   const [isFavorite, setIsFavorite] = useState(false); // check if recipe is favourite
+  const [isFavoriteLoading, setIsFavoriteLoading] = useState(false); // loading state for checking favorite
+  const [thisUser, setThisUser] = useState(null); // user info
 
   console.log("rating:", rating, "color:", color);
 
@@ -39,13 +43,20 @@ const RecipeDetails = () => {
       const response2 = await fetch(
         `https://recipeappapi.azurewebsites.net/api/user`
       );
+      const response3 = await fetch(
+        `https://recipeappapi.azurewebsites.net/api/User/${authUser.userId}`
+      );
 
       const data = await response.json(); // recipe
       const data2 = await response2.json(); // user
+      const data3 = await response3.json(); // this user
       setRecipe(data);
       setUser(data2);
+      setThisUser(data3);
+
       console.log(data);
       console.log("User: ", data2);
+      console.log("This user: ", data3);
     } catch (error) {
       console.error("Error fetching recipe details:", error);
     }
@@ -55,8 +66,15 @@ const RecipeDetails = () => {
     fetchRecipeDetails();
   }, [id]);
 
+  useEffect(() => {
+    if (authUser) {
+      checkFavorite();
+    }
+  }, [authUser]);
+
   const checkFavorite = async () => {
     if (authUser) {
+      setIsFavoriteLoading(true);
       try {
         const response = await fetch(
           `https://recipeappapi.azurewebsites.net/api/User/${authUser.userId}/Favorites`
@@ -77,7 +95,8 @@ const RecipeDetails = () => {
         }
       } catch (error) {
         console.error("Error fetching favourites:", error);
-        console.log("Hello from checkfavorite catch block!");
+      } finally {
+        setIsFavoriteLoading(false);
       }
     }
   };
@@ -106,7 +125,6 @@ const RecipeDetails = () => {
         // Update recipe state with the updated recipe data
         setRecipe(updatedRecipeData);
         setIsFavorite(true);
-
         console.log("Recipe's favourites updated:", updatedRecipeData);
       } else {
         console.error("Setting favourite failed: ", response.status);
@@ -165,6 +183,9 @@ const RecipeDetails = () => {
     }
     return null; // Jos vastaavaa käyttäjää ei löydy
   };
+
+  // function to show if user is admin or not using authUser and id
+  console.log("is admin or not: ");
 
   //extract person name who created review based on reviews.userid and user.id
   const reviewUser = (review) => {
@@ -252,33 +273,32 @@ const RecipeDetails = () => {
             <WhatsappShareButton url={currentPage}>
               <WhatsappIcon size={45} round={false} borderRadius={10} />
             </WhatsappShareButton>
-
-            {authUser ? (
-              <>
-                <button
-                  className="recipe-detail-favorite"
-                  onClick={async () => {
-                    await checkFavorite();
-                    if (isFavorite) {
-                      await removeFavorite();
-                    } else {
-                      await addFavorite();
-                    }
-                  }}
-                >
-                  {isFavorite ? (
-                    <>
-                      <span>Remove from Favorites</span>{" "}
-                      <IoMdHeart size={60} color="#172554" />
-                    </>
-                  ) : (
-                    <>
-                      <span>Add to Favorites</span>{" "}
-                      <IoMdHeartEmpty size={50} color="#172554" />
-                    </>
-                  )}
-                </button>
-              </>
+           
+            {authUser && !isFavoriteLoading && (
+              <button
+              style={{marginLeft: "60%"}}
+                onClick={() => {
+                  if (isFavorite) {
+                    removeFavorite();
+                  } else {
+                    addFavorite();
+                  }
+                }}
+              >
+                {isFavorite ? (
+                  <IoMdHeart size={45} color="#172554" />
+                ) : (
+                  <IoMdHeartEmpty size={45} color="#172554" />
+                )}
+              </button>
+              
+            )}
+             {thisUser.admin ? (
+              <NavLink 
+                to={`/edit-recipe/${recipe.id}`}
+              >
+                <CiEdit size={45} />
+              </NavLink>
             ) : null}
           </div>
 
@@ -340,16 +360,16 @@ const RecipeDetails = () => {
               </a>
             ) : (
               // if not logged in, show link to login and redirect to login page
-              <Link
+              <NavLink
                 to="/login"
                 style={{
-                  paddingLeft: "75%",
+                  paddingLeft: "70%",
                   fontSize: "20px",
                   textDecoration: "none",
                 }}
               >
                 Login to add review
-              </Link>
+              </NavLink>
             )}
             {visibility ? (
               <div className="recipe-detail-newReview">
@@ -374,17 +394,23 @@ const RecipeDetails = () => {
                 <br />
                 <br />
                 <button onClick={addReview}>Add review</button>
+                {thisUser.admin ? <button>Edit review</button> : null}
               </div>
             ) : null}
+            <br />
+          
             {/* map reviews backwards, newest comment first */}
-            {recipe.reviews.slice().reverse().map((review, index) => (
-              <div key={index} className="recipe-detail-item">
-                <p>
-                  <strong>{reviewUser(review)}:</strong> "{review.comment}"
-                </p>
-                <p>Rating: {review.rating} / 5</p>
-              </div>
-            ))}
+            {recipe.reviews
+              .slice()
+              .reverse()
+              .map((review, index) => (
+                <div key={index} className="recipe-detail-item">
+                  <p>
+                    <strong>{reviewUser(review)}:</strong> "{review.comment}"
+                  </p>
+                  <p>Rating: {review.rating} / 5</p>
+                </div>
+              ))}
           </div>
           {/* create bar for like, setFavourite, share, print and share recipe*/}
         </>
