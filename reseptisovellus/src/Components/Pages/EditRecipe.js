@@ -17,6 +17,7 @@ const EditRecipe = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const { id } = useParams();
+ 
 
   useEffect(() => {
     const fetchRecipeData = async () => {
@@ -79,6 +80,9 @@ const EditRecipe = () => {
     setRecipeData({ ...recipeData, [name]: value });
   };
 
+
+
+  // ingredients
   const handleAddIngredient = () => {
     setRecipeData({
       ...recipeData,
@@ -156,7 +160,7 @@ const EditRecipe = () => {
 
 
   
-
+  //images
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     const reader = new FileReader();
@@ -177,7 +181,8 @@ const EditRecipe = () => {
   const handleSaveImages = async () => {
     try {
       setLoading(true);
-
+      console.log("Saving image changes...");
+  
       const response = await fetch(`https://recipeappapi.azurewebsites.net/api/Image`, {
         method: 'POST',
         headers: {
@@ -187,9 +192,11 @@ const EditRecipe = () => {
         },
         body: JSON.stringify({ recipeId: id, images: recipeData.images }),
       });
-
+  
       if (response.ok) {
+        console.log('Image changes saved successfully!');
         alert('Image changes saved successfully!');
+        window.location.reload();
       } else {
         console.error('Failed to save image changes.');
       }
@@ -201,10 +208,12 @@ const EditRecipe = () => {
     }
   };
 
+
   const handleRemoveImg = async (index) => {
     try {
       setLoading(true);
-
+      console.log("Removing image...");
+  
       const response = await fetch(`https://recipeappapi.azurewebsites.net/api/Image/${recipeData.images[index].id}`, {
         method: 'DELETE',
         headers: {
@@ -212,11 +221,14 @@ const EditRecipe = () => {
           'Accept': 'application/json',
         },
       });
-
+  
       if (response.ok) {
+        console.log('Image removed successfully!');
+        alert('Image removed successfully!');
         const updatedImages = [...recipeData.images];
         updatedImages.splice(index, 1);
         setRecipeData({ ...recipeData, images: updatedImages });
+        window.location.reload();
       } else {
         console.error('Failed to remove image.');
       }
@@ -227,6 +239,15 @@ const EditRecipe = () => {
       setLoading(false);
     }
   };
+
+
+
+
+
+
+
+
+
 
   const handleAddKeyword = () => {
     setRecipeData({
@@ -410,22 +431,22 @@ const EditRecipe = () => {
           <input type="file" accept="image/*" onChange={handleImageChange} />
         </label>
         <br />
-        {recipeData.images.map((image, index) => (
-          <div key={index}>
-            <p>{image.name}</p>
-            <img
-              src={`data:image/jpeg;base64,${image.imageData}`}
-              alt={`Preview of ${image.name}`}
-              style={{ maxWidth: '200px', maxHeight: '200px' }}
-            />
-            <br />
-            <button className="remove-button" onClick={() => handleRemoveImg(index)}>Remove image</button>
-            <button className="save-button" type="button" onClick={handleSaveImages}>
-              Save image changes
-            </button>
-          </div>
-        ))}
-        <br />
+  {recipeData.images.map((image, index) => (
+    <div key={index}>
+      <p>{image.name}</p>
+      <img
+        src={`data:image/jpeg;base64,${image.imageData}`}
+        alt={`Preview of ${image.name}`}
+        style={{ maxWidth: '200px', maxHeight: '200px' }}
+      />
+      <br />
+      <button className="remove-button" onClick={() => handleRemoveImg(index)}>Remove image</button>
+      <button className="save-button" type="button" onClick={handleSaveImages}>
+          Save image changes
+        </button>
+    </div>
+  ))}
+<br />
         {loading && <p>Loading...</p>}
         {error && <p style={{ color: 'red' }}>{error}</p>}
       </form>
