@@ -92,7 +92,13 @@ const EditRecipe = () => {
 
   const handleIngredientChange = (index, field, value) => {
     const updatedIngredients = [...recipeData.ingredients];
-    updatedIngredients[index][field] = value;
+    // Convert commas to periods in the amount field
+    if (field === 'amount') {
+      const newValue = value.replace(',', '.');
+      updatedIngredients[index][field] = newValue;
+    } else {
+      updatedIngredients[index][field] = value;
+    }
     setRecipeData({ ...recipeData, ingredients: updatedIngredients });
   };
 

@@ -14,6 +14,7 @@ const AddRecipe = () => {
     images: [],
   });
   const [recipeImages, setRecipeImages] = useState([]);
+
   const [selectedImages, setSelectedImages] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -63,10 +64,16 @@ const AddRecipe = () => {
 
   const handleIngredientChange = (index, e) => {
     const updatedIngredients = [...recipeData.ingredients];
-    updatedIngredients[index][e.target.name] = e.target.value;
+    // Convert commas to periods in the amount field
+    if (e.target.name === 'amount') {
+      const newValue = e.target.value.replace(',', '.');
+      updatedIngredients[index][e.target.name] = newValue;
+    } else {
+      updatedIngredients[index][e.target.name] = e.target.value;
+    }
     setRecipeData({ ...recipeData, ingredients: updatedIngredients });
   };
-
+  
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     const reader = new FileReader();
