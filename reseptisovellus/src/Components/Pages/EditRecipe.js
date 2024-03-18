@@ -18,15 +18,6 @@ const EditRecipe = () => {
   const [error, setError] = useState('');
   const { id } = useParams();
 
-
-  const [Ingredient, setIngredient] = useState({
-    id: '',
-    recipeId: id,
-    name: '',
-    amount: '',
-    unit: '',
-    new: false,
-  });
  
 
   useEffect(() => {
@@ -96,7 +87,7 @@ const EditRecipe = () => {
   const handleAddIngredient = () => {
     setRecipeData({
       ...recipeData,
-      ingredients: [...recipeData.ingredients, { name: '', amount: '', unit: '' }],
+      ingredients: [...recipeData.ingredients, { name: '', amount: '', unit: ''}],
     });
   };
 
@@ -120,16 +111,6 @@ const EditRecipe = () => {
         unit: ingredient.unit
       };
   
-      // Jos ainesosa on uusi, vaihdetaan HTTP-metodi ja URL
-      if (ingredient.new) {
-        method = 'POST';
-        body.id = 0; // Id-kenttä on joko tyhjä tai 0 uudelle ainesosalle
-      } else {
-        // Jos ainesosa on vanha, päivitetään sen tiedot PUT-pyynnöllä
-        method = 'PUT';
-        url += `/${ingredient.id}`;
-        body.id = ingredient.id; // Id-kenttä pysyy samana vanhalle ainesosalle
-      }
   
       const response = await fetch(url, {
         method: method,
@@ -193,46 +174,8 @@ const EditRecipe = () => {
   
 
 
-  const handleEditIngredient = async (ingredient) => {
-    try {
-      setLoading(true);
-  
-      // Tarkistetaan, onko muokattava ainesosa uusi vai vanha
-      if (!ingredient.new) {
-        // Ainesosan muokkaus PUT-pyynnöllä
-        const response = await fetch(`https://recipeappapi.azurewebsites.net/api/Ingredient/${ingredient.id}`, {
-          method: 'PUT',
-          headers: {
-            Authorization: `Bearer ${authUser.token}`,
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            id: ingredient.id,
-            recipeId: ingredient.recipeId,
-            name: ingredient.name,
-            amount: ingredient.amount,
-            unit: ingredient.unit,
-          }),
-        });
-  
-        if (response.ok) {
-          // Ainesosan muokkaus onnistui
-          alert('Ingredient updated successfully!');
-          // Voit päivittää tarvittaessa tilaa tai tehdä muita toimenpiteitä
-        } else {
-          console.error('Failed to update ingredient.');
-        }
-      } else {
-        console.error('Cannot edit a new ingredient.');
-      }
-    } catch (error) {
-      console.error('Error occurred:', error);
-      setError('Error occurred while updating ingredient.');
-    } finally {
-      setLoading(false);
-    }
-  };
+
+ 
 
 
   
@@ -436,57 +379,51 @@ const EditRecipe = () => {
         <br />
 
 
+
         <div className="ingredient-section">
   <h2>Ingredients</h2>
   {recipeData.ingredients.map((ingredient, index) => (
     <div key={index}>
-      <p>
-        <strong>Name:</strong> {ingredient.name}, <strong>Amount:</strong> {ingredient.amount}, <strong>Unit:</strong> {ingredient.unit}
-      </p>
-      <button className="delete-button" type="button" onClick={() => handleRemoveIngredient(ingredient, index)}>
-        Delete
+      <label>
+        Name:
+        <br />
+        <input
+          type="text"
+          value={ingredient.name}
+          onChange={(e) => handleIngredientChange(index, 'name', e.target.value)}
+        />
+      </label>
+      <label>
+        Amount:
+        <br />
+        <input
+          type="text"
+          value={ingredient.amount}
+          onChange={(e) => handleIngredientChange(index, 'amount', e.target.value)}
+        />
+      </label>
+      <label>
+        Unit:
+        <br />
+        <input
+          type="text"
+          value={ingredient.unit}
+          onChange={(e) => handleIngredientChange(index, 'unit', e.target.value)}
+        />
+      </label>
+      <button className="remove-button" type="button" onClick={() => handleRemoveIngredient(ingredient, index)}>
+        Remove ingredient
       </button>
-      <button className="edit-button" type="button" onClick={() => handleEditIngredient(index)}>
-        Edit
+      <button className="save-button" type="button" onClick={() => handleSaveIngredient(ingredient, index)}>
+        Save ingredient changes
       </button>
     </div>
   ))}
-  <div key="new">
-    <label>
-      Name:
-      <br />
-      <input
-        type="text"
-        value={Ingredient.name}
-        onChange={(e) => setIngredient({ ...Ingredient, name: e.target.value })}
-      />
-    </label>
-    <label>
-      Amount:
-      <br />
-      <input
-        type="text"
-        value={Ingredient.amount}
-        onChange={(e) => setIngredient({ ...Ingredient, amount: e.target.value })}
-      />
-    </label>
-    <label>
-      Unit:
-      <br />
-      <input
-        type="text"
-        value={Ingredient.unit}
-        onChange={(e) => setIngredient({ ...Ingredient, unit: e.target.value })}
-      />
-    </label>
-    <button className="add-button" type="button" onClick={handleAddIngredient}>
-      Add Ingredient
-    </button>
-    <button className="save-button" type="button" onClick={() => handleSaveIngredient}>
-        Save ingredient changes
-      </button>
-  </div>
-</div>
+  <button className="add-button" type="button" onClick={handleAddIngredient}>
+    Add Ingredient
+  </button>
+</div> 
+
 
 
 
