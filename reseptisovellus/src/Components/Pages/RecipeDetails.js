@@ -43,20 +43,26 @@ const RecipeDetails = () => {
       const response2 = await fetch(
         `https://recipeappapi.azurewebsites.net/api/user`
       );
-      const response3 = await fetch(
-        `https://recipeappapi.azurewebsites.net/api/User/${authUser.userId}`
-      );
+      if (authUser) {
+        const response3 = await fetch(
+          `https://recipeappapi.azurewebsites.net/api/User/${authUser.userId}`
+        );
+
+        const data3 = await response3.json(); // this user
+        setThisUser(data3);
+        console.log("This user: ", data3);
+      }
 
       const data = await response.json(); // recipe
       const data2 = await response2.json(); // user
-      const data3 = await response3.json(); // this user
+      // const data3 = await response3.json(); // this user
       setRecipe(data);
       setUser(data2);
-      setThisUser(data3);
+      // setThisUser(data3);
 
       console.log(data);
       console.log("User: ", data2);
-      console.log("This user: ", data3);
+      //console.log("This user: ", data3);
     } catch (error) {
       console.error("Error fetching recipe details:", error);
     }
@@ -273,10 +279,10 @@ const RecipeDetails = () => {
             <WhatsappShareButton url={currentPage}>
               <WhatsappIcon size={45} round={false} borderRadius={10} />
             </WhatsappShareButton>
-           
+
             {authUser && !isFavoriteLoading && (
               <button
-              style={{marginLeft: "60%"}}
+                style={{ marginLeft: "60%" }}
                 onClick={() => {
                   if (isFavorite) {
                     removeFavorite();
@@ -291,12 +297,9 @@ const RecipeDetails = () => {
                   <IoMdHeartEmpty size={45} color="#172554" />
                 )}
               </button>
-              
             )}
-             {thisUser.admin ? (
-              <NavLink 
-                to={`/edit-recipe/${recipe.id}`}
-              >
+            {thisUser && thisUser.admin ? (
+              <NavLink to={`/edit-recipe/${recipe.id}`}>
                 <CiEdit size={45} />
               </NavLink>
             ) : null}
@@ -398,7 +401,6 @@ const RecipeDetails = () => {
               </div>
             ) : null}
             <br />
-          
             {/* map reviews backwards, newest comment first */}
             {recipe.reviews
               .slice()
