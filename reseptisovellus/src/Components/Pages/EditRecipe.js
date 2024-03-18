@@ -81,8 +81,6 @@ const EditRecipe = () => {
     setRecipeData({ ...recipeData, [name]: value });
   };
 
-
-
   // ingredients
   const handleAddIngredient = () => {
     setRecipeData({
@@ -181,105 +179,6 @@ const EditRecipe = () => {
     }
   };
   
-
-
-
- 
-
-
-  
-  
-
-
-  
-  //images
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    const reader = new FileReader();
-
-    reader.onloadend = () => {
-      const newImage = {
-        name: file.name,
-        imageData: reader.result,
-      };
-      setRecipeData({ ...recipeData, images: [...recipeData.images, newImage] });
-    };
-
-    if (file) {
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const handleSaveImages = async () => {
-    try {
-      setLoading(true);
-      console.log("Saving image changes...");
-  
-      const response = await fetch(`https://recipeappapi.azurewebsites.net/api/Image`, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${authUser.token}`,
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ recipeId: id, images: recipeData.images }),
-      });
-  
-      if (response.ok) {
-        console.log('Image changes saved successfully!');
-        alert('Image changes saved successfully!');
-        window.location.reload();
-      } else {
-        console.error('Failed to save image changes.');
-      }
-    } catch (error) {
-      console.error('Error occurred:', error);
-      setError('Error occurred while saving image changes.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-
-  const handleRemoveImg = async (index) => {
-    try {
-      setLoading(true);
-      console.log("Removing image...");
-  
-      const response = await fetch(`https://recipeappapi.azurewebsites.net/api/Image/${recipeData.images[index].id}`, {
-        method: 'DELETE',
-        headers: {
-          Authorization: `Bearer ${authUser.token}`,
-          'Accept': 'application/json',
-        },
-      });
-  
-      if (response.ok) {
-        console.log('Image removed successfully!');
-        alert('Image removed successfully!');
-        const updatedImages = [...recipeData.images];
-        updatedImages.splice(index, 1);
-        setRecipeData({ ...recipeData, images: updatedImages });
-        window.location.reload();
-      } else {
-        console.error('Failed to remove image.');
-      }
-    } catch (error) {
-      console.error('Error occurred:', error);
-      setError('Error occurred while removing image.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-
-
-
-
-
-
-
-
 // keywords
   const handleAddKeyword = () => {
     setRecipeData({
@@ -349,6 +248,92 @@ const EditRecipe = () => {
   };
   
   
+
+
+
+  //images
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    const reader = new FileReader();
+
+    reader.onloadend = () => {
+      const newImage = {
+        name: file.name,
+        imageData: reader.result,
+        new:true
+      };
+      setRecipeData({ ...recipeData, images: [...recipeData.images, newImage] });
+    };
+
+    if (file) {
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleSaveImages = async () => {
+    try {
+      setLoading(true);
+      console.log("Saving image changes...");
+  
+      const response = await fetch(`https://recipeappapi.azurewebsites.net/api/Image`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${authUser.token}`,
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ recipeId: id, images: recipeData.images }),
+      });
+  
+      if (response.ok) {
+        console.log('Image changes saved successfully!');
+        alert('Image changes saved successfully!');
+        window.location.reload();
+      } else {
+        console.error('Failed to save image changes.');
+      }
+    } catch (error) {
+      console.error('Error occurred:', error);
+      setError('Error occurred while saving image changes.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
+  const handleRemoveImg = async (index) => {
+    try {
+      setLoading(true);
+      console.log("Removing image...");
+  
+      const response = await fetch(`https://recipeappapi.azurewebsites.net/api/Image/${index.id}`, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${authUser.token}`,
+          'Accept': 'application/json',
+        },
+      });
+  
+      if (response.ok) {
+        console.log('Image removed successfully!');
+        alert('Image removed successfully!');
+        const updatedImages = [...recipeData.images];
+        updatedImages.splice(index, 1);
+        setRecipeData({ ...recipeData, images: updatedImages });
+        window.location.reload();
+      } else {
+        console.error('Failed to remove image.');
+      }
+    } catch (error) {
+      console.error('Error occurred:', error);
+      setError('Error occurred while removing image.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
+
 
   console.log("Rendering EditRecipe component with recipe data:", recipeData);
 
@@ -479,7 +464,9 @@ const EditRecipe = () => {
         style={{ maxWidth: '200px', maxHeight: '200px' }}
       />
       <br />
-      <button className="remove-button" onClick={() => handleRemoveImg(index)}>Remove image</button>
+      <button className="remove-button" type="button" onClick={() => handleRemoveImg(image, index)}>
+        Remove image
+      </button>
       <button className="save-button" type="button" onClick={handleSaveImages}>
           Save image changes
         </button>
