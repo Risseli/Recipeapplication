@@ -87,7 +87,7 @@ const EditRecipe = () => {
   const handleAddIngredient = () => {
     setRecipeData({
       ...recipeData,
-      ingredients: [...recipeData.ingredients, { name: '', amount: '', unit: ''}],
+      ingredients: [...recipeData.ingredients, { name: '', amount: '', unit: '', new:true}],
     });
   };
 
@@ -111,6 +111,16 @@ const EditRecipe = () => {
         unit: ingredient.unit
       };
   
+      // Jos ainesosa on uusi, vaihdetaan HTTP-metodi ja URL
+      if (ingredient.new) {
+        method = 'POST';
+        body.id = 0; // Id-kenttä on joko tyhjä tai 0 uudelle ainesosalle
+      } else {
+        // Jos ainesosa on vanha, päivitetään sen tiedot PUT-pyynnöllä
+        method = 'PUT';
+        url += `/${ingredient.id}`;
+        body.id = ingredient.id; // Id-kenttä pysyy samana vanhalle ainesosalle
+      }
   
       const response = await fetch(url, {
         method: method,
@@ -136,7 +146,6 @@ const EditRecipe = () => {
       setLoading(false);
     }
   };
-  
 
   const handleRemoveIngredient = async (ingredient) => {
     try {
