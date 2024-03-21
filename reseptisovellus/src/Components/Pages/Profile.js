@@ -259,16 +259,20 @@ const loadRecipes = async (option, id) => {
   
       console.log("Response:", response);
       const data = await response.json();
+      console.log(data);
   
       if (response.ok) {
         console.log("User data saved successfully.");
         setUser(editedUser);
         setEditMode(false);
+        alert("User data saved successfully.");
       } else {
         console.error("Error updating user data", data['']['errors'][0]['errorMessage']);
+        alert("Error updating user data. Please try again.");
       }
     } catch (error) {
       console.error("Error saving user data:", error);
+      alert("An error occurred while saving user data.");
     }
   };
   
