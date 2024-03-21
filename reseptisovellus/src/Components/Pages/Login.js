@@ -26,7 +26,7 @@ const Login = () => {
 
   const loginUser = async () => {
     try {
-      const response = await fetch("https://localhost:7005/api/User/login", { // https://recipeappapi.azurewebsites.net/api/User/login
+      const response = await fetch("http://localhost:7005/api/User/login", { // https://recipeappapi.azurewebsites.net/api/User/login
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -60,7 +60,7 @@ const Login = () => {
 
   const registerUser = async () => {
 
-    const response = await fetch("https://localhost:7005/api/User/register", { // https://recipeappapi.azurewebsites.net/api/User/register
+    const response = await fetch("http://localhost:7005/api/User/register", { // https://recipeappapi.azurewebsites.net/api/User/register
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -92,7 +92,7 @@ const Login = () => {
 
   const recoverPassword = async () => {
     try {
-      const response = await fetch(`https://localhost:7005/api/User/RecoverPassword/${recoveryEmail}`, { //localhost:5140/api/User/RecoverPassword/{email}....`https://recipeappapi.azurewebsites.net/api/user/RecoveryPassword/${recoveryEmail}`
+      const response = await fetch(`http://localhost:7005/api/User/RecoverPassword/${recoveryEmail}`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -100,11 +100,19 @@ const Login = () => {
       });
 
       if (!response.ok) {
+        alert("A recovery message has been sent if an account exists with that email.");
+
         console.error("Failed to initiate password recovery.");
+        setRecoverPasswordPrompt(false);
         return;
       }
 
       console.log("Password recovery initiated successfully.");
+      alert("A recovery message has been sent if an account exists with that email.");
+
+      // Close the password recovery prompt and reset email input
+      setRecoverPasswordPrompt(false);
+      setRecoveryEmail('');
     } catch (error) {
       console.error("Error initiating password recovery:", error);
     }
@@ -159,7 +167,7 @@ const Login = () => {
             </div>
             <br />
             <p className="recover-password-text">
-              Forgot your password? <a href="#" onClick={() => setRecoverPasswordPrompt(true)}>Click here to recover it.</a>
+              Forgot your password? <a href="#" onClick={() => setRecoverPasswordPrompt(!recoverPasswordPrompt)}>Click here to recover it.</a>
             </p>
             <div className="form-group">
               <button className="login-button" type="button" onClick={handleLogin}>
