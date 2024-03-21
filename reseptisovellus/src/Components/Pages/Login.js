@@ -27,7 +27,7 @@ const Login = () => {
 
   const loginUser = async () => {
     try {
-      const response = await fetch("https://recipeappapi.azurewebsites.net/api/User/login", {
+      const response = await fetch("https://localhost:7005/api/User/login", { // https://recipeappapi.azurewebsites.net/api/User/login
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -60,7 +60,7 @@ const Login = () => {
   };
   const registerUser = async () => {
 
-      const response = await fetch("https://recipeappapi.azurewebsites.net/api/user/Register", {
+      const response = await fetch("https://localhost:7005/api/User/register", { // https://recipeappapi.azurewebsites.net/api/User/register
         method: "POST",
         headers: {
           "Content-Type": "application/json",

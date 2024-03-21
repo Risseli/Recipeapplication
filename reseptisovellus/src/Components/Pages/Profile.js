@@ -49,8 +49,7 @@ const Profile = () => {
   
       console.log('Request Body:', requestBody);
   
-      const response = await fetch(`https://recipeappapi.azurewebsites.net/api/Review/${editingReviewId}`, {
-        method: 'PUT',
+      const response = await fetch(`https://localhost:7005/api/Review/${editingReviewId}`, {  // https://recipeappapi.azurewebsites.net/api/Review/${editingReviewId}
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json', 
@@ -99,7 +98,7 @@ const Profile = () => {
         }
   
         // Hae käyttäjän tiedot
-        const response = await fetch(`https://recipeappapi.azurewebsites.net/api/user/${authUser.userId}`, {
+        const response = await fetch(`https://localhost:7005/api/user/${authUser.userId}`, { // https://recipeappapi.azurewebsites.net/api/user/${authUser.userId}
           method: 'GET',
           headers: {
             Authorization: `Bearer ${authUser.token}`,
@@ -118,7 +117,7 @@ const Profile = () => {
           setAdminMode(true);
 
           // Hae käyttäjien lista tarvittaessa
-          const usersResponse = await fetch("https://recipeappapi.azurewebsites.net/api/User", {
+          const usersResponse = await fetch("https://localhost:7005/api/User", { // https://recipeappapi.azurewebsites.net/api/User
             method: "GET",
             headers: {
               Authorization: `Bearer ${authUser.token}`,
@@ -170,13 +169,13 @@ const loadRecipes = async (option, id) => {
     let apiUrl;
     if (option === "ownRecipes") {
       // Hae käyttäjän omat reseptit
-      apiUrl = `https://recipeappapi.azurewebsites.net/api/User/${id}/Recipes`;
+      apiUrl = `https://localhost:7005/api/User/${id}/Recipes`; // https://recipeappapi.azurewebsites.net/api/User/${id}/Recipes
     } else if (option === "favorites") {
       // Hae käyttäjän suosikkireseptit
-      apiUrl = `https://recipeappapi.azurewebsites.net/api/User/${id}/Favorites`;
+      apiUrl = `https://localhost:7005/api/User/${id}/Favorites`; // https://recipeappapi.azurewebsites.net/api/User/${id}/Favorites
     } else if (option === "reviews") {
       // Hae käyttäjän arvostelut
-      apiUrl = `https://recipeappapi.azurewebsites.net/api/User/${id}/Reviews`;
+      apiUrl = `https://localhost:7005/api/User/${id}/Reviews`; // https://recipeappapi.azurewebsites.net/api/User/${id}/Reviews
     }
 
     const response = await fetch(apiUrl, {
@@ -194,7 +193,7 @@ const loadRecipes = async (option, id) => {
  // Hae reseptinimet käyttämällä reseptin id:tä
  if (option === "reviews") {
  const namesPromises = recipesData.map(async (recipe) => {
-  const nameResponse = await fetch(`https://recipeappapi.azurewebsites.net/api/Recipe/${recipe.recipeId}`, {
+  const nameResponse = await fetch(`https://localhost:7005/api/Recipe/${recipe.recipeId}`, { // https://recipeappapi.azurewebsites.net/api/Recipe/${recipe.recipeId}
     method:'GET',
   });
   const nameData = await nameResponse.json();
@@ -247,7 +246,8 @@ const loadRecipes = async (option, id) => {
   
       console.log("Saving user data...", userWithoutId);
   
-      const response = await fetch(`https://recipeappapi.azurewebsites.net/api/user/${editedUser.id}`, {
+      const response = await fetch(`https://localhost:7005/api/user/${editedUser.id}`, { // https://recipeappapi.azurewebsites.net/api/user/${editedUser.id}
+      method:'GET',
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -278,7 +278,7 @@ const loadRecipes = async (option, id) => {
   const handleDeleteClick = async () => {
     if (window.confirm(`Are you sure you want to delete profile "${user.name}"?`)) {
       try {
-        const response = await fetch(`https://recipeappapi.azurewebsites.net/api/user/${user.id}`, {
+        const response = await fetch(`https://localhost:7005/api/user/${user.id}`, { // https://recipeappapi.azurewebsites.net/api/user/${user.id}
           method: "DELETE",
           headers: {
             Authorization: `Bearer ${authUser.token}`, // Lisää token otsikkoon
@@ -310,7 +310,7 @@ const loadRecipes = async (option, id) => {
   const deleteReview = async (reviewId) => {
     if (window.confirm(`Are you sure you want to delete this review?`)) {
       try {
-        const response = await fetch(`https://recipeappapi.azurewebsites.net/api/Review/${reviewId}`, {
+        const response = await fetch(`https://localhost:7005/api/Review/${reviewId}`, { // https://recipeappapi.azurewebsites.net/api/Review/${reviewId}
           method: 'DELETE',
           headers: {
             Authorization: `Bearer ${authUser.token}`, // Lisää token otsikkoon
@@ -354,7 +354,7 @@ const loadRecipes = async (option, id) => {
     try {
       // Create an array of promises for each user update
       const updatePromises = users.map(async (user) => {
-        await fetch(`https://recipeappapi.azurewebsites.net/api/User/${user.id}`, {
+        await fetch(`https://localhost:7005/api/User/${user.id}`, { // https://recipeappapi.azurewebsites.net/api/User/${user.id}
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
@@ -383,7 +383,7 @@ const loadRecipes = async (option, id) => {
     if (window.confirm(`Are you sure you want to delete this user?`)) {
       try {
         // Delete the user on the server
-        const response = await fetch(`https://recipeappapi.azurewebsites.net/api/User/${userId}`, {
+        const response = await fetch(`https://localhost:7005/api/User/${userId}`, { // https://recipeappapi.azurewebsites.net/api/User/${userId}
           method: "DELETE",
           headers: {
             Authorization: `Bearer ${authUser.token}`, // Lisää token otsikkoon

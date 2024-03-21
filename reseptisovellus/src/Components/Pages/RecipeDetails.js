@@ -38,14 +38,17 @@ const RecipeDetails = () => {
   const fetchRecipeDetails = async () => {
     try {
       const response = await fetch(
-        `https://recipeappapi.azurewebsites.net/api/recipe/${id}`
+        //`https://recipeappapi.azurewebsites.net/api/recipe/${id}`
+        `https://localhost:7005/api/recipe/${id}`
       );
       const response2 = await fetch(
-        `https://recipeappapi.azurewebsites.net/api/user`
+        // `https://recipeappapi.azurewebsites.net/api/user`
+        `https://localhost:7005/api/user`
       );
       if (authUser) {
         const response3 = await fetch(
-          `https://recipeappapi.azurewebsites.net/api/User/${authUser.userId}`
+          // `https://recipeappapi.azurewebsites.net/api/User/${authUser.userId}`
+          `https://localhost:7005/api/User/${authUser.userId}`
         );
 
         const data3 = await response3.json(); // this user
@@ -83,7 +86,8 @@ const RecipeDetails = () => {
       setIsFavoriteLoading(true);
       try {
         const response = await fetch(
-          `https://recipeappapi.azurewebsites.net/api/User/${authUser.userId}/Favorites`
+          // `https://recipeappapi.azurewebsites.net/api/User/${authUser.userId}/Favorites`
+          `https://localhost:7005/api/User/${authUser.userId}/Favorites`
         );
         if (response.ok) {
           const data = await response.json();
@@ -111,7 +115,9 @@ const RecipeDetails = () => {
   const addFavorite = async () => {
     try {
       const response = await fetch(
-        `https://recipeappapi.azurewebsites.net/api/User/${authUser.userId}/Favorites?recipeId=${id}`,
+        //`https://recipeappapi.azurewebsites.net/api/User/${authUser.userId}/Favorites?recipeId=${id}`,
+        `https://localhost:7005/api/User/${authUser.userId}/Favorites?recipeId=${id}`,
+
         {
           method: "POST",
           headers: {
@@ -124,7 +130,8 @@ const RecipeDetails = () => {
       if (response.ok) {
         // Fetch updated recipe details after setting favourite
         const updatedRecipeResponse = await fetch(
-          `https://recipeappapi.azurewebsites.net/api/recipe/${id}`
+          // `https://recipeappapi.azurewebsites.net/api/recipe/${id}`
+          `https://localhost:7005/api/recipe/${id}`,
         );
         const updatedRecipeData = await updatedRecipeResponse.json();
 
@@ -143,7 +150,9 @@ const RecipeDetails = () => {
   const removeFavorite = async () => {
     try {
       const response = await fetch(
-        `https://recipeappapi.azurewebsites.net/api/User/${authUser.userId}/Favorites?recipeId=${id}`,
+        // `https://recipeappapi.azurewebsites.net/api/User/${authUser.userId}/Favorites?recipeId=${id}`,
+        `https://localhost:7005/api/User/${authUser.userId}/Favorites?recipeId=${id}`,
+
         {
           method: "DELETE",
           headers: {
@@ -155,7 +164,8 @@ const RecipeDetails = () => {
       if (response.ok) {
         // Fetch updated recipe details after removing favourite
         const updatedRecipeResponse = await fetch(
-          `https://recipeappapi.azurewebsites.net/api/recipe/${id}`
+          // `https://recipeappapi.azurewebsites.net/api/recipe/${id}`
+          `https://localhost:7005/api/recipe/${id}`
         );
 
         const updatedRecipeData = await updatedRecipeResponse.json();
@@ -214,7 +224,8 @@ const RecipeDetails = () => {
     setVisibility(false);
     try {
       const response = await fetch(
-        `https://recipeappapi.azurewebsites.net/api/review/`,
+        // `https://recipeappapi.azurewebsites.net/api/review/`,
+        `https://localhost:7005/api/review/`,
         {
           method: "POST",
           headers: {
@@ -234,9 +245,10 @@ const RecipeDetails = () => {
       setRating(null);
 
       if (response.ok) {
+        
         await response.json();
 
-        console.log("Review sesponse ok!");
+        console.log("Review response ok!");
       } else {
         console.error("Lisää arvostelu epäonnistui:", response.status);
       }

@@ -25,7 +25,7 @@ const EditRecipe = () => {
     const fetchRecipeData = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`https://recipeappapi.azurewebsites.net/api/recipe/${id}`, {
+        const response = await fetch(`https://localhost:7005/api/Recipe${id}`, { // https://recipeappapi.azurewebsites.net/api/recipe/${id}
           method: 'GET',
           headers: {
             Authorization: `Bearer ${authUser.token}`,
@@ -54,7 +54,7 @@ const EditRecipe = () => {
     try {
       setLoading(true);
 
-      const response = await fetch(`https://recipeappapi.azurewebsites.net/api/Recipe/${id}`, {
+      const response = await fetch(`https://localhost:7005/api/Recipe${id}`, { // https://recipeappapi.azurewebsites.net/api/Recipe/${id}
         method: 'PUT',
         headers: {
           Authorization: `Bearer ${authUser.token}`,
@@ -107,7 +107,7 @@ const EditRecipe = () => {
       setLoading(true);
       console.log("Saving ingredient changes...");
   
-      let url = 'https://recipeappapi.azurewebsites.net/api/Ingredient';
+      let url = 'https://localhost:7005/api/Ingredient'; // https://recipeappapi.azurewebsites.net/api/Ingredient
       let method = 'POST';
       let body = {
         recipeId: id,
@@ -159,7 +159,7 @@ const EditRecipe = () => {
       // Tarkistetaan, onko poistettava ainesosa uusi vai vanha
       if (!ingredient.new) {
         // Ainesosan poisto DELETE-pyynnöllä
-        const response = await fetch(`https://recipeappapi.azurewebsites.net/api/Ingredient/${ingredient.id}`, {
+        const response = await fetch(`https://localhost:7005/api/Ingredient/${ingredient.id}`, { // https://recipeappapi.azurewebsites.net/api/Ingredient/${ingredient.id}
           method: 'DELETE',
           headers: {
             Authorization: `Bearer ${authUser.token}`,
@@ -204,7 +204,7 @@ const EditRecipe = () => {
     try {
       setLoading(true);
 
-      const response = await fetch(`https://recipeappapi.azurewebsites.net/api/Recipe/${id}/Keywords?keyword=${keyword.word}`, {
+      const response = await fetch(`https://localhost:7005/api/Recipe/${id}/Keywords?keyword=${keyword.word}`, { // https://recipeappapi.azurewebsites.net/api/Recipe/${id}/Keywords?keyword=${keyword.word}
         method: 'DELETE',
         headers: {
           Authorization: `Bearer ${authUser.token}`,
@@ -233,7 +233,7 @@ const EditRecipe = () => {
     try {
       setLoading(true);
 
-      const response = await fetch(`https://recipeappapi.azurewebsites.net/api/Recipe/${id}/Keywords?keyword=${keyword.word}`, {
+      const response = await fetch(`https://localhost:7005/api/Recipe/${id}/Keywords?keyword=${keyword.word}`, { // https://recipeappapi.azurewebsites.net/api/Recipe/${id}/Keywords?keyword=${keyword.word}
         method: 'POST',
         headers: {
           Authorization: `Bearer ${authUser.token}`,
@@ -286,7 +286,7 @@ const EditRecipe = () => {
       console.log("Saving image changes...");
   
       for (const image of recipeImages) {
-        let url = 'https://recipeappapi.azurewebsites.net/api/Image';
+        let url = 'https://localhost:7005/api/Image'; // https://recipeappapi.azurewebsites.net/api/Image
         let method = 'POST';
         let body = {
           id: image.id, // Otetaan kuvan id
@@ -337,7 +337,7 @@ const EditRecipe = () => {
       setLoading(true);
       console.log("Removing image...");
   
-      const response = await fetch(`https://recipeappapi.azurewebsites.net/api/Image/${index.id}`, {
+      const response = await fetch(`https://localhost:7005/api/Image/${index.id}`, { // https://recipeappapi.azurewebsites.net/api/Image/${index.id}
         method: 'DELETE',
         headers: {
           Authorization: `Bearer ${authUser.token}`,
