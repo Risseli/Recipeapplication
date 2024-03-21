@@ -25,13 +25,6 @@ export const Navbar = () => {
       </div>
       <ul className={menuOpen ? "open" : ""}>
         <li>
-          <input
-            className="input"
-            type="text"
-            placeholder="Search with ingredient.."
-          />
-        </li>
-        <li>
           <Link to="/about">About</Link>
         </li>
         <li>
