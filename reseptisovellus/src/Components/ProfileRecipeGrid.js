@@ -14,7 +14,7 @@ const handleDeleteRecipe = async (recipeId) => {
   if (window.confirm(`Are you sure you want to delete this recipe?`)) {
     try {
       // Delete the recipe on the server
-      const response = await fetch(`https://recipeappapi.azurewebsites.net/api/Recipe/${recipeId}`, { //https://localhost:7005/api/Recipe/${recipeId}
+      const response = await fetch(`https://localhost:7005/api/Recipe/${recipeId}`, { //https://recipeappapi.azurewebsites.net/api/Recipe/${recipeId}
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${authUser.token}`,
