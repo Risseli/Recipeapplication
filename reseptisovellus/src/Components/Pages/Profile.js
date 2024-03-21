@@ -50,6 +50,7 @@ const Profile = () => {
       console.log('Request Body:', requestBody);
   
       const response = await fetch(`https://localhost:7005/api/Review/${editingReviewId}`, {  // https://recipeappapi.azurewebsites.net/api/Review/${editingReviewId}
+        method: "PUT",
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json', 
@@ -247,7 +248,7 @@ const loadRecipes = async (option, id) => {
       console.log("Saving user data...", userWithoutId);
   
       const response = await fetch(`https://localhost:7005/api/user/${editedUser.id}`, { // https://recipeappapi.azurewebsites.net/api/user/${editedUser.id}
-      method:'GET',
+      
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
