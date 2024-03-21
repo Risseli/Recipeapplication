@@ -242,14 +242,13 @@ const loadRecipes = async (option, id) => {
 
   const handleSaveClick = async () => {
     try {
-        // Check if email has been changed
-        if (editedUser.email !== user.email) {
-            // If email has changed, include it in the request body
+        // Check if either name or email has been changed
+        if (editedUser.name !== user.name || editedUser.email !== user.email) {
             const { userId, ...userWithoutId } = editedUser;
 
             console.log("Saving user data...", userWithoutId);
 
-            const response = await fetch(`https://localhost:7005/api/user/${editedUser.id}`, {
+            const response = await fetch(`https://localhost:7005/api/user/${editedUser.id}`, {  // https://recipeappapi.azurewebsites.net/api/user/${editedUser.id}
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json",
@@ -261,34 +260,31 @@ const loadRecipes = async (option, id) => {
             console.log("Response:", response);
 
             if (response.ok) {
+                const responseBody = await response.json();
+                console.log("Response body:", responseBody);
+
                 console.log("User data saved successfully.");
                 setUser(editedUser);
                 setEditMode(false);
                 alert("User data saved successfully.");
             } else {
-                // Handle conflict (email uniqueness constraint violation)
-                const responseBody = await response.json();
-                console.error("Error updating user data", responseBody);
-
                 if (response.status === 409) {
                     alert("Email already exists. Please choose a different email.");
-                    // Optionally, you can revert changes to the name if necessary
-                    // setEditedUser(prevState => ({ ...prevState, name: user.name }));
                 } else {
                     alert("Error updating user data. Please try again.");
                 }
             }
         } else {
-            // If email hasn't changed, no need to send a request
-            setUser(editedUser);
-            setEditMode(false);
-            alert("No changes made.");
+            // If neither name nor email has changed, display a message to the user
+            alert("Please make changes to either name or email.");
         }
     } catch (error) {
         console.error("Error saving user data:", error);
         alert("An error occurred while saving user data.");
     }
 };
+
+
 
   
   
