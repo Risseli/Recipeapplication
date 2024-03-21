@@ -7,7 +7,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from "../Authentication";
 
 const Profile = () => {
-  const { user:authUser} = useAuth();
+  const {user:authUser} = useAuth();
   const [user, setUser] = useState(null);
   const [editMode, setEditMode] = useState(false);
   const [editedUser, setEditedUser] = useState({});
@@ -242,39 +242,54 @@ const loadRecipes = async (option, id) => {
 
   const handleSaveClick = async () => {
     try {
-      // Poista userId pyynnön rungosta, koska se on jo polussa
-      const { userId, ...userWithoutId } = editedUser;
-  
-      console.log("Saving user data...", userWithoutId);
-  
-      const response = await fetch(`https://localhost:7005/api/user/${editedUser.id}`, { // https://recipeappapi.azurewebsites.net/api/user/${editedUser.id}
-      
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${authUser.token}`, // Lisää token otsikkoon
-        },
-        body: JSON.stringify(userWithoutId), // Käytä userWithoutId:tä pyynnön rungossa
-      });
-  
-      console.log("Response:", response);
-      const data = await response.json();
-      console.log(data);
-  
-      if (response.ok) {
-        console.log("User data saved successfully.");
-        setUser(editedUser);
-        setEditMode(false);
-        alert("User data saved successfully.");
-      } else {
-        console.error("Error updating user data", data['']['errors'][0]['errorMessage']);
-        alert("Error updating user data. Please try again.");
-      }
+        // Check if email has been changed
+        if (editedUser.email !== user.email) {
+            // If email has changed, include it in the request body
+            const { userId, ...userWithoutId } = editedUser;
+
+            console.log("Saving user data...", userWithoutId);
+
+            const response = await fetch(`https://localhost:7005/api/user/${editedUser.id}`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${authUser.token}`,
+                },
+                body: JSON.stringify(userWithoutId),
+            });
+
+            console.log("Response:", response);
+
+            if (response.ok) {
+                console.log("User data saved successfully.");
+                setUser(editedUser);
+                setEditMode(false);
+                alert("User data saved successfully.");
+            } else {
+                // Handle conflict (email uniqueness constraint violation)
+                const responseBody = await response.json();
+                console.error("Error updating user data", responseBody);
+
+                if (response.status === 409) {
+                    alert("Email already exists. Please choose a different email.");
+                    // Optionally, you can revert changes to the name if necessary
+                    // setEditedUser(prevState => ({ ...prevState, name: user.name }));
+                } else {
+                    alert("Error updating user data. Please try again.");
+                }
+            }
+        } else {
+            // If email hasn't changed, no need to send a request
+            setUser(editedUser);
+            setEditMode(false);
+            alert("No changes made.");
+        }
     } catch (error) {
-      console.error("Error saving user data:", error);
-      alert("An error occurred while saving user data.");
+        console.error("Error saving user data:", error);
+        alert("An error occurred while saving user data.");
     }
-  };
+};
+
   
   
 
