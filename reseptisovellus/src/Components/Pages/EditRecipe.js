@@ -25,7 +25,7 @@ const EditRecipe = () => {
     const fetchRecipeData = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`https://localhost:7005/api/Recipe${id}`, { // https://recipeappapi.azurewebsites.net/api/recipe/${id}
+        const response = await fetch(`https://localhost:7005/api/Recipe/${id}`, { // https://recipeappapi.azurewebsites.net/api/recipe/${id}
           method: 'GET',
           headers: {
             Authorization: `Bearer ${authUser.token}`,
@@ -54,7 +54,7 @@ const EditRecipe = () => {
     try {
       setLoading(true);
 
-      const response = await fetch(`https://localhost:7005/api/Recipe${id}`, { // https://recipeappapi.azurewebsites.net/api/Recipe/${id}
+      const response = await fetch(`https://localhost:7005/api/Recipe/${id}`, { // https://recipeappapi.azurewebsites.net/api/Recipe/${id}
         method: 'PUT',
         headers: {
           Authorization: `Bearer ${authUser.token}`,
@@ -367,7 +367,7 @@ const EditRecipe = () => {
   console.log("Rendering EditRecipe component with recipe data:", recipeData);
 
   return (
-    <div className="container">
+    <div className="edit-recipe-container">
       <h1>Edit Recipe</h1>
       <form className="edit-recipe-section">
         <label>

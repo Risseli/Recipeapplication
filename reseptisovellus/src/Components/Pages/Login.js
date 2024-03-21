@@ -26,7 +26,7 @@ const Login = () => {
 
   const loginUser = async () => {
     try {
-      const response = await fetch("https://localhost:5140/api/User/login", { // https://recipeappapi.azurewebsites.net/api/User/login
+      const response = await fetch("https://localhost:7005/api/User/login", { // https://recipeappapi.azurewebsites.net/api/User/login
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -60,7 +60,7 @@ const Login = () => {
 
   const registerUser = async () => {
 
-    const response = await fetch("https://localhost:5140/api/User/register", { // https://recipeappapi.azurewebsites.net/api/User/register
+    const response = await fetch("https://localhost:7005/api/User/register", { // https://recipeappapi.azurewebsites.net/api/User/register
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -92,7 +92,7 @@ const Login = () => {
 
   const recoverPassword = async () => {
     try {
-      const response = await fetch(`https://localhost:5140/api/User/RecoverPassword/${recoveryEmail}`, { //localhost:5140/api/User/RecoverPassword/{email}....`https://recipeappapi.azurewebsites.net/api/user/RecoveryPassword/${recoveryEmail}`
+      const response = await fetch(`https://localhost:7005/api/User/RecoverPassword/${recoveryEmail}`, { //localhost:5140/api/User/RecoverPassword/{email}....`https://recipeappapi.azurewebsites.net/api/user/RecoveryPassword/${recoveryEmail}`
         method: "GET",
         headers: {
           "Content-Type": "application/json",
