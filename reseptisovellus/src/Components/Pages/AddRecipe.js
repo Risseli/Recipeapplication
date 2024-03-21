@@ -147,7 +147,7 @@ const AddRecipe = () => {
   };
 
   return (
-    <div className="container">
+    <div className="add-recipe-container">
       <h1>Add New Recipe</h1>
       <form className="add-recipe-section" onSubmit={handleFormSubmit}>
         {/* Recipe details */}

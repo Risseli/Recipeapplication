@@ -407,7 +407,7 @@ const loadRecipes = async (option, id) => {
   
 
   return (
-    <div className="container">
+    <div className="profile-container">
       <h1>Profile</h1>
       {user ? (
         <>
