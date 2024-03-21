@@ -260,7 +260,7 @@ const loadRecipes = async (option, id) => {
             console.log("Response:", response);
 
             if (response.ok) {
-                const responseBody = await response.json();
+                const responseBody = await response.text();
                 console.log("Response body:", responseBody);
 
                 console.log("User data saved successfully.");
