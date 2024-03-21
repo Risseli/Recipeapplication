@@ -28,7 +28,7 @@ const AddRecipe = () => {
     try {
       setLoading(true);
 
-      const response = await fetch('https://recipeappapi.azurewebsites.net/api/Recipe', {
+      const response = await fetch('https://localhost:7005/api/Recipe', { // https://recipeappapi.azurewebsites.net/api/Recipe
         method: 'POST',
         headers: {
           Authorization: `Bearer ${authUser.token}`,

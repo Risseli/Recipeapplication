@@ -11,7 +11,7 @@ export const Home = () => {
       setLoading(true);
       try {
         const response = await fetch(
-          "https://recipeappapi.azurewebsites.net/api/recipe/"
+          "https://localhost:7005/api/recipe/"//"https://recipeappapi.azurewebsites.net/api/recipe/"
         );
         const data = await response.json();
         setRecipes(data);
