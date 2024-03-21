@@ -17,6 +17,8 @@ const EditRecipe = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const { id } = useParams();
+  const [recipeImages, setRecipeImages] = useState([]);
+  const [selectedImages, setSelectedImages] = useState([]);
  
 
   useEffect(() => {
@@ -80,35 +82,59 @@ const EditRecipe = () => {
     setRecipeData({ ...recipeData, [name]: value });
   };
 
-
-
   // ingredients
   const handleAddIngredient = () => {
     setRecipeData({
       ...recipeData,
-      ingredients: [...recipeData.ingredients, { name: '', amount: '', unit: '' }],
+      ingredients: [...recipeData.ingredients, { name: '', amount: '', unit: '', new:true}],
     });
   };
 
   const handleIngredientChange = (index, field, value) => {
     const updatedIngredients = [...recipeData.ingredients];
-    updatedIngredients[index][field] = value;
+    // Convert commas to periods in the amount field
+    if (field === 'amount') {
+      const newValue = value.replace(',', '.');
+      updatedIngredients[index][field] = newValue;
+    } else {
+      updatedIngredients[index][field] = value;
+    }
     setRecipeData({ ...recipeData, ingredients: updatedIngredients });
   };
 
-  const handleSaveIngredient = async () => {
+  const handleSaveIngredient = async (ingredient) => {
     try {
       setLoading(true);
       console.log("Saving ingredient changes...");
   
-      const response = await fetch(`https://recipeappapi.azurewebsites.net/api/Ingredient`, {
-        method: 'POST',
+      let url = 'https://recipeappapi.azurewebsites.net/api/Ingredient';
+      let method = 'POST';
+      let body = {
+        recipeId: id,
+        name: ingredient.name,
+        amount: ingredient.amount,
+        unit: ingredient.unit
+      };
+  
+      // Jos ainesosa on uusi, vaihdetaan HTTP-metodi ja URL
+      if (ingredient.new) {
+        method = 'POST';
+        body.id = 0; // Id-kenttä on joko tyhjä tai 0 uudelle ainesosalle
+      } else {
+        // Jos ainesosa on vanha, päivitetään sen tiedot PUT-pyynnöllä
+        method = 'PUT';
+        url += `/${ingredient.id}`;
+        body.id = ingredient.id; // Id-kenttä pysyy samana vanhalle ainesosalle
+      }
+  
+      const response = await fetch(url, {
+        method: method,
         headers: {
           Authorization: `Bearer ${authUser.token}`,
           'Accept': 'application/json',
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ recipeId: id, ingredients: recipeData.ingredients }),
+        body: JSON.stringify(body),
       });
   
       if (response.ok) {
@@ -130,7 +156,9 @@ const EditRecipe = () => {
     try {
       setLoading(true);
   
-      if (ingredient.recipeId === recipeData.recipeId) {
+      // Tarkistetaan, onko poistettava ainesosa uusi vai vanha
+      if (!ingredient.new) {
+        // Ainesosan poisto DELETE-pyynnöllä
         const response = await fetch(`https://recipeappapi.azurewebsites.net/api/Ingredient/${ingredient.id}`, {
           method: 'DELETE',
           headers: {
@@ -140,6 +168,7 @@ const EditRecipe = () => {
         });
   
         if (response.ok) {
+          // Ainesosan poisto onnistui
           const updatedIngredients = recipeData.ingredients.filter(item => item.id !== ingredient.id);
           setRecipeData({ ...recipeData, ingredients: updatedIngredients });
           alert('Ingredient removed successfully!');
@@ -147,7 +176,7 @@ const EditRecipe = () => {
           console.error('Failed to remove ingredient.');
         }
       } else {
-        console.error('Recipe ID mismatch. Unable to remove ingredient.');
+        console.error('Cannot remove a new ingredient.');
       }
     } catch (error) {
       console.error('Error occurred:', error);
@@ -157,98 +186,7 @@ const EditRecipe = () => {
     }
   };
   
-
-
-  
-  //images
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    const reader = new FileReader();
-
-    reader.onloadend = () => {
-      const newImage = {
-        name: file.name,
-        imageData: reader.result,
-      };
-      setRecipeData({ ...recipeData, images: [...recipeData.images, newImage] });
-    };
-
-    if (file) {
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const handleSaveImages = async () => {
-    try {
-      setLoading(true);
-      console.log("Saving image changes...");
-  
-      const response = await fetch(`https://recipeappapi.azurewebsites.net/api/Image`, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${authUser.token}`,
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ recipeId: id, images: recipeData.images }),
-      });
-  
-      if (response.ok) {
-        console.log('Image changes saved successfully!');
-        alert('Image changes saved successfully!');
-        window.location.reload();
-      } else {
-        console.error('Failed to save image changes.');
-      }
-    } catch (error) {
-      console.error('Error occurred:', error);
-      setError('Error occurred while saving image changes.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-
-  const handleRemoveImg = async (index) => {
-    try {
-      setLoading(true);
-      console.log("Removing image...");
-  
-      const response = await fetch(`https://recipeappapi.azurewebsites.net/api/Image/${recipeData.images[index].id}`, {
-        method: 'DELETE',
-        headers: {
-          Authorization: `Bearer ${authUser.token}`,
-          'Accept': 'application/json',
-        },
-      });
-  
-      if (response.ok) {
-        console.log('Image removed successfully!');
-        alert('Image removed successfully!');
-        const updatedImages = [...recipeData.images];
-        updatedImages.splice(index, 1);
-        setRecipeData({ ...recipeData, images: updatedImages });
-        window.location.reload();
-      } else {
-        console.error('Failed to remove image.');
-      }
-    } catch (error) {
-      console.error('Error occurred:', error);
-      setError('Error occurred while removing image.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-
-
-
-
-
-
-
-
-
+// keywords
   const handleAddKeyword = () => {
     setRecipeData({
       ...recipeData,
@@ -317,6 +255,114 @@ const EditRecipe = () => {
   };
   
   
+
+//images
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    const reader = new FileReader();
+    
+    reader.onloadend = () => {
+      const newImage = {
+        name: file.name,
+        id: '0',
+        recipeId: id,
+        imageData: reader.result, // Tallennetaan Base64-muotoinen data
+        new: true
+      };
+      setSelectedImages([...selectedImages, newImage]);
+      // Lisätään uusi kuva recipeImages-taulukkoon
+      setRecipeImages([...recipeImages, newImage]);
+    };
+    
+    if (file) {
+      reader.readAsDataURL(file);
+    }
+  };
+  
+  
+  const handleSaveImages = async () => {
+    try {
+      setLoading(true);
+      console.log("Saving image changes...");
+  
+      for (const image of recipeImages) {
+        let url = 'https://recipeappapi.azurewebsites.net/api/Image';
+        let method = 'POST';
+        let body = {
+          id: image.id, // Otetaan kuvan id
+          recipeId: image.recipeId, // Otetaan reseptin id
+          imageData: image.imageData.substring(23) // Poistetaan "data:image/jpeg;base64,"
+        };
+  
+        // Jos kuva on uusi, vaihdetaan HTTP-metodi ja URL
+        if (image.new === true) {
+          method = 'POST';
+        } else {
+          // Jos kuva on vanha, päivitetään sen tiedot PUT-pyynnöllä
+          method = 'PUT';
+          url += `/${image.id}`;
+        }
+  
+        const response = await fetch(url, {
+          method: method,
+          headers: {
+            Authorization: `Bearer ${authUser.token}`,
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(body),
+        });
+  
+        if (!response.ok) {
+          console.error('Failed to save image changes.');
+          return; // Jos jokin kuvaepäonnistuu, keskeytetään käsittely
+        }
+      }
+  
+      // Kaikki kuvat tallennettu onnistuneesti
+      console.log('All image changes saved successfully!');
+      alert('All image changes saved successfully!');
+      window.location.reload();
+    } catch (error) {
+      console.error('Error occurred:', error);
+      setError('Error occurred while saving image changes.');
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  
+  const handleRemoveImg = async (index) => {
+    try {
+      setLoading(true);
+      console.log("Removing image...");
+  
+      const response = await fetch(`https://recipeappapi.azurewebsites.net/api/Image/${index.id}`, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${authUser.token}`,
+          'Accept': 'application/json',
+        },
+      });
+  
+      if (response.ok) {
+        console.log('Image removed successfully!');
+        alert('Image removed successfully!');
+        const updatedImages = [...recipeData.images];
+        updatedImages.splice(index, 1);
+        setRecipeData({ ...recipeData, images: updatedImages });
+        window.location.reload();
+      } else {
+        console.error('Failed to remove image.');
+      }
+    } catch (error) {
+      console.error('Error occurred:', error);
+      setError('Error occurred while removing image.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
 
   console.log("Rendering EditRecipe component with recipe data:", recipeData);
 
@@ -388,7 +434,7 @@ const EditRecipe = () => {
       <button className="remove-button" type="button" onClick={() => handleRemoveIngredient(ingredient, index)}>
         Remove ingredient
       </button>
-      <button className="save-button" type="button" onClick={() => handleSaveIngredient(index)}>
+      <button className="save-button" type="button" onClick={() => handleSaveIngredient(ingredient, index)}>
         Save ingredient changes
       </button>
     </div>
@@ -396,9 +442,8 @@ const EditRecipe = () => {
   <button className="add-button" type="button" onClick={handleAddIngredient}>
     Add Ingredient
   </button>
-</div>
-
-
+</div> 
+        <div className="keywords-section">
         <h2>Keywords</h2>
         {recipeData.keywords.map((keyword, index) => (
           <div key={index}>
@@ -424,29 +469,50 @@ const EditRecipe = () => {
         <button className="add-button" type="button" onClick={handleAddKeyword}>
           Add Keyword
         </button>
-
+        </div>
+          <div className="images-section">
         <h2>Images</h2>
         Select Image:
         <label>
-          <input type="file" accept="image/*" onChange={handleImageChange} />
+        <input type="file" accept="image/*" onChange={handleImageChange} />
         </label>
         <br />
+                {/* Display selected images */}
+                {selectedImages.map((image, index) => (
+          <div key={index}>
+            <img
+              src={image.imageData}
+              alt={`Preview of ${image.name}`}
+              style={{ maxWidth: '200px', maxHeight: '200px' }}
+            />
+            <br/>
+            <button className="remove-button" onClick={(e) => handleRemoveImg(e)}>Remove image</button>
+            <button className="save-button" type="button" onClick={() => handleSaveImages(image, index)}>
+        Save image changes
+      </button>
+          </div>
+        ))}
+        <br />
+        <br />
+        {/* Display images from recipe */}
   {recipeData.images.map((image, index) => (
     <div key={index}>
-      <p>{image.name}</p>
       <img
         src={`data:image/jpeg;base64,${image.imageData}`}
         alt={`Preview of ${image.name}`}
         style={{ maxWidth: '200px', maxHeight: '200px' }}
       />
       <br />
-      <button className="remove-button" onClick={() => handleRemoveImg(index)}>Remove image</button>
-      <button className="save-button" type="button" onClick={handleSaveImages}>
-          Save image changes
-        </button>
+      <button className="remove-button" type="button" onClick={() => handleRemoveImg(image, index)}>
+        Remove image
+      </button>
+      <button className="save-button" type="button" onClick={() => handleSaveImages(image, index)}>
+        Save image changes
+      </button>
     </div>
   ))}
 <br />
+</div>
         {loading && <p>Loading...</p>}
         {error && <p style={{ color: 'red' }}>{error}</p>}
       </form>
