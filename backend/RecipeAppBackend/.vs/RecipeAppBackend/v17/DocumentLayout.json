@@ -3,8 +3,16 @@
   "WorkspaceRootPath": "C:\\AMK Hommia\\Vuosi 2\\Ohjelmistotuotanto 2\\repo\\Reseptisovellus\\backend\\RecipeAppBackend\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{4CA81F08-F00C-4906-A4F2-F1CB0D212047}|RecipeAppBackend\\RecipeAppBackend.csproj|c:\\amk hommia\\vuosi 2\\ohjelmistotuotanto 2\\repo\\reseptisovellus\\backend\\recipeappbackend\\recipeappbackend\\interfaces\\iuserrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{4CA81F08-F00C-4906-A4F2-F1CB0D212047}|RecipeAppBackend\\RecipeAppBackend.csproj|solutionrelative:recipeappbackend\\interfaces\\iuserrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{4CA81F08-F00C-4906-A4F2-F1CB0D212047}|RecipeAppBackend\\RecipeAppBackend.csproj|c:\\amk hommia\\vuosi 2\\ohjelmistotuotanto 2\\repo\\reseptisovellus\\backend\\recipeappbackend\\recipeappbackend\\dto\\imagedto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{4CA81F08-F00C-4906-A4F2-F1CB0D212047}|RecipeAppBackend\\RecipeAppBackend.csproj|solutionrelative:recipeappbackend\\dto\\imagedto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{4CA81F08-F00C-4906-A4F2-F1CB0D212047}|RecipeAppBackend\\RecipeAppBackend.csproj|c:\\amk hommia\\vuosi 2\\ohjelmistotuotanto 2\\repo\\reseptisovellus\\backend\\recipeappbackend\\recipeappbackend\\repositories\\userrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{4CA81F08-F00C-4906-A4F2-F1CB0D212047}|RecipeAppBackend\\RecipeAppBackend.csproj|solutionrelative:recipeappbackend\\repositories\\userrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{4CA81F08-F00C-4906-A4F2-F1CB0D212047}|RecipeAppBackend\\RecipeAppBackend.csproj|c:\\amk hommia\\vuosi 2\\ohjelmistotuotanto 2\\repo\\reseptisovellus\\backend\\recipeappbackend\\recipeappbackend\\controllers\\usercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -19,10 +27,6 @@
       "RelativeMoniker": "D:0:0:{4CA81F08-F00C-4906-A4F2-F1CB0D212047}|RecipeAppBackend\\RecipeAppBackend.csproj|solutionrelative:recipeappbackend\\repositories\\reciperepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{4CA81F08-F00C-4906-A4F2-F1CB0D212047}|RecipeAppBackend\\RecipeAppBackend.csproj|c:\\amk hommia\\vuosi 2\\ohjelmistotuotanto 2\\repo\\reseptisovellus\\backend\\recipeappbackend\\recipeappbackend\\repositories\\userrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{4CA81F08-F00C-4906-A4F2-F1CB0D212047}|RecipeAppBackend\\RecipeAppBackend.csproj|solutionrelative:recipeappbackend\\repositories\\userrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{4CA81F08-F00C-4906-A4F2-F1CB0D212047}|RecipeAppBackend\\RecipeAppBackend.csproj|c:\\amk hommia\\vuosi 2\\ohjelmistotuotanto 2\\repo\\reseptisovellus\\backend\\recipeappbackend\\recipeappbackend\\services\\authservices.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{4CA81F08-F00C-4906-A4F2-F1CB0D212047}|RecipeAppBackend\\RecipeAppBackend.csproj|solutionrelative:recipeappbackend\\services\\authservices.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
@@ -33,10 +37,6 @@
     {
       "AbsoluteMoniker": "D:0:0:{4CA81F08-F00C-4906-A4F2-F1CB0D212047}|RecipeAppBackend\\RecipeAppBackend.csproj|c:\\amk hommia\\vuosi 2\\ohjelmistotuotanto 2\\repo\\reseptisovellus\\backend\\recipeappbackend\\recipeappbackend\\interfaces\\iauthservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{4CA81F08-F00C-4906-A4F2-F1CB0D212047}|RecipeAppBackend\\RecipeAppBackend.csproj|solutionrelative:recipeappbackend\\interfaces\\iauthservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{4CA81F08-F00C-4906-A4F2-F1CB0D212047}|RecipeAppBackend\\RecipeAppBackend.csproj|c:\\amk hommia\\vuosi 2\\ohjelmistotuotanto 2\\repo\\reseptisovellus\\backend\\recipeappbackend\\recipeappbackend\\interfaces\\iuserrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{4CA81F08-F00C-4906-A4F2-F1CB0D212047}|RecipeAppBackend\\RecipeAppBackend.csproj|solutionrelative:recipeappbackend\\interfaces\\iuserrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{4CA81F08-F00C-4906-A4F2-F1CB0D212047}|RecipeAppBackend\\RecipeAppBackend.csproj|c:\\amk hommia\\vuosi 2\\ohjelmistotuotanto 2\\repo\\reseptisovellus\\backend\\recipeappbackend\\recipeappbackend\\dto\\recipedto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -70,32 +70,20 @@
       "DocumentGroups": [
         {
           "DockedWidth": 213,
-          "SelectedChildIndex": 6,
+          "SelectedChildIndex": 0,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 8,
+              "DocumentIndex": 0,
               "Title": "IUserRepository.cs",
               "DocumentMoniker": "C:\\AMK Hommia\\Vuosi 2\\Ohjelmistotuotanto 2\\repo\\Reseptisovellus\\backend\\RecipeAppBackend\\RecipeAppBackend\\Interfaces\\IUserRepository.cs",
               "RelativeDocumentMoniker": "RecipeAppBackend\\Interfaces\\IUserRepository.cs",
               "ToolTip": "C:\\AMK Hommia\\Vuosi 2\\Ohjelmistotuotanto 2\\repo\\Reseptisovellus\\backend\\RecipeAppBackend\\RecipeAppBackend\\Interfaces\\IUserRepository.cs",
               "RelativeToolTip": "RecipeAppBackend\\Interfaces\\IUserRepository.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAABMAAAAFAAAA",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAkAAAA2AAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-02-18T15:19:12.447Z",
-              "IsPinned": true
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 10,
-              "Title": "IngredientRepository.cs",
-              "DocumentMoniker": "C:\\AMK Hommia\\Vuosi 2\\Ohjelmistotuotanto 2\\repo\\Reseptisovellus\\backend\\RecipeAppBackend\\RecipeAppBackend\\Repositories\\IngredientRepository.cs",
-              "RelativeDocumentMoniker": "RecipeAppBackend\\Repositories\\IngredientRepository.cs",
-              "ToolTip": "C:\\AMK Hommia\\Vuosi 2\\Ohjelmistotuotanto 2\\repo\\Reseptisovellus\\backend\\RecipeAppBackend\\RecipeAppBackend\\Repositories\\IngredientRepository.cs",
-              "RelativeToolTip": "RecipeAppBackend\\Repositories\\IngredientRepository.cs",
-              "ViewState": "AQIAABAAAAAAAAAAAAAgwB8AAAAJAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-03-04T16:23:29.356Z",
+              "IsPinned": true,
               "EditorCaption": ""
             },
             {
@@ -112,7 +100,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 4,
               "Title": "Program.cs",
               "DocumentMoniker": "C:\\AMK Hommia\\Vuosi 2\\Ohjelmistotuotanto 2\\repo\\Reseptisovellus\\backend\\RecipeAppBackend\\RecipeAppBackend\\Program.cs",
               "RelativeDocumentMoniker": "RecipeAppBackend\\Program.cs",
@@ -125,7 +113,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 7,
+              "DocumentIndex": 8,
               "Title": "IAuthService.cs",
               "DocumentMoniker": "C:\\AMK Hommia\\Vuosi 2\\Ohjelmistotuotanto 2\\repo\\Reseptisovellus\\backend\\RecipeAppBackend\\RecipeAppBackend\\Interfaces\\IAuthService.cs",
               "RelativeDocumentMoniker": "RecipeAppBackend\\Interfaces\\IAuthService.cs",
@@ -137,7 +125,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 6,
               "Title": "AuthServices.cs",
               "DocumentMoniker": "C:\\AMK Hommia\\Vuosi 2\\Ohjelmistotuotanto 2\\repo\\Reseptisovellus\\backend\\RecipeAppBackend\\RecipeAppBackend\\Services\\AuthServices.cs",
               "RelativeDocumentMoniker": "RecipeAppBackend\\Services\\AuthServices.cs",
@@ -150,20 +138,46 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 3,
               "Title": "UserController.cs",
               "DocumentMoniker": "C:\\AMK Hommia\\Vuosi 2\\Ohjelmistotuotanto 2\\repo\\Reseptisovellus\\backend\\RecipeAppBackend\\RecipeAppBackend\\Controllers\\UserController.cs",
               "RelativeDocumentMoniker": "RecipeAppBackend\\Controllers\\UserController.cs",
               "ToolTip": "C:\\AMK Hommia\\Vuosi 2\\Ohjelmistotuotanto 2\\repo\\Reseptisovellus\\backend\\RecipeAppBackend\\RecipeAppBackend\\Controllers\\UserController.cs",
               "RelativeToolTip": "RecipeAppBackend\\Controllers\\UserController.cs",
-              "ViewState": "AQIAAEsBAAAAAAAAAAAmwFgBAAAAAAAA",
+              "ViewState": "AQIAAFEBAAAAAAAAAAAmwGIBAAApAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-03-03T18:10:03.289Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 2,
+              "Title": "UserRepository.cs",
+              "DocumentMoniker": "C:\\AMK Hommia\\Vuosi 2\\Ohjelmistotuotanto 2\\repo\\Reseptisovellus\\backend\\RecipeAppBackend\\RecipeAppBackend\\Repositories\\UserRepository.cs",
+              "RelativeDocumentMoniker": "RecipeAppBackend\\Repositories\\UserRepository.cs",
+              "ToolTip": "C:\\AMK Hommia\\Vuosi 2\\Ohjelmistotuotanto 2\\repo\\Reseptisovellus\\backend\\RecipeAppBackend\\RecipeAppBackend\\Repositories\\UserRepository.cs",
+              "RelativeToolTip": "RecipeAppBackend\\Repositories\\UserRepository.cs",
+              "ViewState": "AQIAAEwAAAAAAAAAAAAuwGcAAAAJAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-03-03T18:17:21.274Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "IngredientRepository.cs",
+              "DocumentMoniker": "C:\\AMK Hommia\\Vuosi 2\\Ohjelmistotuotanto 2\\repo\\Reseptisovellus\\backend\\RecipeAppBackend\\RecipeAppBackend\\Repositories\\IngredientRepository.cs",
+              "RelativeDocumentMoniker": "RecipeAppBackend\\Repositories\\IngredientRepository.cs",
+              "ToolTip": "C:\\AMK Hommia\\Vuosi 2\\Ohjelmistotuotanto 2\\repo\\Reseptisovellus\\backend\\RecipeAppBackend\\RecipeAppBackend\\Repositories\\IngredientRepository.cs",
+              "RelativeToolTip": "RecipeAppBackend\\Repositories\\IngredientRepository.cs",
+              "ViewState": "AQIAABAAAAAAAAAAAAAgwB8AAAAJAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-03-04T16:23:29.356Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
               "Title": "RecipeRepository.cs",
               "DocumentMoniker": "C:\\AMK Hommia\\Vuosi 2\\Ohjelmistotuotanto 2\\repo\\Reseptisovellus\\backend\\RecipeAppBackend\\RecipeAppBackend\\Repositories\\RecipeRepository.cs",
               "RelativeDocumentMoniker": "RecipeAppBackend\\Repositories\\RecipeRepository.cs",
@@ -176,7 +190,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
+              "DocumentIndex": 7,
               "Title": "LoginUserDto.cs",
               "DocumentMoniker": "C:\\AMK Hommia\\Vuosi 2\\Ohjelmistotuotanto 2\\repo\\Reseptisovellus\\backend\\RecipeAppBackend\\RecipeAppBackend\\Dto\\LoginUserDto.cs",
               "RelativeDocumentMoniker": "RecipeAppBackend\\Dto\\LoginUserDto.cs",
@@ -185,19 +199,6 @@
               "ViewState": "AQIAAAAAAAAAAAAAAAAAAAUAAAAsAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-03-03T18:33:33.06Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 4,
-              "Title": "UserRepository.cs",
-              "DocumentMoniker": "C:\\AMK Hommia\\Vuosi 2\\Ohjelmistotuotanto 2\\repo\\Reseptisovellus\\backend\\RecipeAppBackend\\RecipeAppBackend\\Repositories\\UserRepository.cs",
-              "RelativeDocumentMoniker": "RecipeAppBackend\\Repositories\\UserRepository.cs",
-              "ToolTip": "C:\\AMK Hommia\\Vuosi 2\\Ohjelmistotuotanto 2\\repo\\Reseptisovellus\\backend\\RecipeAppBackend\\RecipeAppBackend\\Repositories\\UserRepository.cs",
-              "RelativeToolTip": "RecipeAppBackend\\Repositories\\UserRepository.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAEYAAAAAAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-03-03T18:17:21.274Z",
               "EditorCaption": ""
             },
             {
@@ -233,7 +234,7 @@
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 1,
               "Title": "ImageDto.cs",
               "DocumentMoniker": "C:\\AMK Hommia\\Vuosi 2\\Ohjelmistotuotanto 2\\repo\\Reseptisovellus\\backend\\RecipeAppBackend\\RecipeAppBackend\\Dto\\ImageDto.cs",
               "RelativeDocumentMoniker": "RecipeAppBackend\\Dto\\ImageDto.cs",
