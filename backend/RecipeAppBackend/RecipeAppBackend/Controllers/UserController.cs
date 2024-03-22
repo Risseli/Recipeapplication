@@ -344,7 +344,7 @@ namespace RecipeAppBackend.Controllers
            
 
             //Email
-            if (updateUser.Email != null)
+            if (updateUser.Email != null && updateUser.Email != oldUser.Email)
             {
                 var user = _userRepository.GetUsers()
                     .Where(u => u.Email == updateUser.Email).FirstOrDefault();
