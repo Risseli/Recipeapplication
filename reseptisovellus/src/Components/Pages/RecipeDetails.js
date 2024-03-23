@@ -409,7 +409,7 @@ const RecipeDetails = () => {
                 <br />
                 <br />
                 <button onClick={addReview}>Add review</button>
-                {thisUser.admin ? <button>Edit review</button> : null}
+               {/*  {thisUser.admin ? <button>Edit review</button> : null} */}
               </div>
             ) : null}
             <br />

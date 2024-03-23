@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from "react";
 import RecipeGrid from "../../Components/recipeGrid";
+import { useAuth } from "../Authentication";
 
 export const Home = () => {
   const [recipes, setRecipes] = useState([]);
   const [loading, setLoading] = useState(true); // loading state for images
+  const { user: authUser } = useAuth();
 
   // fetch data from database, all queries can be done in one fetch. This is done when site loads or is refreshed
   useEffect(() => {
@@ -14,8 +16,19 @@ export const Home = () => {
           "https://localhost:7005/api/recipe/"//"https://recipeappapi.azurewebsites.net/api/recipe/"
         );
         const data = await response.json();
-        setRecipes(data);
-        setLoading(false);
+        const filteredData = data.filter(recipe => recipe.visibility === true); // Only show visible recipes
+        
+        if (authUser){
+          setRecipes(data);
+          setLoading(false);
+          console.log("logged user: Show all recipes", data);
+        
+        }
+        else {
+          setRecipes(filteredData);
+          setLoading(false);  
+          console.log("not logged user filtered recipes", filteredData);
+        }
       } catch (error) {
         console.error("Error fetching data:", error);
       }
