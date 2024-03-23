@@ -7,7 +7,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from "../Authentication";
 
 const Profile = () => {
-  const {user:authUser} = useAuth();
+  const {user:authUser, logout} = useAuth();
   const [user, setUser] = useState(null);
   const [editMode, setEditMode] = useState(false);
   const [editedUser, setEditedUser] = useState({});
@@ -17,6 +17,8 @@ const Profile = () => {
   const [recipeNames, setRecipeNames] = useState({});
   const [adminMode, setAdminMode] = useState(false);  
   const [users, setUsers] = useState([]); 
+
+
 
 
     // Uudet tilat arvostelun muokkausta varten
@@ -306,6 +308,7 @@ const loadRecipes = async (option, id) => {
           // Näytä ilmoitus onnistuneesta poistosta
           alert('User deleted successfully.');
           navigate("/"); // Palaa etusivulle
+          logout(); // kirjataan käyttäjä ulos
         } else {
           console.error("Error deleting user:", response);
           // Näytä ilmoitus epäonnistuneesta poistosta
