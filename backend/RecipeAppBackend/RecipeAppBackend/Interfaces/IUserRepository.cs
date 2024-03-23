@@ -6,6 +6,8 @@ namespace RecipeAppBackend.Interfaces
     {
         ICollection<User> GetUsers();
         User GetUser(int id);
+        User GetUserByEmail(string email);
+        User GetUserByUsername(string username);
         ICollection<Recipe> GetUsersRecipes(int id);
         ICollection<Recipe> GetUsersFavorites(int id);
         ICollection<Review> GetUsersReviews(int id);

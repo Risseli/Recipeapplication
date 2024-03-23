@@ -263,7 +263,7 @@ namespace RecipeAppBackend.Controllers
                 }
             }
 
-            return Ok("Succesfully created");
+            return Ok("Successfully created");
         }
 
         [Authorize]
