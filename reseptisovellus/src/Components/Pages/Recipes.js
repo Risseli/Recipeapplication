@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import RecipeGrid from "../../Components/recipeGrid"; // This is used in Home and Recipes Pages
+import { useAuth } from "../Authentication";
 
 export const Recipes = () => {
   const [recipes, setRecipes] = useState([]);
@@ -7,6 +8,7 @@ export const Recipes = () => {
   const [loading, setLoading] = useState(true);
   const [ingredient, setIngredient] = useState("");
   const [noResults, setNoResults] = useState(false);
+  const { user: authUser } = useAuth();
 
   const fetchData = async () => {
     setLoading(true);
@@ -16,9 +18,19 @@ export const Recipes = () => {
         "https://localhost:7005/api/recipe/"
       );
       const data = await response.json();
-      setRecipes(data);
-      setOriginalRecipes(data); // Tallenna alkuperäiset reseptit
-      setLoading(false);
+      const filteredData = data.filter((recipe) => recipe.visibility === true); // Näytä vain näkyvät reseptit
+
+      if (authUser) {
+        setRecipes(data);
+        setOriginalRecipes(data);
+        setLoading(false);
+        console.log("logged user: Show all recipes", data);
+      } else {
+        setRecipes(filteredData);
+        setOriginalRecipes(filteredData);
+        setLoading(false);
+        console.log("not logged user filtered recipes", filteredData);
+      }
     } catch (error) {
       console.error("Error fetching data:", error);
     }
@@ -36,16 +48,15 @@ export const Recipes = () => {
 
   const findRecipes = () => {
     if (!ingredient) {
-      setRecipes(originalRecipes); // Palauta alkuperäiset reseptit
+      setRecipes(originalRecipes); // Return original recipes if no ingredient is given
       setLoading(false);
+      setNoResults(false);
       return;
     }
 
     const filteredRecipes = originalRecipes.filter((recipe) => {
-      return recipe.ingredients.some((ingredientObj) => {
-        return ingredientObj.name
-          .toLowerCase()
-          .includes(ingredient.toLowerCase());
+      return recipe.keywords.some((keyword) => {
+        return keyword.word.toLowerCase().includes(ingredient.toLowerCase());
       });
     });
     if (filteredRecipes.length === 0) {
@@ -65,19 +76,23 @@ export const Recipes = () => {
         Here you can browse through our recipes and find something to cook for
         dinner tonight!
       </p>
-      <br/>
-      <br/>
-
-      <form onSubmit={handleSubmit}>
-        <label></label>
-        <input style={{ borderRadius: "4px"}}
-          type="text"
-          placeholder="Search with ingredient.."
-          value={ingredient}
-          onChange={(e) => setIngredient(e.target.value)}
-        ></input>
-        <button type="submit" style={{marginLeft : "10px"}}>Search</button>
-      </form>
+      <br />
+      <br />
+      {!loading && (
+        <form onSubmit={handleSubmit}>
+          <label></label>
+          <input
+            style={{ borderRadius: "4px" }}
+            type="text"
+            placeholder="Search with ingredient.."
+            value={ingredient}
+            onChange={(e) => setIngredient(e.target.value)}
+          ></input>
+          <button type="submit" style={{ marginLeft: "10px" }}>
+            Search
+          </button>
+        </form>
+      )}
 
       {loading ? (
         <p style={{ fontSize: "48px" }}>Loading recipes..</p>

@@ -31,6 +31,7 @@ const RecipeDetails = () => {
   const [isFavorite, setIsFavorite] = useState(false); // check if recipe is favourite
   const [isFavoriteLoading, setIsFavoriteLoading] = useState(false); // loading state for checking favorite
   const [thisUser, setThisUser] = useState(null); // user info
+  const [reviewId, setReviewId] = useState(null); // review id
 
   console.log("rating:", rating, "color:", color);
 
@@ -59,6 +60,10 @@ const RecipeDetails = () => {
       const data = await response.json(); // recipe
       const data2 = await response2.json(); // user
       // const data3 = await response3.json(); // this user
+      const firstReview = data.reviews[0]; // Oletetaan, että arvostelut ovat saatavilla ja että ensimmäinen arvostelu on riittävä
+      const reviewId = firstReview ? firstReview.id : null;
+
+      setReviewId(reviewId);
       setRecipe(data);
       setUser(data2);
       // setThisUser(data3);
@@ -131,7 +136,7 @@ const RecipeDetails = () => {
         // Fetch updated recipe details after setting favourite
         const updatedRecipeResponse = await fetch(
           // `https://recipeappapi.azurewebsites.net/api/recipe/${id}`
-          `https://localhost:7005/api/recipe/${id}`,
+          `https://localhost:7005/api/recipe/${id}`
         );
         const updatedRecipeData = await updatedRecipeResponse.json();
 
@@ -200,6 +205,14 @@ const RecipeDetails = () => {
     return null; // Jos vastaavaa käyttäjää ei löydy
   };
 
+  // find out if logged user is recipe creator, if it is show edit button
+  const isCreator = () => {
+    if (authUser && recipe.userId === authUser.userId) {
+      return true;
+    }
+    return false;
+  };
+
   // function to show if user is admin or not using authUser and id
   console.log("is admin or not: ");
 
@@ -245,7 +258,6 @@ const RecipeDetails = () => {
       setRating(null);
 
       if (response.ok) {
-        
         await response.json();
 
         console.log("Review response ok!");
@@ -257,6 +269,31 @@ const RecipeDetails = () => {
       console.error("Virhe arvostelun lisäämisessä:", error);
     }
     fetchRecipeDetails();
+  };
+
+  const deleteReview = async () => {
+    try {
+      const response = await fetch(
+        // `https://recipeappapi.azurewebsites.net/api/review/${id}`,
+        `https://localhost:7005/api/review/${reviewId}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${authUser.token}`,
+          },
+        }
+      );
+
+      if (response.ok) {
+        console.log("Review deleted successfully.");
+        alert("Review deleted successfully.");
+        window.location.reload();
+      } else {
+        console.error("Error deleting review:", response);
+      }
+    } catch (error) {
+      console.error("Error deleting review:", error);
+    }
   };
 
   const currentPage = `https://recipeappgl.azurewebsites.net/`;
@@ -409,7 +446,6 @@ const RecipeDetails = () => {
                 <br />
                 <br />
                 <button onClick={addReview}>Add review</button>
-                {thisUser.admin ? <button>Edit review</button> : null}
               </div>
             ) : null}
             <br />
@@ -423,8 +459,18 @@ const RecipeDetails = () => {
                     <strong>{reviewUser(review)}:</strong> "{review.comment}"
                   </p>
                   <p>Rating: {review.rating} / 5</p>
+                  {((authUser && authUser.userId === review.userId) ||
+                    (authUser && thisUser && thisUser.admin)) && (
+                    <button
+                      style={{ marginTop: "10px" }}
+                      onClick={deleteReview}
+                    >
+                      Remove review
+                    </button>
+                  )}
                 </div>
               ))}
+            {/* if logged user is admin or recipe owner show edit button */}
           </div>
           {/* create bar for like, setFavourite, share, print and share recipe*/}
         </>
