@@ -2,6 +2,8 @@
 using RecipeAppBackend.Data;
 using RecipeAppBackend.Interfaces;
 using RecipeAppBackend.Models;
+using System.Net.Mail;
+using System.Text.RegularExpressions;
 
 namespace RecipeAppBackend.Repositories
 {
@@ -90,6 +92,15 @@ namespace RecipeAppBackend.Repositories
         public bool UserExists(int id)
         {
             return _context.Users.Any(u => u.Id == id);
+        }
+
+        public bool ValidateEmail(string email)
+        {
+            string reg_pattern = @"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$";
+
+            Regex regex = new Regex(reg_pattern);
+
+            return regex.IsMatch(email);
         }
     }
 }
