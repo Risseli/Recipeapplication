@@ -62,7 +62,7 @@ const RecipeDetails = () => {
       // const data3 = await response3.json(); // this user
       const firstReview = data.reviews[0]; // Oletetaan, että arvostelut ovat saatavilla ja että ensimmäinen arvostelu on riittävä
       const reviewId = firstReview ? firstReview.id : null;
-      
+
       setReviewId(reviewId);
       setRecipe(data);
       setUser(data2);
@@ -459,11 +459,18 @@ const RecipeDetails = () => {
                     <strong>{reviewUser(review)}:</strong> "{review.comment}"
                   </p>
                   <p>Rating: {review.rating} / 5</p>
-                  {thisUser.admin || isCreator ? <button style={{marginTop : "10px"}} onClick={deleteReview}>Remove review</button> : null}
+                  {((authUser && authUser.userId === review.userId) ||
+                    (authUser && thisUser && thisUser.admin)) && (
+                    <button
+                      style={{ marginTop: "10px" }}
+                      onClick={deleteReview}
+                    >
+                      Remove review
+                    </button>
+                  )}
                 </div>
               ))}
             {/* if logged user is admin or recipe owner show edit button */}
-            
           </div>
           {/* create bar for like, setFavourite, share, print and share recipe*/}
         </>
