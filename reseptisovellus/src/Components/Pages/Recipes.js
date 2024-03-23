@@ -78,20 +78,21 @@ export const Recipes = () => {
       </p>
       <br />
       <br />
-
-      <form onSubmit={handleSubmit}>
-        <label></label>
-        <input
-          style={{ borderRadius: "4px" }}
-          type="text"
-          placeholder="Search with ingredient.."
-          value={ingredient}
-          onChange={(e) => setIngredient(e.target.value)}
-        ></input>
-        <button type="submit" style={{ marginLeft: "10px" }}>
-          Search
-        </button>
-      </form>
+      {!loading && (
+        <form onSubmit={handleSubmit}>
+          <label></label>
+          <input
+            style={{ borderRadius: "4px" }}
+            type="text"
+            placeholder="Search with ingredient.."
+            value={ingredient}
+            onChange={(e) => setIngredient(e.target.value)}
+          ></input>
+          <button type="submit" style={{ marginLeft: "10px" }}>
+            Search
+          </button>
+        </form>
+      )}
 
       {loading ? (
         <p style={{ fontSize: "48px" }}>Loading recipes..</p>
