@@ -49,7 +49,7 @@ namespace RecipeAppBackend.Controllers
         [ProducesResponseType(200, Type = typeof(Keyword))]
         [ProducesResponseType(404)]
         [ProducesResponseType(400)]
-        public IActionResult GetKeyword(int reviewId)
+        public IActionResult GetReview(int reviewId)
         {
             if (!_reviewRepository.ReviewExists(reviewId))
                 return NotFound();
@@ -131,7 +131,7 @@ namespace RecipeAppBackend.Controllers
                 return StatusCode(500, ModelState);
             }
 
-            return Ok("Succesfully created");
+            return Ok("Successfully created");
         }
 
 

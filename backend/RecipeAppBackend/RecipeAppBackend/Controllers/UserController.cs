@@ -135,7 +135,8 @@ namespace RecipeAppBackend.Controllers
         [ProducesResponseType(404)]
         public IActionResult RecoverPassword(string email)
         {
-            var user = _userRepository.GetUsers().Where(u => u.Email == email).FirstOrDefault();
+            var user = _userRepository.GetUserByEmail(email);
+
 
             if (user == null)
             {
@@ -143,10 +144,11 @@ namespace RecipeAppBackend.Controllers
                 return StatusCode(422, ModelState);
             }
 
-            _authService.RestorePassword(email, user.Password);
-
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
+
+            _authService.RestorePassword(email, user.Password);
+
 
             return NoContent();
         }
@@ -216,8 +218,7 @@ namespace RecipeAppBackend.Controllers
             if (loginUser == null)
                 return BadRequest(ModelState);
 
-            var user = _userRepository.GetUsers()
-                .Where(u => u.Username == loginUser.Username).FirstOrDefault();
+            var user = _userRepository.GetUserByUsername(loginUser.Username);
 
             if (user == null || !_authService.VerifyPassword(loginUser.Password, user.Password))
             {
