@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import "./RecipeDetails.css";
 import { StarRating } from "../StarRating";
 import { useAuth } from "../Authentication";
 import { NavLink } from "react-router-dom";
+
+
 
 import {
   EmailShareButton,
@@ -17,6 +19,7 @@ import {
 } from "react-share";
 import { IoMdHeart, IoMdHeartEmpty } from "react-icons/io";
 import { CiEdit } from "react-icons/ci";
+import { FaTrash } from "react-icons/fa";
 
 const RecipeDetails = () => {
   const [recipe, setRecipe] = useState(null); // recipe info
@@ -32,6 +35,7 @@ const RecipeDetails = () => {
   const [isFavoriteLoading, setIsFavoriteLoading] = useState(false); // loading state for checking favorite
   const [thisUser, setThisUser] = useState(null); // user info
   const [reviewId, setReviewId] = useState(null); // review id
+  const navigate = useNavigate();
 
   console.log("rating:", rating, "color:", color);
 
@@ -296,6 +300,34 @@ const RecipeDetails = () => {
     }
   };
 
+  // function for admins to delete recipe
+  const deleteRecipe = async () => {
+    try {
+      const response = await fetch(
+        // `https://recipeappapi.azurewebsites.net/api/recipe/${id}`,
+        `https://localhost:7005/api/recipe/${id}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${authUser.token}`,
+          },
+        }
+      );
+
+      if (response.ok) {
+        console.log("Recipe deleted successfully.");
+        alert("Recipe deleted successfully.");
+        //window.location.reload();
+        navigate("/recipes");
+      } else {
+        console.error("Error deleting recipe:", response);
+      }
+      
+    } catch (error) {
+      console.error("Error deleting recipe:", error);
+    }
+  };
+
   const currentPage = `https://recipeappgl.azurewebsites.net/`;
 
   return (
@@ -330,28 +362,35 @@ const RecipeDetails = () => {
             </WhatsappShareButton>
 
             {authUser && !isFavoriteLoading && (
-              <button
-                style={{ marginLeft: "60%" }}
-                onClick={() => {
-                  if (isFavorite) {
-                    removeFavorite();
-                  } else {
-                    addFavorite();
-                  }
-                }}
-              >
-                {isFavorite ? (
-                  <IoMdHeart size={45} color="#172554" />
-                ) : (
-                  <IoMdHeartEmpty size={45} color="#172554" />
+              <>
+                <button
+                  style={{ marginLeft: "58%" }}
+                  onClick={() => {
+                    if (isFavorite) {
+                      removeFavorite();
+                    } else {
+                      addFavorite();
+                    }
+                  }}
+                >
+                  {isFavorite ? (
+                    <IoMdHeart size={45} color="#172554" />
+                  ) : (
+                    <IoMdHeartEmpty size={45} color="#172554" />
+                  )}
+                </button>
+                {thisUser && thisUser.admin && (
+                  <>
+                  <NavLink to={`/edit-recipe/${recipe.id}`}>
+                    <CiEdit size={45} color="#172554" style={{marginRight : "5px"}}/>
+                  </NavLink>
+                  <button onClick={deleteRecipe}><FaTrash size={35} color="#172554"/></button>
+
+                  </>
                 )}
-              </button>
+                
+              </>
             )}
-            {thisUser && thisUser.admin ? (
-              <NavLink to={`/edit-recipe/${recipe.id}`}>
-                <CiEdit size={45} />
-              </NavLink>
-            ) : null}
           </div>
 
           <div className="recipe-detail-image">
