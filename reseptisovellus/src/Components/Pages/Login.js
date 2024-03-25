@@ -23,6 +23,7 @@ const Login = () => {
   const [recoverPasswordPrompt, setRecoverPasswordPrompt] = useState(false);
   const [recoveryEmail, setRecoveryEmail] = useState('');
   const [registerError, setRegisterError] = useState(null);
+  const [registerSuccess, setRegisterSuccess] = useState(null);
 
   const loginUser = async () => {
     try {
@@ -59,7 +60,16 @@ const Login = () => {
   };
 
   const registerUser = async () => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+    setTimeout(()=>{
+      setRegisterError(null);
+    },3000)
+  
+    if (!emailRegex.test(registerData.email)) {
+      setRegisterError("Please enter a valid email address.");
+      return;
+    }
     const response = await fetch("https://localhost:7005/api/User/register", { // https://recipeappapi.azurewebsites.net/api/User/register
       method: "POST",
       headers: {
@@ -70,22 +80,16 @@ const Login = () => {
 
     if (!response.ok) {
       console.error("Registration failed.");
+      const result = await response.json();
+      
+      setRegisterError("Email or Username are already in Use")
       return;
     }
+    setRegisterSuccess("Successfully registered");
 
-    const result = await response.json();
-
-    console.log("Registration successful:", result);
-    // Check if the result contains an error message for duplicate email or username
-    if (result.error) {
-      if (result.error.includes("email")) {
-        setRegisterError("Email already exists. Please use a different email.");
-      }
-      if (result.error.includes("username")) {
-        setRegisterError("Username already exists. Please choose a different username.");
-      }
-      return;
-    }
+    setTimeout(() => {
+      setRegisterSuccess(null);
+    }, 4000);
 
   };
 
@@ -199,6 +203,7 @@ const Login = () => {
 
           <h1 className="register-heading">Register</h1>
           {registerError && <p className="error-message">{registerError}</p>} {/* Display register error */}
+          {registerSuccess && <p className="success-message">{registerSuccess}</p>} {/* Display success message */}
           <form>
             <div className="form-group">
               <input
