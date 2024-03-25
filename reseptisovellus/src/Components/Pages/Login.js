@@ -26,7 +26,7 @@ const Login = () => {
 
   const loginUser = async () => {
     try {
-      const response = await fetch("http://localhost:7005/api/User/login", { // https://recipeappapi.azurewebsites.net/api/User/login
+      const response = await fetch("http://localhost:5140/api/User/login", { // https://recipeappapi.azurewebsites.net/api/User/login
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -59,8 +59,15 @@ const Login = () => {
   };
 
   const registerUser = async () => {
+    // Email format validation using regular expression
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  
+    if (!emailRegex.test(registerData.email)) {
+      setRegisterError("Please enter a valid email address.");
+      return;
+    }
 
-    const response = await fetch("http://localhost:7005/api/User/register", { // https://recipeappapi.azurewebsites.net/api/User/register
+    const response = await fetch("http://localhost:5140/api/User/register", { // https://recipeappapi.azurewebsites.net/api/User/register
       method: "POST",
       headers: {
         "Content-Type": "application/json",
