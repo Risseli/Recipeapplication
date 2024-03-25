@@ -219,6 +219,7 @@ namespace RecipeAppBackend.Controllers
                 return BadRequest(ModelState);
 
             var user = _userRepository.GetUserByUsername(loginUser.Username);
+            //var user = _userRepository.GetUsers().Where(u => u.Username == loginUser.Username).FirstOrDefault();
 
             if (user == null || !_authService.VerifyPassword(loginUser.Password, user.Password))
             {
