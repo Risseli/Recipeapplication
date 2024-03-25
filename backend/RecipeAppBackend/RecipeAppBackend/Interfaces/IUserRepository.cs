@@ -6,6 +6,8 @@ namespace RecipeAppBackend.Interfaces
     {
         ICollection<User> GetUsers();
         User GetUser(int id);
+        User GetUserByEmail(string email);
+        User GetUserByUsername(string username);
         ICollection<Recipe> GetUsersRecipes(int id);
         ICollection<Recipe> GetUsersFavorites(int id);
         ICollection<Review> GetUsersReviews(int id);
@@ -17,5 +19,6 @@ namespace RecipeAppBackend.Interfaces
         bool RemoveFavorite(Favorite favorite);
         bool FavoriteExists(int userId, int recipeId);
         bool Save();
+        bool ValidateEmail(string email);
     }
 }

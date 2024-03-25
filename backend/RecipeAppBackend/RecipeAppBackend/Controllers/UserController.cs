@@ -135,7 +135,8 @@ namespace RecipeAppBackend.Controllers
         [ProducesResponseType(404)]
         public IActionResult RecoverPassword(string email)
         {
-            var user = _userRepository.GetUsers().Where(u => u.Email == email).FirstOrDefault();
+            var user = _userRepository.GetUserByEmail(email);
+
 
             if (user == null)
             {
@@ -143,10 +144,11 @@ namespace RecipeAppBackend.Controllers
                 return StatusCode(422, ModelState);
             }
 
-            _authService.RestorePassword(email, user.Password);
-
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
+
+            _authService.RestorePassword(email, user.Password);
+
 
             return NoContent();
         }
@@ -162,12 +164,18 @@ namespace RecipeAppBackend.Controllers
             if (createUser == null)
                 return BadRequest(ModelState);
 
+            if (!_userRepository.ValidateEmail(createUser.Email))
+            {
+                ModelState.AddModelError("ModelStateError", "The email '" + createUser.Email + "' is not valid");
+                return StatusCode(422, ModelState);
+            }
+
             var user = _userRepository.GetUsers()
                 .Where(u => u.Email == createUser.Email).FirstOrDefault();
 
             if (user != null)
             {
-                ModelState.AddModelError("ModelStateError", "The email" + createUser.Email + " is already in use");
+                ModelState.AddModelError("ModelStateError", "The email '" + createUser.Email + "' is already in use");
                 return StatusCode(422, ModelState);
             }
 
@@ -176,7 +184,7 @@ namespace RecipeAppBackend.Controllers
 
             if (user != null)
             {
-                ModelState.AddModelError("ModelStateError", "The username" + createUser.Username + " is already in use");
+                ModelState.AddModelError("ModelStateError", "The username '" + createUser.Username + "' is already in use");
                 return StatusCode(422, ModelState);
             }
 
@@ -210,8 +218,7 @@ namespace RecipeAppBackend.Controllers
             if (loginUser == null)
                 return BadRequest(ModelState);
 
-            var user = _userRepository.GetUsers()
-                .Where(u => u.Username == loginUser.Username).FirstOrDefault();
+            var user = _userRepository.GetUserByUsername(loginUser.Username);
 
             if (user == null || !_authService.VerifyPassword(loginUser.Password, user.Password))
             {
@@ -335,7 +342,7 @@ namespace RecipeAppBackend.Controllers
 
                 if (user != null)
                 {
-                    ModelState.AddModelError("ModelStateError", "The username " + user.Username + " is already in use");
+                    ModelState.AddModelError("ModelStateError", "The username '" + user.Username + "' is already in use");
                     return StatusCode(422, ModelState);
                 }
 
@@ -344,14 +351,20 @@ namespace RecipeAppBackend.Controllers
            
 
             //Email
-            if (updateUser.Email != null)
+            if (updateUser.Email != null && updateUser.Email != oldUser.Email)
             {
+                if (!_userRepository.ValidateEmail(updateUser.Email))
+                {
+                    ModelState.AddModelError("ModelStateError", "The email '" + updateUser.Email + "' is not valid");
+                    return StatusCode(422, ModelState);
+                }
+
                 var user = _userRepository.GetUsers()
                     .Where(u => u.Email == updateUser.Email).FirstOrDefault();
 
                 if (user != null )
                 {
-                    ModelState.AddModelError("ModelStateError", "The email " + user.Email + " is already in use");
+                    ModelState.AddModelError("ModelStateError", "The email '" + user.Email + "' is already in use");
                     return StatusCode(422, ModelState);
                 }
 

@@ -28,6 +28,12 @@ nav .title {
   text-decoration: none;
   color: white;
 }
+nav .title img{
+  width: 150px;
+  height: 100px;
+  padding: none;
+
+}
 nav ul {
   display: flex;
 }

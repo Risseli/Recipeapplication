@@ -10,7 +10,7 @@ export const Navbar = () => {
   return (
     <nav>
       <Link to="/" className="title">
-        RECIPE APP
+      <img src="blackAndWhiteLogo.png" alt="Logo"/>
       </Link>
       <div
         className="menu"
@@ -24,6 +24,7 @@ export const Navbar = () => {
         <span></span>
       </div>
       <ul className={menuOpen ? "open" : ""}>
+        
         <li>
           <Link to="/about">About</Link>
         </li>

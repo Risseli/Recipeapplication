@@ -61,7 +61,7 @@ namespace RecipeAppBackend.Controllers
         [ProducesResponseType(200, Type = typeof(Keyword))]
         [ProducesResponseType(404)]
         [ProducesResponseType(400)]
-        public IActionResult GetKeywordsOfRepice(int recipeId)
+        public IActionResult GetKeywordsOfRecipe(int recipeId)
         {
             var keywords = _mapper.Map<List<KeywordDto>>(_keywordRepository.GetKeywordsOfRecipe(recipeId));
 

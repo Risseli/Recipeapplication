@@ -7,7 +7,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from "../Authentication";
 
 const Profile = () => {
-  const { user:authUser} = useAuth();
+  const {user:authUser, logout} = useAuth();
   const [user, setUser] = useState(null);
   const [editMode, setEditMode] = useState(false);
   const [editedUser, setEditedUser] = useState({});
@@ -17,6 +17,8 @@ const Profile = () => {
   const [recipeNames, setRecipeNames] = useState({});
   const [adminMode, setAdminMode] = useState(false);  
   const [users, setUsers] = useState([]); 
+
+
 
 
     // Uudet tilat arvostelun muokkausta varten
@@ -242,35 +244,50 @@ const loadRecipes = async (option, id) => {
 
   const handleSaveClick = async () => {
     try {
-      // Poista userId pyynnön rungosta, koska se on jo polussa
-      const { userId, ...userWithoutId } = editedUser;
-  
-      console.log("Saving user data...", userWithoutId);
-  
-      const response = await fetch(`https://localhost:7005/api/user/${editedUser.id}`, { // https://recipeappapi.azurewebsites.net/api/user/${editedUser.id}
-      
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${authUser.token}`, // Lisää token otsikkoon
-        },
-        body: JSON.stringify(userWithoutId), // Käytä userWithoutId:tä pyynnön rungossa
-      });
-  
-      console.log("Response:", response);
-      const data = await response.json();
-  
-      if (response.ok) {
-        console.log("User data saved successfully.");
-        setUser(editedUser);
-        setEditMode(false);
-      } else {
-        console.error("Error updating user data", data['']['errors'][0]['errorMessage']);
-      }
+        // Check if either name or email has been changed
+        if (editedUser.name !== user.name || editedUser.email !== user.email) {
+            const { userId, ...userWithoutId } = editedUser;
+
+            console.log("Saving user data...", userWithoutId);
+
+            const response = await fetch(`https://localhost:7005/api/user/${editedUser.id}`, {  // https://recipeappapi.azurewebsites.net/api/user/${editedUser.id}
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${authUser.token}`,
+                },
+                body: JSON.stringify(userWithoutId),
+            });
+
+            console.log("Response:", response);
+
+            if (response.ok) {
+                const responseBody = await response.text();
+                console.log("Response body:", responseBody);
+
+                console.log("User data saved successfully.");
+                setUser(editedUser);
+                setEditMode(false);
+                alert("User data saved successfully.");
+            } else {
+                if (response.status === 409) {
+                    alert("Email already exists. Please choose a different email.");
+                } else {
+                    alert("Error updating user data. Please try again.");
+                }
+            }
+        } else {
+            // If neither name nor email has changed, display a message to the user
+            alert("Please make changes to either name or email.");
+        }
     } catch (error) {
-      console.error("Error saving user data:", error);
+        console.error("Error saving user data:", error);
+        alert("An error occurred while saving user data.");
     }
-  };
+};
+
+
+
   
   
 
@@ -291,6 +308,7 @@ const loadRecipes = async (option, id) => {
           // Näytä ilmoitus onnistuneesta poistosta
           alert('User deleted successfully.');
           navigate("/"); // Palaa etusivulle
+          logout(); // kirjataan käyttäjä ulos
         } else {
           console.error("Error deleting user:", response);
           // Näytä ilmoitus epäonnistuneesta poistosta
