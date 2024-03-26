@@ -153,7 +153,7 @@ const AddRecipe = () => {
         {/* Recipe details */}
         <label>
           Name:
-          <input type="text" name="name" value={recipeData.name} onChange={handleNameInputChange} />
+          <input type="text" name="name" value={recipeData.name} onChange={handleNameInputChange} data-testid="name-input" />
         </label>
         <br />
         <label>
@@ -162,6 +162,7 @@ const AddRecipe = () => {
             name="instructions"
             value={recipeData.instructions}
             onChange={handleInstructionsInputChange}
+            data-testid="instructions-textarea"
           />
         </label>
         <br />
@@ -177,51 +178,55 @@ const AddRecipe = () => {
                 visibility: !recipeData.visibility,
               })
             }
+            data-testid="visibility-checkbox"
           />
         </label>
         {/* Ingredients */}
         <div className="ingredient-section">
-        <h2>Ingredients</h2>
-        {recipeData.ingredients.map((ingredient, index) => (
-          <div key={index}>
-            <label>
-              Name:
-              <br/>
-              <input
-                type="text"
-                name="name"
-                value={ingredient.name}
-                onChange={(e) => handleIngredientChange(index, e)}
-              />
-            </label>
-            <label>
-              Amount:
-              <br/>
-              <input
-                type="text"
-                name="amount"
-                value={ingredient.amount}
-                onChange={(e) => handleIngredientChange(index, e)}
-              />
-            </label>
-            <label>
-              Unit:
-              <br/>
-              <input
-                type="text"
-                name="unit"
-                value={ingredient.unit}
-                onChange={(e) => handleIngredientChange(index, e)}
-              />
-            </label>
-            <button className="remove-button" onClick={() => handleRemoveIngredient(index)}>
-              Remove ingredient
-            </button>
-          </div>
-        ))}
-        <button className="add-button" type="button" onClick={handleAddIngredient}>
-          Add Ingredient
-        </button>
+          <h2>Ingredients</h2>
+          {recipeData.ingredients.map((ingredient, index) => (
+            <div key={index}>
+              <label>
+                Name:
+                <br/>
+                <input
+                  type="text"
+                  name="name"
+                  value={ingredient.name}
+                  onChange={(e) => handleIngredientChange(index, e)}
+                  data-testid={`ingredient-name-input-${index}`}
+                />
+              </label>
+              <label>
+                Amount:
+                <br/>
+                <input
+                  type="text"
+                  name="amount"
+                  value={ingredient.amount}
+                  onChange={(e) => handleIngredientChange(index, e)}
+                  data-testid={`ingredient-amount-input-${index}`}
+                />
+              </label>
+              <label>
+                Unit:
+                <br/>
+                <input
+                  type="text"
+                  name="unit"
+                  value={ingredient.unit}
+                  onChange={(e) => handleIngredientChange(index, e)}
+                  data-testid={`ingredient-unit-input-${index}`}
+                />
+              </label>
+              <button className="remove-button" onClick={() => handleRemoveIngredient(index)}>
+                Remove ingredient
+              </button>
+            </div>
+          ))}
+          <button className="add-button" type="button" onClick={handleAddIngredient} data-testid="add-ingredient-button">
+            Add Ingredient
+          </button>
         </div>
         {/* Keywords */}
         <h2>Keywords</h2>
@@ -234,21 +239,23 @@ const AddRecipe = () => {
                 name="word"
                 value={keyword.word}
                 onChange={(e) => handleKeywordChange(index, e)}
+                data-testid={`keyword-input-${index}`}
               />
             </label>
             <br />
-            <button className="remove-button" onClick={() => handleRemoveKeyword(index)}>
+            <button className="remove-button" onClick={() => handleRemoveKeyword(index)} data-testid={`remove-keyword-button-${index}`}>
               Remove keyword
             </button>
           </div>
         ))}
-        <button className="add-button" type="button" onClick={handleAddKeyword}>
+        <button className="add-button" type="button" onClick={handleAddKeyword} data-testid="add-keyword-button">
           Add Keyword
         </button>
+        {/* Images */}
         <h2>Images</h2>
         <label>
           Select Image:
-          <input type="file" accept="image/*" onChange={handleImageChange} />
+          <input type="file" accept="image/*" onChange={handleImageChange} data-testid="image-input" />
         </label>
         <br />
         {/* Display selected images */}
@@ -261,23 +268,26 @@ const AddRecipe = () => {
               style={{ maxWidth: '200px', maxHeight: '200px' }}
             />
             <br/>
-            <button className="remove-button" onClick={(e) => handleRemoveImg(e)}>Remove image</button>
+            <button className="remove-button" onClick={(e) => handleRemoveImg(e)} data-testid={`remove-image-button-${index}`}>
+              Remove image
+            </button>
           </div>
         ))}
         <br />
         <br />
-
-        <button className="add-button" type="submit">
+  
+        <button className="add-button" type="submit" data-testid="submit-button">
           Add Recipe
         </button>
-        <button className="reset-button" onClick={handleReset}>
+        <button className="reset-button" onClick={handleReset} data-testid="reset-button">
           Reset
         </button>
         {loading && <p>Loading...</p>}
-        {error && <p style={{ color: 'red' }}>{error}</p>}
+        {error && <p style={{ color: 'red' }} data-testid="error-message">{error}</p>}
       </form>
     </div>
   );
+  
 };
 
 export { AddRecipe };

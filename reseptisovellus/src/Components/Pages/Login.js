@@ -81,10 +81,19 @@ const Login = () => {
     if (!response.ok) {
       console.error("Registration failed.");
       const result = await response.json();
-      
-      setRegisterError("Email or Username are already in Use")
-      return;
+
+      // Check if the result contains an error message for duplicate email or username
+      if (result.ModelStateError.errors.length > 0) {
+        if (result.ModelStateError.errors[0].errorMessage.includes("email")) {
+          setRegisterError("Email already exists. Please use a different email.");
+        }
+        if (result.ModelStateError.errors[0].errorMessage.includes("username")) {
+          setRegisterError("Username already exists. Please choose a different username.");
+        }
+        return;
+      }
     }
+
     setRegisterSuccess("Successfully registered");
 
     setTimeout(() => {

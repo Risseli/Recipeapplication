@@ -4,9 +4,6 @@ import "./RecipeDetails.css";
 import { StarRating } from "../StarRating";
 import { useAuth } from "../Authentication";
 import { NavLink } from "react-router-dom";
-
-
-
 import {
   EmailShareButton,
   FacebookShareButton,
@@ -64,10 +61,10 @@ const RecipeDetails = () => {
       const data = await response.json(); // recipe
       const data2 = await response2.json(); // user
       // const data3 = await response3.json(); // this user
-      const firstReview = data.reviews[0]; // Oletetaan, että arvostelut ovat saatavilla ja että ensimmäinen arvostelu on riittävä
-      const reviewId = firstReview ? firstReview.id : null;
+     // const userReview = data.reviews.find(review => review.userId === authUser.userId);
+     // const reviewId = userReview ? userReview.id : null;
 
-      setReviewId(reviewId);
+      //setReviewId(reviewId);
       setRecipe(data);
       setUser(data2);
       // setThisUser(data3);
@@ -275,7 +272,7 @@ const RecipeDetails = () => {
     fetchRecipeDetails();
   };
 
-  const deleteReview = async () => {
+  const deleteReview = async (reviewId) => {
     try {
       const response = await fetch(
         // `https://recipeappapi.azurewebsites.net/api/review/${id}`,
@@ -289,7 +286,7 @@ const RecipeDetails = () => {
       );
 
       if (response.ok) {
-        console.log("Review deleted successfully.");
+        console.log("Review deleted successfully.", reviewId);
         alert("Review deleted successfully.");
         window.location.reload();
       } else {
@@ -301,32 +298,38 @@ const RecipeDetails = () => {
   };
 
   // function for admins to delete recipe
-  const deleteRecipe = async () => {
-    try {
-      const response = await fetch(
-        // `https://recipeappapi.azurewebsites.net/api/recipe/${id}`,
-        `https://localhost:7005/api/recipe/${id}`,
-        {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${authUser.token}`,
-          },
-        }
-      );
-
-      if (response.ok) {
-        console.log("Recipe deleted successfully.");
-        alert("Recipe deleted successfully.");
-        //window.location.reload();
-        navigate("/recipes");
-      } else {
-        console.error("Error deleting recipe:", response);
-      }
-      
-    } catch (error) {
-      console.error("Error deleting recipe:", error);
+const deleteRecipe = async () => {
+  try {
+    // Kysytään käyttäjältä varmistus poistosta
+    const confirmDelete = window.confirm("Are you sure you want to delete this recipe?");
+    if (!confirmDelete) {
+      return; // Poistetaan toiminto, jos käyttäjä ei vahvista poistoa
     }
-  };
+
+    const response = await fetch(
+      // `https://recipeappapi.azurewebsites.net/api/recipe/${id}`,
+      `https://localhost:7005/api/recipe/${id}`,
+      {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${authUser.token}`,
+        },
+      }
+    );
+
+    if (response.ok) {
+      console.log("Recipe deleted successfully.");
+      alert("Recipe deleted successfully.");
+      //window.location.reload();
+      navigate("/recipes");
+    } else {
+      console.error("Error deleting recipe:", response);
+    }
+    
+  } catch (error) {
+    console.error("Error deleting recipe:", error);
+  }
+};
 
   const currentPage = `https://recipeappgl.azurewebsites.net/`;
 
@@ -394,7 +397,7 @@ const RecipeDetails = () => {
           </div>
 
           <div className="recipe-detail-image">
-            {recipe.images.length > 0 ? (
+            {recipe.images && recipe.images.length > 0 ? (
               <RecipeSlider images={recipe.images} />
             ) : (
               <img src="/default_pic.jpg" alt="default picture" />
@@ -403,7 +406,7 @@ const RecipeDetails = () => {
 
           <p>
             Keywords:{" "}
-            {recipe.keywords.map((keyword) => keyword.word).join(", ")}
+            {recipe.keywords && recipe.keywords.map((keyword) => keyword.word).join(", ")}
           </p>
 
           <div className="recipe-detail-actions">
@@ -502,7 +505,7 @@ const RecipeDetails = () => {
                     (authUser && thisUser && thisUser.admin)) && (
                     <button
                       style={{ marginTop: "10px" }}
-                      onClick={deleteReview}
+                      onClick={() => deleteReview(review.id)}
                     >
                       Remove review
                     </button>

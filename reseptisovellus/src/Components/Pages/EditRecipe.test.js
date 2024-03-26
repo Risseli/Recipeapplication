@@ -1,85 +1,222 @@
 import React from 'react';
 import { render, fireEvent, waitFor, screen } from '@testing-library/react';
-import '@testing-library/jest-dom';
-import { MemoryRouter, Route } from 'react-router-dom';
 import { EditRecipe } from './EditRecipe';
+import { AuthContext } from '../Authentication';
+
+
 
 describe('EditRecipe component', () => {
-  // Mocking fetch requests
-  global.fetch = jest.fn(() =>
-    Promise.resolve({
-      json: () => Promise.resolve({ 
+  test('renders EditRecipe component', async () => {
+    const mockUser = {
+      userId: 1,
+      token: 'mockToken',
+    };
+    render(
+      
+        <AuthContext.Provider value={{ user: mockUser }}>
+          <EditRecipe />
+        </AuthContext.Provider>
+     
+    );
+
+    // Check if the component renders
+    expect(screen.getByText('Edit Recipe')).toBeInTheDocument();
+
+    // Mocking API response
+    global.fetch = jest.fn().mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
         name: 'Test Recipe',
         instructions: 'Test instructions',
         visibility: true,
-        userId: 123,
-        ingredients: [{ name: 'Ingredient 1', amount: '1', unit: 'unit' }],
-        keywords: [{ word: 'Keyword' }],
-        images: [{ imageData: 'base64image' }]
+        userId: 'user123',
+        ingredients: [],
+        keywords: [],
+        images: [],
       }),
+    });
+
+    // Wait for the API call to resolve
+    await waitFor(() => expect(screen.getByTestId('recipe-name-input')).toHaveValue('Test Recipe'));
+    expect(screen.getByTestId('recipe-instructions-textarea')).toHaveValue('Test instructions');
+    expect(screen.getByTestId('recipe-visibility-checkbox')).toBeChecked();
+  });
+
+  test('handles input change', async () => {
+    const mockUser = {
+      userId: 1,
+      token: 'mockToken',
+    };
+    render(
+      
+        <AuthContext.Provider value={{ user: mockUser }}>
+          <EditRecipe />
+        </AuthContext.Provider>
+     
+    );
+
+    // Mocking API response
+    global.fetch = jest.fn().mockResolvedValueOnce({
       ok: true,
-    })
-  );
+      json: async () => ({
+        name: '',
+        instructions: '',
+        visibility: false,
+        userId: 'user123',
+        ingredients: [],
+        keywords: [],
+        images: [],
+      }),
+    });
 
-  beforeEach(() => {
-    fetch.mockClear();
+    await waitFor(() => {
+      fireEvent.change(screen.getByTestId('recipe-name-input'), { target: { value: 'New Test Recipe' } });
+      fireEvent.change(screen.getByTestId('recipe-instructions-textarea'), { target: { value: 'New test instructions' } });
+      fireEvent.click(screen.getByTestId('recipe-visibility-checkbox'));
+    });
+
+    expect(screen.getByTestId('recipe-name-input')).toHaveValue('New Test Recipe');
+    expect(screen.getByTestId('recipe-instructions-textarea')).toHaveValue('New test instructions');
+    expect(screen.getByTestId('recipe-visibility-checkbox')).toBeChecked();
   });
 
-  test('renders EditRecipe component', async () => {
+  test('handles adding and removing ingredients', async () => {
+    const mockUser = {
+      userId: 1,
+      token: 'mockToken',
+    };
     render(
-      <MemoryRouter initialEntries={['/edit/1']}>
-        <Route path="/edit/:id">
+      
+        <AuthContext.Provider value={{ user: mockUser }}>
           <EditRecipe />
-        </Route>
-      </MemoryRouter>
+        </AuthContext.Provider>
+      
     );
 
-    // Loading state
-    expect(screen.getByText('Loading...')).toBeInTheDocument();
-
-    // Wait for data to be loaded
-    await waitFor(() => {
-      expect(screen.getByLabelText('Name:')).toBeInTheDocument();
+    // Mocking API response
+    global.fetch = jest.fn().mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        name: '',
+        instructions: '',
+        visibility: false,
+        userId: 'user123',
+        ingredients: [],
+        keywords: [],
+        images: [],
+      }),
     });
 
-    // Check if data is loaded correctly
-    expect(screen.getByLabelText('Name:')).toHaveValue('Test Recipe');
-    expect(screen.getByLabelText('Instructions:')).toHaveValue('Test instructions');
-    expect(screen.getByLabelText('Recipe is visible to everyone:')).toBeChecked();
-    expect(screen.getByLabelText('Amount:')).toHaveValue('1');
-    expect(screen.getByLabelText('Unit:')).toHaveValue('unit');
-    expect(screen.getByLabelText('Keyword:')).toHaveValue('Keyword');
-    expect(screen.getByAltText('Preview of Test Recipe')).toBeInTheDocument();
+    await waitFor(() => {
+      fireEvent.click(screen.getByTestId('add-ingredient-button'));
+      fireEvent.change(screen.getByTestId('ingredient-name-input-0'), { target: { value: 'Flour' } });
+      fireEvent.change(screen.getByTestId('ingredient-amount-input-0'), { target: { value: '2' } });
+      fireEvent.change(screen.getByTestId('ingredient-unit-input-0'), { target: { value: 'cups' } });
+      fireEvent.click(screen.getByTestId('save-ingredient-button'));
+    });
+
+    expect(screen.getByTestId('ingredient-name-input-0')).toHaveValue('Flour');
+    expect(screen.getByTestId('ingredient-amount-input-0')).toHaveValue('2');
+    expect(screen.getByTestId('ingredient-unit-input-0')).toHaveValue('cups');
+
+    await waitFor(() => fireEvent.click(screen.getByTestId('remove-ingredient-button')));
+    expect(screen.queryByTestId('ingredient-name-input-0')).not.toBeInTheDocument();
   });
 
-  test('handles changes and saves', async () => {
+  test('handles adding and removing keywords', async () => {
+    const mockUser = {
+      userId: 1,
+      token: 'mockToken',
+    };
     render(
-      <MemoryRouter initialEntries={['/edit/1']}>
-        <Route path="/edit/:id">
+     
+        <AuthContext.Provider value={{ user: mockUser }}>
           <EditRecipe />
-        </Route>
-      </MemoryRouter>
+        </AuthContext.Provider>
+     
     );
 
-    await waitFor(() => {
-      expect(screen.getByLabelText('Name:')).toBeInTheDocument();
+    // Mocking API response
+    global.fetch = jest.fn().mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        name: '',
+        instructions: '',
+        visibility: false,
+        userId: 'user123',
+        ingredients: [],
+        keywords: [],
+        images: [],
+      }),
     });
 
-    // Change name
-    fireEvent.change(screen.getByLabelText('Name:'), { target: { value: 'New Name' } });
-
-    // Save changes
-    fireEvent.click(screen.getByText('Save Changes'));
-
-    // Wait for save action
     await waitFor(() => {
-      expect(screen.getByText('Recipe edited successfully!')).toBeInTheDocument();
+      fireEvent.click(screen.getByTestId('add-keyword-button'));
+      fireEvent.change(screen.getByTestId('keyword-input'), { target: { value: 'Healthy' } });
+      fireEvent.click(screen.getByTestId('save-keyword-button'));
     });
 
-    // Ensure fetch is called with proper data
-    expect(fetch).toHaveBeenCalledWith('https://recipeappapi.azurewebsites.net/api/Recipe/1', expect.any(Object));
-    expect(fetch).toHaveBeenCalledWith('https://recipeappapi.azurewebsites.net/api/Ingredient', expect.any(Object));
-    expect(fetch).toHaveBeenCalledWith('https://recipeappapi.azurewebsites.net/api/Recipe/1/Keywords?keyword=Keyword', expect.any(Object));
-    expect(fetch).toHaveBeenCalledWith('https://recipeappapi.azurewebsites.net/api/Image', expect.any(Object));
+    expect(screen.getByTestId('keyword-input')).toHaveValue('Healthy');
+
+    await waitFor(() => fireEvent.click(screen.getByTestId('remove-keyword-button')));
+    expect(screen.queryByTestId('keyword-input')).not.toBeInTheDocument();
+  });
+
+  test('handles image upload and removal', async () => {
+    const mockUser = {
+      userId: 1,
+      token: 'mockToken',
+    };
+    render(
+      
+        <AuthContext.Provider value={{ user: mockUser }}>
+          <EditRecipe />
+        </AuthContext.Provider>
+     
+    );
+
+    // Mocking API response
+    global.fetch = jest.fn().mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        name: '',
+        instructions: '',
+        visibility: false,
+        userId: 'user123',
+        ingredients: [],
+        keywords: [],
+        images: [],
+      }),
+    });
+
+    const file = new File(['(⌐□_□)'], 'test.png', { type: 'image/png' });
+
+    fireEvent.change(screen.getByTestId('image-upload-input'), { target: { files: [file] } });
+
+    await waitFor(() => {
+      expect(screen.getByTestId('selected-image-0')).toBeInTheDocument();
+      fireEvent.click(screen.getByTestId('remove-selected-image-0'));
+    });
+
+    expect(screen.queryByTestId('selected-image-0')).not.toBeInTheDocument();
+  });
+
+  test('handles error scenarios', async () => {
+    const mockUser = {
+      userId: 1,
+      token: 'mockToken',
+    };
+    render(
+     
+        <AuthContext.Provider value={{ user: mockUser }}>
+          <EditRecipe />
+        </AuthContext.Provider>
+   
+    );
+
+    // Mocking API response to simulate error
+    global.fetch = jest.fn().mockRejectedValueOnce(new Error('Failed to fetch recipe.'));
+
+    await waitFor(() => expect(screen.getByText('Error occurred while fetching recipe.')).toBeInTheDocument());
   });
 });
