@@ -6,11 +6,11 @@ const RecipeGrid = ({ recipes }) => {
   const [loading, setLoading] = useState(true); // loading state for images
   //const [images, setImages] = useState([]); // real images from recepy images
   return (
-    <div className="recipe-grid">
+    <div className="recipe-grid" data-testid="recipe-grid">
       {recipes.map((recipe) => (
-        <div key={recipe.id} className="recipe-grid-item">
+        <div key={recipe.id} className="recipe-grid-item" data-testid="recipe-grid-item">
           {/* create every recipe as a link */}
-          <Link to={`/recipe/${recipe.id}`} className="recipe-grid-link">
+          <Link to={`/recipe/${recipe.id}`} className="recipe-grid-link" data-testid="recipe-grid-link">
             <div className="recipe-grid-image">
               {recipe.images.length > 0 ? ( // Tarkista, onko kuvia
                 <img
