@@ -425,24 +425,24 @@ const loadRecipes = async (option, id) => {
   
 
   return (
-    <div className="profile-container">
+    <div className="profile-container"data-testid="profile-container">
       <h1>Profile</h1>
       {user ? (
         <>
           {!editMode && !adminMode && (
             <div className="profile-section">
-              <p>
+              <p data-testid="user-name">
                 <strong>Name:</strong> {user.name}
               </p>
-              <p>
+              <p data-testid="user-email">
                 <strong>Email:</strong> {user.email}
               </p>
-              <p>
+              <p data-testid="user-admin">
                 <strong>Admin:</strong> {user.admin ? "Yes" : "No"}
               </p>
-              <button className="edit-button" onClick={handleEditClick}>Edit</button>
-              <button className="delete-button" onClick={handleDeleteClick}>Delete</button>
-              <Link to="/add-recipe" className="add-recipe-button">
+              <button className="edit-button" onClick={handleEditClick} data-testid="edit-button">Edit</button>
+              <button className="delete-button" onClick={handleDeleteClick} data-testid="delete-button">Delete</button>
+              <Link to="/add-recipe" className="add-recipe-button"data-testid="add-recipe-button">
     Add new Recipe
 </Link>
             </div>
@@ -455,6 +455,7 @@ const loadRecipes = async (option, id) => {
     type="text"
     value={editedUser.name}
     onChange={(e) => setEditedUser({ ...editedUser, name: e.target.value })}
+    data-testid="edit-name-input"
   />
 </p>
               <p>
@@ -463,30 +464,31 @@ const loadRecipes = async (option, id) => {
                   type="email"
                   value={editedUser.email}
                   onChange={(e) => setEditedUser({ ...editedUser, email: e.target.value })}
+                  data-testid="edit-email-input"
                 />
               </p>
               <p>
                 <strong>Admin:</strong> {editedUser.admin ? "Yes" : "No"}
               </p>
               {/* Admin information is not editable, so no input field */}
-              <button className="save-button" onClick={handleSaveClick}>Save</button>
-              <button className="cancel-button" onClick={() => setEditMode(false)}>Cancel</button>
+              <button className="save-button" onClick={handleSaveClick} data-testid="save-button">Save</button>
+              <button className="cancel-button" onClick={() => setEditMode(false)} data-testid="cancel-button">Cancel</button>
             </div>
           )}
 {!editMode && adminMode && (
   <div className="admin-section">
                 <div className="profile-section">
-              <p>
+              <p data-testid="adminmode-user-name">
                 <strong>Name:</strong> {user.name}
               </p>
-              <p>
+              <p data-testid="adminmode-user-email">
                 <strong>Email:</strong> {user.email}
               </p>
-              <p>
+              <p data-testid="adminmode-user-admin">
                 <strong>Admin:</strong> {user.admin ? "Yes" : "No"}
               </p>
-              <button className="edit-button" onClick={handleEditClick}>Edit</button>
-              <button className="delete-button" onClick={handleDeleteClick}>Delete</button>
+              <button className="edit-button" onClick={handleEditClick}data-testid="edit-button">Edit</button>
+              <button className="delete-button" onClick={handleDeleteClick}data-testid="delete-button">Delete</button>
               <Link to="/add-recipe" className="add-recipe-button">
     Add new Recipe
 </Link>
@@ -500,14 +502,15 @@ const loadRecipes = async (option, id) => {
           type="checkbox"
           checked={adminUser.admin}
           onChange={() => handleAdminCheckboxChange(adminUser.id)}
+          data-testid="admin-checkbox"
         />
         {/* Delete button remains for individual deletion */}
-        <button onClick={() => handleDeleteUser(adminUser.id)}>Delete</button>
+        <button onClick={() => handleDeleteUser(adminUser.id)}data-testid="delete-user-button">Delete</button>
       </div>
     ))}
 
     {/* Save button to save admin changes */}
-    <button className="save-button" onClick={handleSaveAdminChanges}>
+    <button className="save-button" onClick={handleSaveAdminChanges}data-testid="save-admin-changes-button">
       Save Admin Changes
     </button>
   </div>
@@ -521,6 +524,7 @@ const loadRecipes = async (option, id) => {
     type="text"
     value={editedUser.name}
     onChange={(e) => setEditedUser({ ...editedUser, name: e.target.value })}
+    data-testid="edited-user-name"
   />
 </p>
               <p>
@@ -529,14 +533,15 @@ const loadRecipes = async (option, id) => {
                   type="email"
                   value={editedUser.email}
                   onChange={(e) => setEditedUser({ ...editedUser, email: e.target.value })}
+                  data-testid="edited-user-email"
                 />
               </p>
-              <p>
+              <p data-testid="edited-user-admin">
                 <strong>Admin:</strong> {editedUser.admin ? "Yes" : "No"}
               </p>
               {/* Admin information is not editable, so no input field */}
-              <button className="save-button" onClick={handleSaveClick}>Save</button>
-              <button className="cancel-button" onClick={() => setEditMode(false)}>Cancel</button>
+              <button className="save-button" onClick={handleSaveClick}data-testid="save-edited-user">Save</button>
+              <button className="cancel-button" onClick={() => setEditMode(false)}data-testid="cancel-edited-user">Cancel</button>
             </div>
     <h2>Admin Mode</h2>
     <p>User Management:</p>
@@ -547,29 +552,30 @@ const loadRecipes = async (option, id) => {
           type="checkbox"
           checked={adminUser.admin}
           onChange={() => handleAdminCheckboxChange(adminUser.id)}
+          data-testid="admin-checkbox-change"
         />
         {/* Delete button remains for individual deletion */}
-        <button onClick={() => handleDeleteUser(adminUser.id)}>Delete</button>
+        <button onClick={() => handleDeleteUser(adminUser.id)}data-testid="admin-delete-user">Delete</button>
       </div>
     ))}
 
     {/* Save button to save admin changes */}
-    <button className="save-button" onClick={handleSaveAdminChanges}>
+    <button className="save-button" onClick={handleSaveAdminChanges}data-testid="save-admin-changes">
       Save Admin Changes
     </button>
   </div>
 )}
-          <div className="view-select">
+          <div className="view-select"data-testid="view-select">
             <label>
               <strong>View: </strong>
-              <select value={selectedOption} onChange={handleOptionChange}>
+              <select value={selectedOption} onChange={handleOptionChange}data-testid="view-select-change">
                 <option value="ownRecipes">Own Recipes</option>
                 <option value="favorites">Favorites</option>
                 <option value="reviews">Reviews</option>
               </select>
             </label>
             </div>
-            <div className="recipe-list">
+            <div className="recipe-list"data-testid="view-recipe-list">
   {selectedOption === "ownRecipes" ? (
     // Renderöi reseptit normaalisti, kun valittu option on own recipes
     <ProfileRecipeGrid recipes={recipes} />
@@ -578,7 +584,7 @@ const loadRecipes = async (option, id) => {
       // Renderöi reseptit normaalisti, kun valittu option on favorites
       <FavoritesRecipeGrid recipes={recipes} />
     ) : (
-      <div className="reviews-list">
+      <div className="reviews-list"data-testid="view-reviews-list">
       {recipes.length > 0 ? (
         <ul>
           {recipes.map((recipe) => (
@@ -592,14 +598,14 @@ const loadRecipes = async (option, id) => {
                 ))}
               </p>
               <p>Comment: {recipe.comment}</p>
-                <button onClick={() => handleEditReviewClick(recipe.id)}>Edit</button>
-                <button onClick={() => deleteReview(recipe.id)}>Delete</button>
+                <button onClick={() => handleEditReviewClick(recipe.id)}data-testid="edit-review-button">Edit</button>
+                <button onClick={() => deleteReview(recipe.id)}data-testid="delete-review-button">Delete</button>
               </li>
             ))}
 
          {/* Muokkauslomake */}
          {isEditing && (
-  <div className="edit-form">
+  <div className="edit-form"data-testid="edit-review-form">
     <h2>Edit Review:</h2>
     <label>
       Rating:
@@ -607,6 +613,7 @@ const loadRecipes = async (option, id) => {
         type="number"
         value={editedRating}
         onChange={(e) => setEditedRating(e.target.value)}
+        data-testid="edited-rating"
       />
     </label>
     <label>
@@ -615,17 +622,18 @@ const loadRecipes = async (option, id) => {
       <textarea
         value={editedComment}
         onChange={(e) => setEditedComment(e.target.value)}
+        data-testid="edited-comment"
       />
     </label>
     <br />
-    <button onClick={handleSaveEdit}>Save</button>
-    <button onClick={() => setEditing(false)}>Cancel</button>
+    <button onClick={handleSaveEdit}data-testid="save-edited-review-button">Save</button>
+    <button onClick={() => setEditing(false)}data-testid="cancel-edited-review-button">Cancel</button>
   </div>
 )}
 
           </ul>
         ) : (
-          <p>This User has no reviews.</p>
+          <p data-testid="no-reviews-message">This User has no reviews.</p>
         )}
       </div>
     )
@@ -633,7 +641,7 @@ const loadRecipes = async (option, id) => {
 </div>
       </>
     ) : (
-      <p>Loading...</p>
+      <p data-testid="loading-message">Loading...</p>
     )}
   </div>
   );
