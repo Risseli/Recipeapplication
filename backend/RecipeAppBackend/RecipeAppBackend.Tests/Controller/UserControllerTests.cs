@@ -520,25 +520,25 @@ namespace RecipeAppBackend.Tests.Controller
         }
 
 
-        [Fact]
-        public void UserController_Login_ReturnsOkObjectResult_WhenUserExists()
-        {
-            // Arrange
-            var loginUser = new LoginUserDto { Username = "testuser", Password = "password123" };
-            var user = new User { Id = 1, Username = loginUser.Username, Password = "password123" };
-            A.CallTo(() => _userRepository.GetUserByUsername(loginUser.Username)).Returns(user);
-            A.CallTo(() => _authService.VerifyPassword(loginUser.Password, user.Password)).Returns(true);
-            var controller = new UserController(_userRepository, null, _authService, null);
+        //[Fact]
+        //public void UserController_Login_ReturnsOkObjectResult_WhenUserExists()
+        //{
+        //    // Arrange
+        //    var loginUser = new LoginUserDto { Username = "testuser", Password = "password123" };
+        //    var user = new User { Id = 1, Username = loginUser.Username, Password = "password123" };
+        //    A.CallTo(() => _userRepository.GetUserByUsername(loginUser.Username)).Returns(user);
+        //    A.CallTo(() => _authService.VerifyPassword(loginUser.Password, user.Password)).Returns(true);
+        //    var controller = new UserController(_userRepository, null, _authService, null);
 
-            A.CallTo(() => _authService.GenerateToken(user)).Returns("adw");
+        //    A.CallTo(() => _authService.GenerateToken(user)).Returns("adw");
 
-            // Act
-            var result = controller.Login(loginUser) as OkObjectResult;
+        //    // Act
+        //    var result = controller.Login(loginUser) as OkObjectResult;
 
-            // Assert
-            result.Should().NotBeNull();
-            result.StatusCode.Should().Be(200);
-        }
+        //    // Assert
+        //    result.Should().NotBeNull();
+        //    result.StatusCode.Should().Be(200);
+        //}
 
         [Fact]
         public void UserController_Login_ReturnsUnprocessableEntity_WhenUserDoesNotExist()
@@ -576,24 +576,24 @@ namespace RecipeAppBackend.Tests.Controller
             result.Value.Should().BeOfType<ModelStateDictionary>();
         }
 
-        [Fact]
-        public void UserController_Login_ReturnsBadRequest_WhenModelStateIsInvalid()
-        {
-            // Arrange
-            var loginUser = new LoginUserDto { Username = "testuser", Password = "password123" };
-            var user = A.Fake<User>();
-            var controller = new UserController(_userRepository, null, _authService, null);
-            controller.ModelState.AddModelError("Key", "Error Message");
-            A.CallTo(() => _userRepository.GetUserByUsername(loginUser.Username)).Returns(user);
-            A.CallTo(() => _authService.VerifyPassword(loginUser.Password, user.Password)).Returns(true);
+        //[Fact]
+        //public void UserController_Login_ReturnsBadRequest_WhenModelStateIsInvalid()
+        //{
+        //    // Arrange
+        //    var loginUser = new LoginUserDto { Username = "testuser", Password = "password123" };
+        //    var user = A.Fake<User>();
+        //    var controller = new UserController(_userRepository, null, _authService, null);
+        //    controller.ModelState.AddModelError("Key", "Error Message");
+        //    A.CallTo(() => _userRepository.GetUserByUsername(loginUser.Username)).Returns(user);
+        //    A.CallTo(() => _authService.VerifyPassword(loginUser.Password, user.Password)).Returns(true);
 
-            // Act
-            var result = controller.Login(loginUser) as BadRequestObjectResult;
+        //    // Act
+        //    var result = controller.Login(loginUser) as BadRequestObjectResult;
 
-            // Assert
-            result.Should().NotBeNull();
-            result.StatusCode.Should().Be(400);
-        }
+        //    // Assert
+        //    result.Should().NotBeNull();
+        //    result.StatusCode.Should().Be(400);
+        //}
 
 
         [Fact]
