@@ -19,6 +19,7 @@ export default function StarRating({rating, setRating, rateColor, setColor}) {
               />
 
               <FaStar
+                data-testid="star"
                 className="star"
                 size={30}
                 color={currentRate <= (rateColor || rating) ? "orange" : "grey"}

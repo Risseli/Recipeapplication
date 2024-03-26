@@ -84,7 +84,7 @@ export const Recipes = () => {
           <input
             style={{ borderRadius: "4px" }}
             type="text"
-            placeholder="Search with ingredient.."
+            placeholder="Search with keywords.."
             value={ingredient}
             onChange={(e) => setIngredient(e.target.value)}
           ></input>
