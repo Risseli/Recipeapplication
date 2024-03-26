@@ -13,20 +13,20 @@ export const Home = () => {
       setLoading(true);
       try {
         const response = await fetch(
-          "https://localhost:7005/api/recipe/"//"https://recipeappapi.azurewebsites.net/api/recipe/"
+          "https://localhost:7005/api/recipe/" //"https://recipeappapi.azurewebsites.net/api/recipe/"
         );
         const data = await response.json();
-        const filteredData = data.filter(recipe => recipe.visibility === true); // Only show visible recipes
-        
-        if (authUser){
+        const filteredData = data.filter(
+          (recipe) => recipe.visibility === true
+        ); // Only show visible recipes
+
+        if (authUser) {
           setRecipes(data);
           setLoading(false);
           console.log("logged user: Show all recipes", data);
-        
-        }
-        else {
+        } else {
           setRecipes(filteredData);
-          setLoading(false);  
+          setLoading(false);
           console.log("not logged user filtered recipes", filteredData);
         }
       } catch (error) {
@@ -34,7 +34,7 @@ export const Home = () => {
       }
     };
     fetchData();
-  }, []);
+  }, [authUser]);
 
   // Arrange recipes by rating
   const sortedRecipes = recipes.sort((a, b) => b.rating - a.rating);
