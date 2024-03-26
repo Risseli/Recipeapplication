@@ -17,6 +17,9 @@
     color: red;
     margin-bottom: 10px;
   }
+  .success-message {
+    color: green;
+  }
   
   .form-group {
     margin-bottom: 20px;

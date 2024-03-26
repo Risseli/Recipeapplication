@@ -36,4 +36,4 @@ const useAuth = () => {
   return context;
 };
 
-export { AuthProvider, useAuth };
+export { AuthProvider, useAuth, AuthContext };

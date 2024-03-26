@@ -369,10 +369,10 @@ const EditRecipe = () => {
   return (
     <div className="edit-recipe-container">
       <h1>Edit Recipe</h1>
-      <form className="edit-recipe-section">
+      <form className="edit-recipe-section"data-testid="edit-recipe-section">
         <label>
           Name:
-          <input type="text" name="name" value={recipeData.name} onChange={handleInputChange} />
+          <input type="text" name="name" value={recipeData.name} onChange={handleInputChange}data-testid="recipe-name-input" />
         </label>
         <br />
         <label>
@@ -381,6 +381,7 @@ const EditRecipe = () => {
             name="instructions"
             value={recipeData.instructions}
             onChange={handleInputChange}
+            data-testid="recipe-instructions-textarea"
           />
         </label>
         <br />
@@ -391,16 +392,17 @@ const EditRecipe = () => {
             name="visibility"
             checked={recipeData.visibility}
             onChange={() => setRecipeData({ ...recipeData, visibility: !recipeData.visibility })}
+            data-testid="recipe-visibility-checkbox"
           />
         </label>
         <br />
         <br />
-        <button className="edit-button" type="button" onClick={handleEditRecipe}>
+        <button className="edit-button" type="button" onClick={handleEditRecipe}data-testid="save-changes-button">
           Save Changes
         </button>
         <br />
         <br />
-        <div className="ingredient-section">
+        <div className="ingredient-section"data-testid="ingredient-section">
   <h2>Ingredients</h2>
   {recipeData.ingredients.map((ingredient, index) => (
     <div key={index}>
@@ -411,6 +413,7 @@ const EditRecipe = () => {
           type="text"
           value={ingredient.name}
           onChange={(e) => handleIngredientChange(index, 'name', e.target.value)}
+          data-testid={`ingredient-name-input-${index}`}
         />
       </label>
       <label>
@@ -420,6 +423,7 @@ const EditRecipe = () => {
           type="text"
           value={ingredient.amount}
           onChange={(e) => handleIngredientChange(index, 'amount', e.target.value)}
+          data-testid={`ingredient-amount-input-${index}`}
         />
       </label>
       <label>
@@ -429,21 +433,22 @@ const EditRecipe = () => {
           type="text"
           value={ingredient.unit}
           onChange={(e) => handleIngredientChange(index, 'unit', e.target.value)}
+          data-testid={`ingredient-unit-input-${index}`}
         />
       </label>
-      <button className="remove-button" type="button" onClick={() => handleRemoveIngredient(ingredient, index)}>
+      <button className="remove-button" type="button" onClick={() => handleRemoveIngredient(ingredient, index)}data-testid="remove-ingredient-button">
         Remove ingredient
       </button>
-      <button className="save-button" type="button" onClick={() => handleSaveIngredient(ingredient, index)}>
+      <button className="save-button" type="button" onClick={() => handleSaveIngredient(ingredient, index)}data-testid="save-ingredient-button">
         Save ingredient changes
       </button>
     </div>
   ))}
-  <button className="add-button" type="button" onClick={handleAddIngredient}>
+  <button className="add-button" type="button" onClick={handleAddIngredient}data-testid="add-ingredient-button">
     Add Ingredient
   </button>
 </div> 
-        <div className="keywords-section">
+        <div className="keywords-section"data-testid="keywords-section">
         <h2>Keywords</h2>
         {recipeData.keywords.map((keyword, index) => (
           <div key={index}>
@@ -454,67 +459,71 @@ const EditRecipe = () => {
                 name="word"
                 value={keyword.word}
                 onChange={(e) => handleKeywordChange(index, e)}
+                data-testid="keyword-input"
               />
             </label>
             <br />
-            <button className="remove-button" type="button" onClick={() => handleRemoveKeyword(keyword)}>
+            <button className="remove-button" type="button" onClick={() => handleRemoveKeyword(keyword)}data-testid="remove-keyword-button">
       Remove keyword
     </button>
             <button
       className="save-button"
       type="button"
-      onClick={() => handleSaveKeyword(keyword)}>Save keyword changes</button>
+      onClick={() => handleSaveKeyword(keyword)}data-testid="save-keyword-button">Save keyword changes</button>
           </div>
         ))}
-        <button className="add-button" type="button" onClick={handleAddKeyword}>
+        <button className="add-button" type="button" onClick={handleAddKeyword}data-testid="add-keyword-button">
           Add Keyword
         </button>
         </div>
-          <div className="images-section">
-        <h2>Images</h2>
-        Select Image:
-        <label>
-        <input type="file" accept="image/*" onChange={handleImageChange} />
-        </label>
-        <br />
-                {/* Display selected images */}
-                {selectedImages.map((image, index) => (
-          <div key={index}>
-            <img
-              src={image.imageData}
-              alt={`Preview of ${image.name}`}
-              style={{ maxWidth: '200px', maxHeight: '200px' }}
-            />
-            <br/>
-            <button className="remove-button" onClick={(e) => handleRemoveImg(e)}>Remove image</button>
-            <button className="save-button" type="button" onClick={() => handleSaveImages(image, index)}>
+        <div className="images-section" data-testid="images-section">
+  <h2>Images</h2>
+  Select Image:
+  <label>
+    <input type="file" accept="image/*" onChange={handleImageChange} data-testid="image-upload-input" />
+  </label>
+  <br />
+  {/* Display selected images */}
+  {selectedImages.map((image, index) => (
+    <div key={index} data-testid={`selected-image-${index}`}>
+      <img
+        src={image.imageData}
+        alt={`Preview of ${image.name}`}
+        style={{ maxWidth: '200px', maxHeight: '200px' }}
+      />
+      <br/>
+      <button className="remove-button" onClick={(e) => handleRemoveImg(e)} data-testid={`remove-selected-image-${index}`}>
+        Remove image
+      </button>
+      <button className="save-button" type="button" onClick={() => handleSaveImages(image, index)} data-testid={`save-selected-image-${index}`}>
         Save image changes
       </button>
-          </div>
-        ))}
-        <br />
-        <br />
-        {/* Display images from recipe */}
+    </div>
+  ))}
+  <br />
+  <br />
+  {/* Display images from recipe */}
   {recipeData.images.map((image, index) => (
-    <div key={index}>
+    <div key={index} data-testid={`recipe-image-${index}`}>
       <img
         src={`data:image/jpeg;base64,${image.imageData}`}
         alt={`Preview of ${image.name}`}
         style={{ maxWidth: '200px', maxHeight: '200px' }}
       />
       <br />
-      <button className="remove-button" type="button" onClick={() => handleRemoveImg(image, index)}>
+      <button className="remove-button" type="button" onClick={() => handleRemoveImg(image, index)} data-testid={`remove-recipe-image-${index}`}>
         Remove image
       </button>
-      <button className="save-button" type="button" onClick={() => handleSaveImages(image, index)}>
+      <button className="save-button" type="button" onClick={() => handleSaveImages(image, index)} data-testid={`save-recipe-image-${index}`}>
         Save image changes
       </button>
     </div>
   ))}
-<br />
+  <br />
 </div>
-        {loading && <p>Loading...</p>}
-        {error && <p style={{ color: 'red' }}>{error}</p>}
+{loading && <p>Loading...</p> }
+{error && <p style={{ color: 'red' }}>{error}</p>}
+
       </form>
     </div>
   );
